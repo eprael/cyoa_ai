@@ -1,0 +1,126 @@
+{
+    "_about": "Theme presets for the data-driven theme engine (Phase 42). Each is a small value set (body+heading font from play_fonts, plus bg/text/accent hex). Keys match the legacy stories.theme slug. Read via theme.php (theme_presets()). Seeds the cyoa_ai_themes table.",
+    "default": "forest",
+    "presets": {
+        "forest": {
+            "name": "Forest",
+            "font": "Lora",
+            "font_heading": "Playfair Display",
+            "bg": "#0d1a0d",
+            "text": "#b8d4b8",
+            "accent": "#4caf50"
+        },
+        "egyptian": {
+            "name": "Egyptian",
+            "font": "EB Garamond",
+            "font_heading": "Cinzel",
+            "bg": "#000000",
+            "text": "#facf78",
+            "accent": "#ffd465"
+        },
+        "scifi": {
+            "name": "Sci-Fi",
+            "font": "Inter",
+            "font_heading": "Orbitron",
+            "bg": "#0a0e17",
+            "text": "#b0c4de",
+            "accent": "#00bcd4"
+        },
+        "ocean": {
+            "name": "Ocean",
+            "font": "Lora",
+            "font_heading": "Cormorant Garamond",
+            "bg": "#0a1628",
+            "text": "#b3d9ff",
+            "accent": "#0288d1"
+        },
+        "desert": {
+            "name": "Desert",
+            "font": "Crimson Text",
+            "font_heading": "Cinzel",
+            "bg": "#1a0f08",
+            "text": "#f4e4c1",
+            "accent": "#d4882c"
+        },
+        "crimson": {
+            "name": "Crimson Horror",
+            "font": "Crimson Text",
+            "font_heading": "Pirata One",
+            "bg": "#0a0a0c",
+            "text": "#d8d0d0",
+            "accent": "#c1121f"
+        },
+        "nocturne": {
+            "name": "Gothic Nocturne",
+            "font": "EB Garamond",
+            "font_heading": "UnifrakturCook",
+            "bg": "#14101c",
+            "text": "#e2d6f0",
+            "accent": "#e0245e"
+        },
+        "cyberpunk": {
+            "name": "Neon Cyberpunk",
+            "font": "Inter",
+            "font_heading": "Audiowide",
+            "bg": "#0d0221",
+            "text": "#c8f0ff",
+            "accent": "#ff2a6d"
+        },
+        "arcade": {
+            "name": "Arcade",
+            "font": "Inter",
+            "font_heading": "Press Start 2P",
+            "bg": "#0b0b1a",
+            "text": "#aef6c8",
+            "accent": "#ffd400"
+        },
+        "royal": {
+            "name": "Royal Fantasy",
+            "font": "EB Garamond",
+            "font_heading": "Cinzel Decorative",
+            "bg": "#0f1226",
+            "text": "#ece4cb",
+            "accent": "#d4af37"
+        },
+        "noir": {
+            "name": "Noir",
+            "font": "Special Elite",
+            "font_heading": "Playfair Display",
+            "bg": "#14161a",
+            "text": "#d2d6db",
+            "accent": "#c9a227"
+        },
+        "parchment": {
+            "name": "Parchment",
+            "font": "IM Fell English",
+            "font_heading": "Uncial Antiqua",
+            "bg": "#efe6d0",
+            "text": "#3a2c1a",
+            "accent": "#8b2e2e"
+        },
+        "rose": {
+            "name": "Romance Rose",
+            "font": "Cormorant Garamond",
+            "font_heading": "Dancing Script",
+            "bg": "#fff0f5",
+            "text": "#4a1f33",
+            "accent": "#c2185b"
+        },
+        "sunny": {
+            "name": "Sunny Comedy",
+            "font": "Nunito",
+            "font_heading": "Bangers",
+            "bg": "#fff8e1",
+            "text": "#3e2723",
+            "accent": "#e64a19"
+        },
+        "frost": {
+            "name": "Winter Frost",
+            "font": "Inter",
+            "font_heading": "Cinzel",
+            "bg": "#eef4f8",
+            "text": "#14202b",
+            "accent": "#0277bd"
+        }
+    }
+}

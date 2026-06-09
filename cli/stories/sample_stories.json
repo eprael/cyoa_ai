@@ -1,0 +1,26 @@
+[
+  {},
+
+  {"genre": "Sci-Fi"},
+
+  {"genre": "Fantasy", "tone": "hopeful"},
+
+  {"genre": "Horror", "tone": "dark", "audience": "adults", "images": "high"},
+
+  {"premise": "A young cartographer discovers a map that redraws itself every night", "genre": "Adventure"},
+
+  {"premise": "Two rival food-truck chefs are trapped overnight in a haunted kitchen", "genre": "Comedy", "gen_title": false},
+
+  {"genre": "Mystery", "theme": "noir", "gen_theme": false, "scenes": 10, "endings": 3},
+
+  {"genre": "Fairy Tale", "audience": "picture_book", "words": 60, "theme": "royal", "gen_theme": false, "images": "medium"},
+
+  {"genre": "Sci-Fi", "theme": "cyberpunk", "gen_theme": false, "layout": "image_top",
+   "images": "high", "image-style": "Cyberpunk", "image-mood": "Neon / Glowing"},
+
+  {"premise": "A retired spy is pulled back for one last job in a city split by a wall",
+   "genre": "Spy", "tone": "suspenseful", "audience": "adults",
+   "scenes": 14, "endings": 4, "words": 180,
+   "theme": "nocturne", "gen_theme": false, "layout": "image_left",
+   "images": "high", "gen_title": false, "gen_desc": false}
+]

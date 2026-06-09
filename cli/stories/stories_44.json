@@ -1,0 +1,89 @@
+[
+  {"image-style": "Photo-realistic", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Cinematic / Film still", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Portrait / Studio lighting", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Golden hour / Natural light", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Black & white / Noir", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Anime / Manga", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Cartoon / Saturday morning cartoon", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Comic book / Marvel-DC style", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Caricature", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Children's book illustration", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Flat design / Vector", "audience": "young_adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Sticker art", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Pixel art / 8-bit / 16-bit", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Sketch / Pencil drawing", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Line drawing / Ink", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Charcoal", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Watercolor", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Oil painting", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Acrylic", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Gouache", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Impressionist", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Pointillism", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Expressionist", "audience": "young_adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Art Deco", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Pop Art (Warhol-style)", "audience": "young_adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Surrealist", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Renaissance / Baroque", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Ukiyo-e (Japanese woodblock)", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Victorian / Edwardian", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Concept art / Game art", "audience": "young_adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Sci-fi / Futuristic", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Fantasy illustration", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Dark fantasy / Gothic", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Cyberpunk", "audience": "early_readers", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Steampunk", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Low poly / 3D render", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Vaporwave / Synthwave", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Stained glass", "audience": "young_adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Mosaic / Tile art", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Graffiti / Street art", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Linocut / Woodcut print", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Embroidery / Needlework", "audience": "adults", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Claymation / Stop-motion look", "audience": "middle_grade", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "LEGO / Toy style", "audience": "picture_book", "scenes": 12, "endings": 3, "words": 50, "images": "medium", "publish": true}
+]

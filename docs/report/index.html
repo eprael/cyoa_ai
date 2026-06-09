@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CYOA Maker With AI — Project Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="report.css" />
+  <link rel="stylesheet" href="lightbox.css" />
+  <style>
+    /* Coloured home-page cards: each Report Section gets its own colour,
+       the Appendices are grey. Light fill with a gradient to a darker shade. */
+    .toc-card.card-green  { background: linear-gradient(160deg, #eafaef 0%, #c9ecd3 100%); border-left-color: #5cb874; }
+    .toc-card.card-blue   { background: linear-gradient(160deg, #e8f3fd 0%, #c3def7 100%); border-left-color: #4a9fe0; }
+    .toc-card.card-red    { background: linear-gradient(160deg, #fdecec 0%, #f6cdce 100%); border-left-color: #e2706f; }
+    .toc-card.card-orange { background: linear-gradient(160deg, #fff4e3 0%, #ffdcae 100%); border-left-color: #efab44; }
+    .toc-card.card-grey   { background: linear-gradient(160deg, #f6f7f8 0%, #e2e5e8 100%); border-left-color: #aab1b8; }
+  </style>
+</head>
+<body>
+  <div id="report-header"></div>
+  <main class="page">
+
+    <h1>Project Report</h1>
+
+    <div class="textcol">
+      <figure class="figure-right" style="width: 460px; max-width: none; margin-bottom:0;">
+        <img src="screenshots/story gallery 0o5.png" alt="The CYOA Maker story gallery, full of published stories">
+      </figure>
+    <p style="margin-top: 10px;">
+      For this project I extended my <a target="_blank" href="../../../cyoa_maker/report/">Choose Your Own Adventure Maker</a>
+       project from term 2 by adding social and ai-powered features.
+       All parts of this project, including this report, were completed with the assistance of modern development tools (umm, as in AI). I'll break down how I set things up,
+       how all the pieces came together, and what I learned along the way. The live site can be <a target="_blank" href="../../../cyoa_ai/">viewed here</a>.
+      </p>
+      <p>I really like how it turned out.
+        You can now write stories from scratch or have the AI help out with any part of it. It can create images, write a scene, or even write the whole story!
+        I've been
+        having a lot of fun and already <a target="_blank" href="appendix-stories.html">published over fifty stories</a> in the gallery.
+        Have a look below for a full tour.</p>
+      </p>
+    </div>
+
+    <h2 class="wide" style="margin-top: 15px;">Sections</h2>
+    <div class="toc-grid">
+      <a class="toc-card card-green" href="summary/index.html">
+        <span class="name">Project Overview</span>
+        <span class="desc">What the app is, and how the upgrade changed it.</span>
+      </a>
+      <a class="toc-card card-blue" href="walkthrough.html">
+        <span class="name">Application Walkthrough</span>
+        <span class="desc">A picture tour of the app, screen by screen.</span>
+      </a>
+      <div class="toc-card card-red">
+        <a class="card-link" href="summary/index.html#s2-4">
+          <span class="name">The AI Process</span>
+        </a>
+        <span class="desc">How a prompt is built and how the job queue works, including this
+          <a href="summary/index.html#explainer-video">explainer video</a>.</span>
+      </div>
+      <a class="toc-card card-orange" href="summary/index.html#s5">
+        <span class="name">Development Reflections</span>
+        <span class="desc">How I worked: Claude Code, plan mode, and take-aways.</span>
+      </a>
+    </div>
+
+    <h2 class="wide">Appendices</h2>
+    <div class="toc-grid">
+      <a class="toc-card card-grey" href="appendix/implementation-plan.html">
+        <span class="num">Appendix A</span>
+        <span class="name">The Implementation Plans</span>
+        <span class="desc">Every plan and phase that built the project.</span>
+      </a>
+      <a class="toc-card card-grey" href="appendix/architecture.html">
+        <span class="num">Appendix B</span>
+        <span class="name">The Architecture</span>
+        <span class="desc">The technical design of the AI &amp; social upgrade.</span>
+      </a>
+      <a class="toc-card card-grey" href="https://github.com/eprael/cyoa_ai" target="_blank">
+        <span class="num">Appendix C</span>
+        <span class="name">The Source Code</span>
+        <span class="desc">The full project on GitHub - browse the code, and docs.</span>
+      </a>
+      <a class="toc-card card-grey" href="appendix-stories.html">
+        <span class="num">Appendix D</span>
+        <span class="name">A Library Of Stories</span>
+        <span class="desc">A look at the stories created so far.</span>
+      </a>
+    </div>
+
+  </main>
+  <script src="header.js"></script>
+  <script src="lightbox.js"></script>
+</body>
+</html>

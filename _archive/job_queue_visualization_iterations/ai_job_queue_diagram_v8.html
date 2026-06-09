@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Job Queue Architecture</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-mid: #3b82f6;
+    --blue-dark: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --teal-mid: #14b8a6;
+    --teal-dark: #0f766e;
+    --teal-bg: #f0fdfa;
+    --purple-mid: #8b5cf6;
+    --purple-dark: #6d28d9;
+    --purple-bg: #faf5ff;
+    --orange-mid: #f97316;
+    --orange-bg: #fff7ed;
+    --sky-mid: #0ea5e9;
+    --sky-bg: #f0f9ff;
+    --orange: #f97316;
+    --green: #22c55e;
+    --red: #ef4444;
+    --bg: #f1f5f9;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: rgba(0,0,0,0.08);
+    --shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 12px;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(59,130,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(139,92,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(20,184,166,0.04) 0%, transparent 60%);
+  }
+
+  h1.title {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 5px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.925rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  /* ════════════════════════════════════════════════
+     OUTER LAYOUT — 5 zones
+     [user-zone][left-conn][panels-grid][right-conn][ai-zone]
+  ════════════════════════════════════════════════ */
+  /* Wrapper gives SVG overlay its positioning context */
+  .diagram-wrapper {
+    position: relative;
+    max-width: 1600px;
+    margin: 0 auto 24px;
+  }
+
+  .outer-layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 4fr 1.5fr 1.5fr;
+    gap: 24px;
+  }
+
+  /* SVG overlay — outside the grid, anchored to wrapper */
+  #arrows-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 10;
+  }
+
+  /* ── Zone 1: Browser panel ── */
+  .user-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 16px 10px 16px;
+    background: var(--orange-bg);
+    border: 1.5px solid rgba(249,115,22,0.25);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    height: 100%;
+  }
+  .user-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid rgba(59,130,246,0.3);
+    box-shadow: 0 2px 10px rgba(59,130,246,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .user-label {
+    font-size: 0.775rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  .gen-btn {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    color: white; border: none; border-radius: 10px;
+    padding: 7px 10px; font-size: 0.805rem; font-weight: 700;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    white-space: normal; text-align: center; width: 76px;
+    box-shadow: 0 3px 12px rgba(59,130,246,0.45);
+    animation: btnGlow 2.5s ease-in-out infinite;
+    transition: transform 0.1s;
+  }
+  .gen-btn:hover  { transform: translateY(-1px); }
+  .gen-btn:active { transform: translateY(0); }
+  @keyframes btnGlow {
+    0%,100% { box-shadow: 0 3px 12px rgba(59,130,246,0.4); }
+    50%      { box-shadow: 0 3px 22px rgba(59,130,246,0.75); }
+  }
+
+  /* ── Zone 4: hidden ── */
+  .right-connector { display: none; }
+
+  /* ── Zone 5: Cloud panel ── */
+  .ai-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 10px 16px;
+    background: var(--sky-bg);
+    border: 1.5px solid rgba(14,165,233,0.25);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+  }
+  .ai-zone-spacer {
+    height: 18px;
+  }
+  .ai-ext-card {
+    border-radius: 16px;
+    padding: 12px 8px 10px;
+    text-align: center; border: 2px solid;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    box-shadow: var(--shadow);
+  }
+  .ai-ext-card .ai-icon-lg { font-size: 1.5rem; }
+  .ai-ext-card .ai-name    { font-size: 0.865rem; font-weight: 700; }
+  .ai-ext-card .ai-sub     { font-size: 0.715rem; font-weight: 400; opacity: 0.65; }
+  .ai-ext-card.claude { background: #fffbeb; border-color: #fbbf24; color: #78350f; }
+  .ai-ext-card.dalle  { background: #f5f3ff; border-color: #8b5cf6; color: #4c1d95; }
+
+  /* ════════════════════════════════════════════════
+     PANELS shared styles
+  ════════════════════════════════════════════════ */
+  .panel {
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    position: relative;
+    text-align: center;
+  }
+  .panel-blue   { background: var(--blue-bg);   border-color: rgba(59,130,246,0.2); }
+  .panel-teal   { background: var(--teal-bg);   border-color: rgba(20,184,166,0.2); min-width: 0; overflow: hidden; }
+  .panel-purple { background: var(--purple-bg); border-color: rgba(139,92,246,0.2); }
+
+  .panel-label {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.795rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .label-blue   { background: var(--blue-mid);   color: #fff; }
+  .label-teal   { background: var(--teal-mid);   color: #fff; }
+  .label-purple { background: var(--purple-mid); color: #fff; }
+  .label-orange { background: var(--orange-mid); color: #fff; }
+  .label-sky    { background: var(--sky-mid);    color: #fff; }
+
+  /* ── Unified panel icon ── */
+  .panel-icon {
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    border: 2.5px solid #1e293b;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    flex-shrink: 0;
+  }
+  .panel-icon.icon-bg-orange { background: #fed7aa; }
+  .panel-icon.icon-bg-teal   { background: #99f6e4; }
+  .panel-icon.icon-bg-sky    { background: #bae6fd; }
+  .panel-icon .emoji-icon { font-size: 1.75rem; line-height: 1; }
+  .panel-icon .fa-icon    { font-size: 1.55rem; color: var(--teal-dark); }
+
+  .step {
+    background: white; border-radius: 11px;
+    padding: 8px 11px; font-size: 0.875rem; font-weight: 500;
+    color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--border); text-align: center;
+  }
+  .blue-step   { border-left: 3px solid var(--blue-mid); }
+  .purple-step { border-left: 3px solid var(--purple-mid); }
+
+  /* "Call AI API" — dashed border, highlighted */
+  .call-api-step {
+    background: white; border-radius: 11px;
+    padding: 8px 11px; font-size: 0.885rem; font-weight: 700;
+    color: var(--purple-dark); text-align: center;
+    border: 2px dashed var(--purple-mid);
+    box-shadow: 0 2px 14px rgba(139,92,246,0.2);
+  }
+
+  .arrow-down {
+    text-align: center; font-size: 1.125rem;
+    color: var(--text-muted); line-height: 1; margin: 4px 0;
+  }
+  .cross-arrow {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 0.745rem; font-weight: 600; color: var(--text-muted); padding: 5px 0;
+  }
+  .divider-label {
+    text-align: center; font-size: 0.735rem; color: var(--text-muted);
+    font-family: 'Space Mono', monospace; font-weight: 700; letter-spacing: 0.5px;
+    margin: 5px 0 8px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .divider-label::before, .divider-label::after {
+    content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.3;
+  }
+
+  /* Poll loop */
+  .poll-loop {
+    background: #dbeafe; border-radius: 13px;
+    padding: 9px 11px; margin-top: 8px;
+    border: 1.5px dashed var(--blue-mid);
+  }
+  .loop-label {
+    font-size: 0.775rem; font-weight: 700; color: var(--blue-dark);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .poll-step {
+    font-size: 0.835rem; padding: 5px 8px; background: white;
+    border-radius: 8px; margin-bottom: 4px; color: var(--text);
+    font-weight: 500; border: 1px solid rgba(59,130,246,0.2);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .poll-step:last-child { margin-bottom: 0; }
+
+  .rotating-arrow { display:inline-block; animation:spin 3s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .clock-icon { display:inline-block; animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse {
+    0%,100% { transform:scale(1); opacity:1; }
+    50%      { transform:scale(1.12); opacity:0.8; }
+  }
+
+  /* DB table */
+  .db-table {
+    background: white; border-radius: 11px;
+    border: 1.5px solid rgba(20,184,166,0.25);
+    overflow: hidden; margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .db-table-header {
+    background: #e2e8f0;
+    color: #475569; font-family: 'Space Mono', monospace;
+    font-size: 0.745rem; font-weight: 700;
+    padding: 6px 9px; display: flex; align-items: center; gap: 5px;
+  }
+  .db-row {
+    display: grid;
+    grid-template-columns: 10% 30% 20% 20% 20%;
+    gap: 4px; padding: 10px 9px; align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 0.845rem; font-weight: 500;
+    animation: none;
+  }
+  .db-row.db-header-row {
+    font-size: 0.745rem; font-weight: 700;
+    color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.4px; padding-bottom: 4px;
+    border-bottom: 1.5px solid rgba(0,0,0,0.1);
+  }
+  .db-row:last-child { border-bottom: none; }
+  @keyframes fadeRow { from { opacity:0; background:rgba(20,184,166,0.08); } }
+  .db-row .id { font-family:'Space Mono',monospace; color:var(--text-muted); font-size:0.805rem; }
+  .db-row .prompt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .db-badge {
+    display: inline-flex; align-items: center; gap: 2px;
+    padding: 2px 6px; border-radius: 5px;
+    font-size: 0.765rem; font-weight: 700; white-space: nowrap;
+  }
+  .badge-canceled  { background:#f1f5f9; color:#475569; }
+  .badge-pending   { background:#fef3c7; color:#92400e; }
+  .badge-running   { background:#ffedd5; color:#9a3412; }
+  .badge-completed { background:#dcfce7; color:#14532d; }
+  .badge-failed    { background:#fee2e2; color:#7f1d1d; }
+
+  .job-card {
+    border-radius: 7px; padding: 4px 5px;
+    font-size: 0.695rem; font-weight: 700; text-align: center;
+    min-width: 42px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    flex-shrink: 0;
+  }
+  .job-card.pending   { background:#fef3c7; color:#92400e; border:1.5px solid #fbbf24; }
+  .job-card.running   { background:#ffedd5; color:#9a3412; border:1.5px solid #f97316; }
+  .job-card.completed { background:#dcfce7; color:#14532d; border:1.5px solid #22c55e; }
+  .job-card.failed    { background:#fee2e2; color:#7f1d1d; border:1.5px solid #ef4444; }
+
+  /* Legend */
+  .legend {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; gap: 8px 18px;
+    background: white; padding: 11px 18px;
+    border-radius: 14px; box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .legend-title {
+    width: 100%; text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.735rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); margin-bottom: 2px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.835rem; font-weight: 500; }
+  .legend-dot  { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1 class="title">🧠 CYOA AI — Async Job Queue Architecture</h1>
+<p class="subtitle">How user requests flow from browser → database queue → AI worker → result</p>
+
+<div class="diagram-wrapper" id="diagram-wrapper">
+<div class="outer-layout" id="outer-layout">
+
+  <!-- ════ ZONE 1: Browser panel ════ -->
+  <div class="user-zone" id="user-zone">
+    <div class="panel-label label-orange" style="margin-bottom:14px;">Browser</div>
+    <div class="panel-icon icon-bg-orange">
+      <span class="emoji-icon">👤</span>
+    </div>
+    <div id="user-zone-content" style="display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;width:100%;justify-content:space-between;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px;">
+        <div class="user-label">User</div>
+        <button class="gen-btn" id="gen-btn">⚡ Generate Story</button>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;width:100%;">
+        <div style="font-size:3rem;line-height:1;"><span class="clock-icon">🕐</span></div>
+        <div style="font-size:1.2rem;color:var(--orange-mid);line-height:1;margin-top:10px;margin-bottom:4px;">↓</div>
+        <div class="poll-loop" style="width:100%;">
+          <div class="loop-label"><span class="rotating-arrow">↻</span> Polls every 4 seconds</div>
+          <div class="poll-step">🔍 <span>Fetch job status from DB</span></div>
+          <div class="poll-step">⏳ <span>Result ready?</span></div>
+          <div class="poll-step">✅ <span><strong>Display result to user</strong></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ZONE 2: Web Application panel ════ -->
+  <!-- ════ ZONE 3: Three main panels ════ -->
+
+    <!-- ── LEFT: Web Application ── -->
+    <div class="panel panel-blue" id="web-app-panel">
+      <div class="panel-label label-blue">Web Application (PHP)</div>
+      <div style="text-align:center;margin-bottom:12px;font-size:3rem;">🌐</div>
+
+      <!-- Spacer pushes first step to align with gen-btn -->
+      <div id="web-spacer-top"></div>
+
+      <div class="step blue-step" id="web-step-insert">📥 Insert new row to <code style="font-size:0.815rem;background:#dbeafe;padding:1px 4px;border-radius:4px;font-family:'Space Mono',monospace;">ai_jobs</code> table</div>
+      <div class="arrow-down">↓</div>
+      <div class="step blue-step">🟡 Set status to <strong>'pending'</strong></div>
+
+      <!-- Spacer pushes get-job-status to align with poll-loop -->
+      <div id="web-spacer-mid" style="min-height:0;"></div>
+
+      <div class="step blue-step" id="web-step-status">🔍 Get job status</div>
+    </div>
+
+    <!-- ── CENTER: DB Queue ── -->
+    <div class="panel panel-teal" id="db-panel">
+      <div class="panel-label label-teal">Job Queue Table (mySQL)</div>
+      <div class="panel-icon icon-bg-teal">
+        <i class="fa-solid fa-database fa-icon"></i>
+      </div>
+
+      <div class="db-table">
+        <div class="db-table-header"><i class="fa-solid fa-database" style="font-size:0.775rem;margin-right:4px;"></i> ai_jobs</div>
+        <div id="db-rows-container"></div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT: Cron Worker ── -->
+    <div class="panel panel-purple" id="cron-panel">
+      <div class="panel-label label-purple">Cron Worker</div>
+      <div style="text-align:center;margin-bottom:12px;font-size:3rem;"><span class="clock-icon">🕐</span></div>
+      <div style="text-align:center;font-size:0.815rem;font-weight:600;color:var(--purple-dark);margin-bottom:10px;">
+        Runs every <strong>30 seconds</strong>
+      </div>
+
+      <div class="cross-arrow" style="color:var(--purple-mid);">
+        <span>←</span>
+        <span style="font-size:0.695rem;font-weight:700;letter-spacing:0.3px;">READ from DB Queue</span>
+        <span>🗄️</span>
+      </div>
+
+      <div class="step purple-step">📌 Pick oldest <strong>pending</strong> job</div>
+      <div class="arrow-down">↓</div>
+      <div class="step purple-step">⚡ Mark as <strong>running</strong></div>
+      <div class="arrow-down">↓</div>
+
+      <!-- Highlighted step that connects outward to AI APIs -->
+      <div class="call-api-step" id="call-api-step">🧠 Call AI API</div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step purple-step">💾 Store result in DB</div>
+      <div class="arrow-down">↓</div>
+      <div class="step purple-step">✅ Mark as <strong>completed</strong></div>
+
+      <div class="cross-arrow" style="color:var(--purple-mid);margin-top:4px;">
+        <span>🗄️</span>
+        <span style="font-size:0.695rem;font-weight:700;letter-spacing:0.3px;">WRITE result → DB Queue</span>
+        <span>→</span>
+      </div>
+    </div>
+
+  <!-- SVG overlay: angled arrows drawn by JS -->
+  <svg id="arrows-svg"></svg>
+
+  <!-- ════ ZONE 5: Cloud panel ════ -->
+  <div class="ai-zone" id="ai-zone">
+    <div class="panel-label label-sky" style="margin-bottom:14px;">Cloud</div>
+    <div class="panel-icon icon-bg-sky">
+      <span class="emoji-icon">☁️</span>
+    </div>
+    <div id="ai-zone-content" style="display:flex;flex-direction:column;align-items:center;gap:0;width:100%;flex:1;justify-content:center;">
+      <div class="ai-ext-card claude" id="card-claude" style="width:100%;">
+        <span class="ai-icon-lg">🧠</span>
+        <span class="ai-name">Claude</span>
+        <span class="ai-sub">Text / Code</span>
+      </div>
+      <div class="ai-zone-spacer"></div>
+      <div class="ai-ext-card dalle" id="card-dalle" style="width:100%;">
+        <span class="ai-icon-lg">🖼️</span>
+        <span class="ai-name">DALL-E</span>
+        <span class="ai-sub">Images</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.outer-layout -->
+  <svg id="arrows-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;"></svg>
+</div><!-- /.diagram-wrapper -->
+
+
+<script>
+// ── DB rows ──
+const jobs = [
+  { id:'104', prompt:'Write a scene where…',         type:'Scene', status:'completed', badge:'badge-completed', icon:'✅', age:'5s'  },
+  { id:'105', prompt:'Create an image where…',       type:'Image', status:'completed', badge:'badge-completed', icon:'✅', age:'25s' },
+  { id:'106', prompt:'Write the last scene where…',  type:'Scene', status:'failed',    badge:'badge-failed',    icon:'❌', age:'35s' },
+  { id:'107', prompt:'Write a complete story where…',type:'Story', status:'running',   badge:'badge-running',   icon:'⚡', age:'5s'  },
+  { id:'108', prompt:'Create an image where…',       type:'Image', status:'running',   badge:'badge-running',   icon:'⚡', age:'5s'  },
+];
+function renderRows(list) {
+  document.getElementById('db-rows-container').innerHTML =
+    `<div class="db-row db-header-row">
+      <span>ID</span>
+      <span>PROMPT</span>
+      <span>TYPE</span>
+      <span>STATUS</span>
+      <span>AGE</span>
+    </div>` +
+    list.map(j => `
+    <div class="db-row">
+      <span class="id">${j.id}</span>
+      <span class="prompt">${j.prompt}</span>
+      <span style="font-size:0.805rem;color:var(--text-muted);">${j.type}</span>
+      <span class="db-badge ${j.badge}">${j.icon} ${j.status}</span>
+      <span style="color:var(--text-muted);">${j.age}</span>
+    </div>
+  `).join('') +
+    `<div class="db-row" id="blank-row" style="min-height:28px;">&nbsp;</div>`;
+}
+renderRows(jobs);
+
+// ── Align zones + draw SVG arrows ──
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function alignZones() {
+  const outerLayout = document.getElementById('outer-layout');
+  const callApiStep = document.getElementById('call-api-step');
+  const aiZone      = document.getElementById('ai-zone');
+  const cardClaude  = document.getElementById('card-claude');
+  const cardDalle   = document.getElementById('card-dalle');
+  const svg         = document.getElementById('arrows-svg');
+
+  if (!outerLayout || !callApiStep) return;
+
+  const outerRect = document.getElementById('diagram-wrapper').getBoundingClientRect();
+  const outerTop  = outerRect.top  + window.scrollY;
+  const outerLeft = outerRect.left + window.scrollX;
+
+  // ── Web app panel: align steps with browser panel neighbours ──
+  const webPanel      = document.getElementById('web-app-panel');
+  const genBtn        = document.getElementById('gen-btn');
+  const pollLoop      = document.querySelector('.poll-loop');
+  const webSpacerTop  = document.getElementById('web-spacer-top');
+  const webSpacerMid  = document.getElementById('web-spacer-mid');
+  const webStepInsert = document.getElementById('web-step-insert');
+  const webStepStatus = document.getElementById('web-step-status');
+
+  // Pass 1: set top spacer (align insert with gen-btn)
+  if (webPanel && genBtn && webSpacerTop && webStepInsert) {
+    const genBtnMidY  = genBtn.getBoundingClientRect().top + window.scrollY + genBtn.offsetHeight / 2;
+    const insertMidY  = webStepInsert.getBoundingClientRect().top + window.scrollY + webStepInsert.offsetHeight / 2;
+    const topAdjust   = genBtnMidY - insertMidY;
+    webSpacerTop.style.height = Math.max(0, webSpacerTop.offsetHeight + topAdjust) + 'px';
+  }
+
+  // ── Right: set ai-zone-spacer so midpoint between cards = callApiStep center ──
+  const apiRect    = callApiStep.getBoundingClientRect();
+  const apiCenterY = apiRect.top + window.scrollY + apiRect.height / 2 - outerTop;
+
+  requestAnimationFrame(() => {
+    // Pass 2: set mid spacer (align get-job-status with poll-loop)
+    if (pollLoop && webSpacerMid && webStepStatus) {
+      const pollMidY   = pollLoop.getBoundingClientRect().top + window.scrollY + pollLoop.offsetHeight / 2;
+      const statusMidY = webStepStatus.getBoundingClientRect().top + window.scrollY + webStepStatus.offsetHeight / 2;
+      const midAdjust  = pollMidY - statusMidY;
+      webSpacerMid.style.height = Math.max(0, webSpacerMid.offsetHeight + midAdjust) + 'px';
+    }
+
+    // AI spacer
+    const claudeRect = cardClaude.getBoundingClientRect();
+    const dalleRect  = cardDalle.getBoundingClientRect();
+    const claudeBot  = claudeRect.bottom + window.scrollY - outerTop;
+    const dalleTop   = dalleRect.top     + window.scrollY - outerTop;
+    const currentGapCenter = (claudeBot + dalleTop) / 2;
+    const spacer = aiZone.querySelector('.ai-zone-spacer');
+    const currentSpacerH = spacer ? spacer.offsetHeight : 18;
+    const needed = currentSpacerH + (apiCenterY - currentGapCenter);
+    if (spacer) spacer.style.height = Math.max(8, needed) + 'px';
+
+    // Pass 3: draw all SVG arrows after everything has settled
+    requestAnimationFrame(() => {
+      svg.innerHTML = `
+        <defs>
+          <marker id="arr-blue" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#3b82f6"/>
+          </marker>
+          <marker id="arr-purple" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#7c3aed"/>
+          </marker>
+          <marker id="arr-orange" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#f97316"/>
+          </marker>
+          <marker id="arr-teal" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#14b8a6"/>
+          </marker>
+        </defs>`;
+
+      function rc(el) {
+        const r = el.getBoundingClientRect();
+        return { x: r.right - outerLeft, y: r.top + r.height / 2 - outerTop };
+      }
+      function lc(el) {
+        const r = el.getBoundingClientRect();
+        return { x: r.left - outerLeft, y: r.top + r.height / 2 - outerTop };
+      }
+
+      function drawLine(x1, y1, x2, y2, color, markerId) {
+        const line = document.createElementNS(SVG_NS, 'line');
+        line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+        line.setAttribute('stroke', color);
+        line.setAttribute('stroke-width', '1.8');
+        line.setAttribute('stroke-linecap', 'round');
+        line.setAttribute('marker-end', `url(#${markerId})`);
+        svg.appendChild(line);
+      }
+
+      // Arrow 1: gen-btn → insert step (blue, angled)
+      if (genBtn && webStepInsert) {
+        const a = rc(genBtn), b = lc(webStepInsert);
+        drawLine(a.x, a.y, b.x, b.y, '#3b82f6', 'arr-blue');
+      }
+
+      // Arrow 2: poll-loop → get-job-status (orange, perfectly horizontal)
+      if (pollLoop && webStepStatus) {
+        const p = rc(pollLoop);
+        const s = lc(webStepStatus);
+        const y = p.y; // force same Y for both ends → horizontal
+        drawLine(p.x, y, s.x, y, '#f97316', 'arr-orange');
+      }
+
+      // Arrows 3 & 4: call-api-step → Claude / DALL-E (purple, angled)
+      const from = rc(callApiStep);
+      const toCl = lc(cardClaude);
+      const toDa = lc(cardDalle);
+      drawLine(from.x, from.y, toCl.x, toCl.y, '#8b5cf6', 'arr-purple');
+      drawLine(from.x, from.y, toDa.x, toDa.y, '#8b5cf6', 'arr-purple');
+
+      // Arrow 5: PHP insert step → MySQL panel (teal, horizontal)
+      const dbPanel   = document.getElementById('db-panel');
+      const cronPanel = document.getElementById('cron-panel');
+      if (webStepInsert && dbPanel) {
+        const a = rc(webStepInsert);
+        drawLine(a.x, a.y, lc(dbPanel).x, a.y, '#14b8a6', 'arr-teal');
+      }
+
+      // Arrow 6: PHP get-status step → MySQL panel (teal, horizontal)
+      if (webStepStatus && dbPanel) {
+        const a = rc(webStepStatus);
+        drawLine(a.x, a.y, lc(dbPanel).x, a.y, '#14b8a6', 'arr-teal');
+      }
+
+      // Arrows 7 & 8: cron panel → MySQL panel (purple, going left)
+      if (cronPanel && dbPanel) {
+        const cl = lc(cronPanel);
+        const dr = rc(dbPanel);
+        drawLine(cl.x, cl.y - 14, dr.x, cl.y - 14, '#7c3aed', 'arr-purple');
+        drawLine(cl.x, cl.y + 14, dr.x, cl.y + 14, '#7c3aed', 'arr-purple');
+      }
+    });
+  });
+}
+
+document.fonts.ready.then(() => requestAnimationFrame(alignZones));
+window.addEventListener('resize', () => { requestAnimationFrame(alignZones); });
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+[
+  {"image-style": "Portrait / Studio lighting", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Cinematic / Film still", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Golden hour / Natural light", "audience": "adults", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Cartoon / Saturday morning cartoon", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Comic book / Marvel-DC style", "audience": "adults", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Children's book illustration", "audience": "early_readers", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Sketch / Pencil drawing", "audience": "young_adults", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Line drawing / Ink", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Gouache", "audience": "early_readers", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Art Deco", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Ukiyo-e (Japanese woodblock)", "audience": "adults", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Renaissance / Baroque", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Dark fantasy / Gothic", "audience": "adults", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Steampunk", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Low poly / 3D render", "audience": "adults", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Embroidery / Needlework", "audience": "early_readers", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Linocut / Woodcut print", "audience": "picture_book", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Stained glass", "audience": "adults", "scenes": 8, "endings": 3, "words": 50, "images": "medium", "publish": true}
+]

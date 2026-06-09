@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="$if(lang)$$lang$$else$en$endif$">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>$if(pagetitle)$$pagetitle$$else$$title$$endif$ — CYOA Maker Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../report.css" />
+  <link rel="stylesheet" href="../lightbox.css" />
+$if(highlighting-css)$
+  <style>
+$highlighting-css$
+  </style>
+$endif$
+</head>
+<body>
+  <div id="report-header"></div>
+  <main class="page">
+    <p class="toplink"><a href="../index.html">&larr; Report Index</a></p>
+$if(title)$
+    <h1>$title$</h1>
+$endif$
+$if(subtitle)$
+    <div class="lead">$subtitle$</div>
+$endif$
+$if(toc)$
+    <nav id="TOC" role="doc-toc">
+$table-of-contents$
+    </nav>
+$endif$
+$body$
+    <p class="back-link"><a href="../index.html">&larr; Back to report index</a></p>
+  </main>
+  <script src="../header.js"></script>
+  <script src="../lightbox.js"></script>
+</body>
+</html>

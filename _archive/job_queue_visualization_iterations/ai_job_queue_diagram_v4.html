@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Job Queue Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-mid: #3b82f6;
+    --blue-dark: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --teal-mid: #14b8a6;
+    --teal-dark: #0f766e;
+    --teal-bg: #f0fdfa;
+    --purple-mid: #8b5cf6;
+    --purple-dark: #6d28d9;
+    --purple-bg: #faf5ff;
+    --yellow: #fbbf24;
+    --orange: #f97316;
+    --green: #22c55e;
+    --red: #ef4444;
+    --bg: #f1f5f9;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: rgba(0,0,0,0.08);
+    --shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 12px;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(59,130,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(139,92,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(20,184,166,0.04) 0%, transparent 60%);
+  }
+
+  h1.title {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 5px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  /* ════════════════════════════════════════════════
+     OUTER LAYOUT — 5 zones
+     [user-zone][left-conn][panels-grid][right-conn][ai-zone]
+  ════════════════════════════════════════════════ */
+  .outer-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    max-width: 1600px;
+    margin: 0 auto 24px;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  /* ── Zone 1: User ── */
+  .user-zone {
+    flex-shrink: 0;
+    width: 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding-top: 110px; /* refined by JS */
+  }
+  .user-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid rgba(59,130,246,0.3);
+    box-shadow: 0 2px 10px rgba(59,130,246,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .user-label {
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  .gen-btn {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    color: white; border: none; border-radius: 10px;
+    padding: 7px 10px; font-size: 0.68rem; font-weight: 700;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    box-shadow: 0 3px 12px rgba(59,130,246,0.45);
+    animation: btnGlow 2.5s ease-in-out infinite;
+    transition: transform 0.1s;
+  }
+  .gen-btn:hover  { transform: translateY(-1px); }
+  .gen-btn:active { transform: translateY(0); }
+  @keyframes btnGlow {
+    0%,100% { box-shadow: 0 3px 12px rgba(59,130,246,0.4); }
+    50%      { box-shadow: 0 3px 22px rgba(59,130,246,0.75); }
+  }
+
+  /* ── Zone 2: Left connector ── */
+  .left-connector {
+    flex-shrink: 0;
+    width: 18px;
+    padding-top: 134px; /* refined by JS */
+    display: flex;
+    align-items: flex-start;
+  }
+
+  /* ── Zone 3: Three panels ── */
+  .panels-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 280px 1fr 280px;
+    gap: 13px;
+    min-width: 0;
+  }
+
+  /* ── Zone 4: Right gap (space for SVG arrows to travel through) ── */
+  .right-connector {
+    flex-shrink: 0;
+    width: 90px;
+  }
+
+  /* SVG overlay */
+  #arrows-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* ── Zone 5: AI API cards ── */
+  .ai-zone {
+    flex-shrink: 0;
+    width: 112px;
+    padding-top: 260px; /* refined by JS */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .ai-zone-spacer {
+    height: 18px;
+  }
+  .ai-ext-card {
+    border-radius: 16px;
+    padding: 12px 8px 10px;
+    text-align: center; border: 2px solid;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    box-shadow: var(--shadow);
+  }
+  .ai-ext-card .ai-icon-lg { font-size: 1.5rem; }
+  .ai-ext-card .ai-name    { font-size: 0.74rem; font-weight: 700; }
+  .ai-ext-card .ai-sub     { font-size: 0.59rem; font-weight: 400; opacity: 0.65; }
+  .ai-ext-card.claude { background: #fffbeb; border-color: #fbbf24; color: #78350f; }
+  .ai-ext-card.dalle  { background: #f5f3ff; border-color: #8b5cf6; color: #4c1d95; }
+
+  /* ════════════════════════════════════════════════
+     PANELS shared styles
+  ════════════════════════════════════════════════ */
+  .panel {
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    position: relative;
+  }
+  .panel-blue   { background: var(--blue-bg);   border-color: rgba(59,130,246,0.2); }
+  .panel-teal   { background: var(--teal-bg);   border-color: rgba(20,184,166,0.2); }
+  .panel-purple { background: var(--purple-bg); border-color: rgba(139,92,246,0.2); }
+
+  .panel-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.67rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+  }
+  .label-blue   { background: var(--blue-mid);   color: #fff; }
+  .label-teal   { background: var(--teal-mid);   color: #fff; }
+  .label-purple { background: var(--purple-mid); color: #fff; }
+
+  .icon-circle {
+    width: 50px; height: 50px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin: 0 auto 10px;
+    box-shadow: var(--shadow);
+  }
+  .icon-blue   { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+  .icon-teal   { background: linear-gradient(135deg, #2dd4bf, #14b8a6); }
+  .icon-purple { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+
+  .step {
+    background: white; border-radius: 11px;
+    padding: 8px 11px; font-size: 0.75rem; font-weight: 500;
+    color: var(--text); box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--border); text-align: center;
+  }
+  .blue-step   { border-left: 3px solid var(--blue-mid); }
+  .purple-step { border-left: 3px solid var(--purple-mid); }
+
+  /* "Call AI API" — dashed border, highlighted */
+  .call-api-step {
+    background: white; border-radius: 11px;
+    padding: 8px 11px; font-size: 0.76rem; font-weight: 700;
+    color: var(--purple-dark); text-align: center;
+    border: 2px dashed var(--purple-mid);
+    box-shadow: 0 2px 14px rgba(139,92,246,0.2);
+  }
+
+  .arrow-down {
+    text-align: center; font-size: 1rem;
+    color: var(--text-muted); line-height: 1; margin: 4px 0;
+  }
+  .cross-arrow {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 0.62rem; font-weight: 600; color: var(--text-muted); padding: 5px 0;
+  }
+  .divider-label {
+    text-align: center; font-size: 0.61rem; color: var(--text-muted);
+    font-family: 'Space Mono', monospace; font-weight: 700; letter-spacing: 0.5px;
+    margin: 5px 0 8px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .divider-label::before, .divider-label::after {
+    content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.3;
+  }
+
+  /* Poll loop */
+  .poll-loop {
+    background: #dbeafe; border-radius: 13px;
+    padding: 9px 11px; margin-top: 8px;
+    border: 1.5px dashed var(--blue-mid);
+  }
+  .loop-label {
+    font-size: 0.65rem; font-weight: 700; color: var(--blue-dark);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+  }
+  .poll-step {
+    font-size: 0.71rem; padding: 5px 8px; background: white;
+    border-radius: 8px; margin-bottom: 4px; color: var(--text);
+    font-weight: 500; border: 1px solid rgba(59,130,246,0.2);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .poll-step:last-child { margin-bottom: 0; }
+
+  .rotating-arrow { display:inline-block; animation:spin 3s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .clock-icon { display:inline-block; animation:pulse 2s ease-in-out infinite; }
+  @keyframes pulse {
+    0%,100% { transform:scale(1); opacity:1; }
+    50%      { transform:scale(1.12); opacity:0.8; }
+  }
+
+  /* DB table */
+  .db-table {
+    background: white; border-radius: 11px;
+    border: 1.5px solid rgba(20,184,166,0.25);
+    overflow: hidden; margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .db-table-header {
+    background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark));
+    color: white; font-family: 'Space Mono', monospace;
+    font-size: 0.59rem; font-weight: 700;
+    padding: 5px 9px; display: flex; align-items: center; gap: 5px;
+  }
+  .db-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 60px 34px;
+    gap: 3px; padding: 3px 7px; align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 0.61rem; font-weight: 500;
+    animation: fadeRow 0.5s ease;
+  }
+  .db-row:last-child { border-bottom: none; }
+  @keyframes fadeRow { from { opacity:0; background:rgba(20,184,166,0.08); } }
+  .db-row .id { font-family:'Space Mono',monospace; color:var(--text-muted); font-size:0.57rem; }
+  .db-row .prompt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .db-badge {
+    display: inline-flex; align-items: center; gap: 2px;
+    padding: 2px 4px; border-radius: 5px;
+    font-size: 0.54rem; font-weight: 700; white-space: nowrap;
+  }
+  .badge-pending   { background:#fef3c7; color:#92400e; }
+  .badge-running   { background:#ffedd5; color:#9a3412; }
+  .badge-completed { background:#dcfce7; color:#14532d; }
+  .badge-failed    { background:#fee2e2; color:#7f1d1d; }
+
+  /* Pipeline slider */
+  .pipeline-wrapper {
+    overflow: hidden; height: 62px;
+    display: flex; align-items: center;
+    background: white; border-radius: 12px;
+    border: 1.5px solid rgba(20,184,166,0.25);
+    padding: 6px; margin-top: 9px;
+  }
+  .sliding-jobs {
+    display: flex; gap: 5px;
+    animation: slideJobs 9s linear infinite;
+    width: max-content;
+  }
+  @keyframes slideJobs {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .job-card {
+    border-radius: 7px; padding: 4px 5px;
+    font-size: 0.57rem; font-weight: 700; text-align: center;
+    min-width: 42px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    flex-shrink: 0;
+  }
+  .job-card.pending   { background:#fef3c7; color:#92400e; border:1.5px solid #fbbf24; }
+  .job-card.running   { background:#ffedd5; color:#9a3412; border:1.5px solid #f97316; }
+  .job-card.completed { background:#dcfce7; color:#14532d; border:1.5px solid #22c55e; }
+  .job-card.failed    { background:#fee2e2; color:#7f1d1d; border:1.5px solid #ef4444; }
+
+  .stage-row {
+    display: flex; justify-content: space-around; margin-top: 5px;
+  }
+  .stage-pill {
+    font-size: 0.54rem; font-weight: 700;
+    text-align: center; line-height: 1.3;
+  }
+  .section-caption {
+    font-size: 0.6rem; color: var(--text-muted);
+    text-align: center; margin-top: 4px; font-style: italic;
+  }
+  .queue-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.59rem; color: var(--teal-dark);
+    text-align: center; margin-bottom: 2px;
+    font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; gap: 8px 18px;
+    max-width: 600px; margin: 0 auto;
+    background: white; padding: 11px 18px;
+    border-radius: 14px; box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .legend-title {
+    width: 100%; text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.61rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); margin-bottom: 2px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.71rem; font-weight: 500; }
+  .legend-dot  { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1 class="title">🧠 AI-Powered App — Async Job Queue Architecture</h1>
+<p class="subtitle">How user requests flow from browser → database queue → AI worker → result</p>
+
+<div class="outer-layout" id="outer-layout">
+
+  <!-- ════ ZONE 1: User + Generate button ════ -->
+  <div class="user-zone" id="user-zone">
+    <div class="user-avatar">👤</div>
+    <div class="user-label">User</div>
+    <button class="gen-btn" id="gen-btn">⚡ Generate</button>
+  </div>
+
+  <!-- ════ ZONE 2: Left connector arrow ════ -->
+  <div class="left-connector" id="left-connector">
+    <svg width="18" height="26" viewBox="0 0 18 26" overflow="visible">
+      <line x1="0" y1="13" x2="10" y2="13" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+      <polygon points="8,7 18,13 8,19" fill="#3b82f6"/>
+    </svg>
+  </div>
+
+  <!-- ════ ZONE 3: Three main panels ════ -->
+  <div class="panels-grid">
+
+    <!-- ── LEFT: Web Frontend ── -->
+    <div class="panel panel-blue">
+      <div class="panel-label label-blue">🌐 Web Frontend</div>
+      <div class="icon-circle icon-blue">🌐</div>
+
+      <div class="step blue-step" id="php-step">
+        🐘 PHP creates
+        <code style="font-size:0.69rem;background:#dbeafe;padding:1px 4px;border-radius:4px;font-family:'Space Mono',monospace;">ai_jobs</code> row
+        <br><span style="font-size:0.62rem;color:var(--text-muted);">status = <strong>pending</strong></span>
+      </div>
+      <div class="arrow-down">↓</div>
+
+      <div class="cross-arrow" style="color:var(--blue-mid);">
+        <span>🗄️</span>
+        <span style="font-size:0.59rem;font-weight:700;letter-spacing:0.3px;">INSERT → DB Queue</span>
+        <span>→</span>
+      </div>
+
+      <div class="divider-label" style="color:var(--blue-mid);">Polling Loop</div>
+
+      <div class="poll-loop">
+        <div class="loop-label"><span class="rotating-arrow">↻</span> Polls every 4 seconds</div>
+        <div class="poll-step">🔍 <span>Fetch job status from DB</span></div>
+        <div class="poll-step">⏳ <span>Result ready?</span></div>
+        <div class="poll-step">✅ <span><strong>Display result to user</strong></span></div>
+      </div>
+    </div>
+
+    <!-- ── CENTER: DB Queue ── -->
+    <div class="panel panel-teal">
+      <div class="panel-label label-teal">🗄️ DB Queue</div>
+      <div class="icon-circle icon-teal">🗄️</div>
+
+      <div class="db-table">
+        <div class="db-table-header">🗄️ ai_jobs</div>
+        <div id="db-rows-container"></div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <div class="queue-label">jobs flow →</div>
+        <div class="pipeline-wrapper">
+          <div class="sliding-jobs" id="sliding-jobs"></div>
+        </div>
+        <div class="section-caption">pending → running → done</div>
+      </div>
+
+      <div class="stage-row" style="margin-top:6px;">
+        <div class="stage-pill" style="color:var(--yellow);">⏳<br>pend</div>
+        <div class="stage-pill" style="color:var(--text-muted);">▶</div>
+        <div class="stage-pill" style="color:var(--orange);">⚡<br>run</div>
+        <div class="stage-pill" style="color:var(--text-muted);">▶</div>
+        <div class="stage-pill" style="color:var(--green);">✅<br>done</div>
+        <div class="stage-pill" style="color:var(--text-muted);">/</div>
+        <div class="stage-pill" style="color:var(--red);">❌<br>fail</div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: Cron Worker ── -->
+    <div class="panel panel-purple">
+      <div class="panel-label label-purple">⚙️ Cron Worker</div>
+      <div class="icon-circle icon-purple">
+        <span class="clock-icon">🕐</span>
+      </div>
+      <div style="text-align:center;font-size:0.69rem;font-weight:600;color:var(--purple-dark);margin-bottom:10px;">
+        Runs every <strong>30 seconds</strong>
+      </div>
+
+      <div class="cross-arrow" style="color:var(--purple-mid);">
+        <span>←</span>
+        <span style="font-size:0.57rem;font-weight:700;letter-spacing:0.3px;">READ from DB Queue</span>
+        <span>🗄️</span>
+      </div>
+
+      <div class="step purple-step">📌 Pick oldest <strong>pending</strong> job</div>
+      <div class="arrow-down">↓</div>
+      <div class="step purple-step">⚡ Mark as <strong>running</strong></div>
+      <div class="arrow-down">↓</div>
+
+      <!-- Highlighted step that connects outward to AI APIs -->
+      <div class="call-api-step" id="call-api-step">🧠 Call AI API</div>
+      <div class="arrow-down">↓</div>
+
+      <div class="step purple-step">💾 Store result in DB</div>
+      <div class="arrow-down">↓</div>
+      <div class="step purple-step">✅ Mark as <strong>completed</strong></div>
+
+      <div class="cross-arrow" style="color:var(--purple-mid);margin-top:4px;">
+        <span>🗄️</span>
+        <span style="font-size:0.57rem;font-weight:700;letter-spacing:0.3px;">WRITE result → DB Queue</span>
+        <span>→</span>
+      </div>
+    </div>
+
+  </div><!-- /.panels-grid -->
+
+  <!-- ════ ZONE 4: Gap for SVG arrows ════ -->
+  <div class="right-connector"></div>
+
+  <!-- SVG overlay: angled arrows drawn by JS -->
+  <svg id="arrows-svg"></svg>
+
+  <!-- ════ ZONE 5: AI API cards ════ -->
+  <div class="ai-zone" id="ai-zone">
+    <div class="ai-ext-card claude" id="card-claude">
+      <span class="ai-icon-lg">🧠</span>
+      <span class="ai-name">Claude</span>
+      <span class="ai-sub">Text / Code</span>
+    </div>
+
+    <div class="ai-zone-spacer"></div>
+
+    <div class="ai-ext-card dalle" id="card-dalle">
+      <span class="ai-icon-lg">🖼️</span>
+      <span class="ai-name">DALL-E</span>
+      <span class="ai-sub">Images</span>
+    </div>
+  </div>
+
+</div><!-- /.outer-layout -->
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-title">Job Status Legend</div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#fbbf24;border:1.5px solid #f59e0b;"></div>
+    <span>⏳ Pending — waiting in queue</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#f97316;border:1.5px solid #ea580c;"></div>
+    <span>⚡ Running — worker processing</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#22c55e;border:1.5px solid #16a34a;"></div>
+    <span>✅ Completed — result ready</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#ef4444;border:1.5px solid #dc2626;"></div>
+    <span>❌ Failed — check error log</span>
+  </div>
+</div>
+
+<script>
+// ── DB rows cycle ──
+const jobs = [
+  { id:'#104', prompt:'Summarize report…',   status:'pending',   badge:'badge-pending',   icon:'⏳', age:'now' },
+  { id:'#103', prompt:'Generate hero image', status:'running',   badge:'badge-running',   icon:'⚡', age:'5s'  },
+  { id:'#102', prompt:'Write email draft…',  status:'completed', badge:'badge-completed', icon:'✅', age:'2m'  },
+  { id:'#101', prompt:'Logo concept…',       status:'failed',    badge:'badge-failed',    icon:'❌', age:'1m'  },
+];
+function renderRows(list) {
+  document.getElementById('db-rows-container').innerHTML = list.map(j => `
+    <div class="db-row">
+      <span class="id">${j.id}</span>
+      <span class="prompt">${j.prompt}</span>
+      <span class="db-badge ${j.badge}">${j.icon} ${j.status}</span>
+      <span style="font-size:0.54rem;color:var(--text-muted);">${j.age}</span>
+    </div>
+  `).join('');
+}
+renderRows(jobs);
+let offset = 0;
+setInterval(() => {
+  offset = (offset + 1) % jobs.length;
+  renderRows([...jobs.slice(offset), ...jobs.slice(0, offset)]);
+}, 4000);
+
+// ── Pipeline slider ──
+const pipelineCards = [
+  {label:'#107',cls:'pending',  icon:'⏳'},
+  {label:'#106',cls:'running',  icon:'⚡'},
+  {label:'#105',cls:'completed',icon:'✅'},
+  {label:'#104',cls:'pending',  icon:'⏳'},
+  {label:'#103',cls:'running',  icon:'⚡'},
+  {label:'#102',cls:'completed',icon:'✅'},
+  {label:'#101',cls:'failed',   icon:'❌'},
+];
+const sl = document.getElementById('sliding-jobs');
+const allCards = [...pipelineCards, ...pipelineCards];
+sl.innerHTML = allCards.map(c => `
+  <div class="job-card ${c.cls}">
+    <span style="font-size:0.85rem;">${c.icon}</span>
+    <span style="font-family:'Space Mono',monospace;font-size:0.49rem;">${c.label}</span>
+  </div>
+`).join('');
+sl.style.animationDuration = (pipelineCards.length * 1.25) + 's';
+
+// ── Align zones + draw SVG arrows ──
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function alignZones() {
+  const outerLayout = document.getElementById('outer-layout');
+  const phpStep     = document.getElementById('php-step');
+  const callApiStep = document.getElementById('call-api-step');
+  const userZone    = document.getElementById('user-zone');
+  const leftConn    = document.getElementById('left-connector');
+  const aiZone      = document.getElementById('ai-zone');
+  const cardClaude  = document.getElementById('card-claude');
+  const cardDalle   = document.getElementById('card-dalle');
+  const svg         = document.getElementById('arrows-svg');
+
+  if (!outerLayout || !phpStep || !callApiStep) return;
+
+  const outerRect = outerLayout.getBoundingClientRect();
+  const outerTop  = outerRect.top  + window.scrollY;
+  const outerLeft = outerRect.left + window.scrollX;
+
+  // ── Left: align gen-btn center with php-step center ──
+  const phpRect        = phpStep.getBoundingClientRect();
+  const phpCenterY     = phpRect.top + window.scrollY + phpRect.height / 2 - outerTop;
+  const contentAboveBtn = 77, halfBtnH = 15;
+  const userPT = Math.max(8, phpCenterY - contentAboveBtn - halfBtnH);
+  userZone.style.paddingTop = userPT + 'px';
+  const btnCenterY = userPT + contentAboveBtn + halfBtnH;
+  leftConn.style.paddingTop = Math.max(0, btnCenterY - 13) + 'px';
+
+  // ── Right: position AI zone so Claude card vertically centers on Call AI API step ──
+  const apiRect    = callApiStep.getBoundingClientRect();
+  const apiCenterY = apiRect.top + window.scrollY + apiRect.height / 2 - outerTop;
+  const aiPT = Math.max(8, apiCenterY - cardClaude.offsetHeight / 2);
+  aiZone.style.paddingTop = aiPT + 'px';
+
+  // ── Draw SVG arrows after layout settles ──
+  requestAnimationFrame(() => {
+    svg.innerHTML = `
+      <defs>
+        <marker id="arr-fwd" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+          <polygon points="0 0, 7 3, 0 6" fill="#7c3aed"/>
+        </marker>
+        <marker id="arr-bck" markerWidth="7" markerHeight="6" refX="0" refY="3" orient="auto">
+          <polygon points="7 0, 0 3, 7 6" fill="#5b21b6"/>
+        </marker>
+      </defs>`;
+
+    // Get right-center of call-api-step, left-center of each card
+    function rc(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.right - outerLeft, y: r.top + r.height / 2 - outerTop };
+    }
+    function lc(el) {
+      const r = el.getBoundingClientRect();
+      return { x: r.left - outerLeft, y: r.top + r.height / 2 - outerTop };
+    }
+
+    const from   = rc(callApiStep);
+    const toCl   = lc(cardClaude);
+    const toDa   = lc(cardDalle);
+
+    function drawPair(x1, y1, x2, y2) {
+      // Perpendicular nudge to separate out/in lines
+      const dx = x2 - x1, dy = y2 - y1;
+      const len = Math.sqrt(dx*dx + dy*dy) || 1;
+      const nx = -dy / len * 5, ny = dx / len * 5;
+
+      // out line
+      const g = document.createElementNS(SVG_NS, 'g');
+
+      // Outgoing arrow (source → dest), nudged one side
+      const outLine = document.createElementNS(SVG_NS, 'line');
+      outLine.setAttribute('x1', x1 + nx); outLine.setAttribute('y1', y1 + ny);
+      outLine.setAttribute('x2', x2 + nx); outLine.setAttribute('y2', y2 + ny);
+      outLine.setAttribute('stroke', '#8b5cf6');
+      outLine.setAttribute('stroke-width', '1.8');
+      outLine.setAttribute('stroke-linecap', 'round');
+      outLine.setAttribute('marker-end', 'url(#arr-fwd)');
+      g.appendChild(outLine);
+
+      // Return arrow (dest → source), nudged other side
+      const inLine = document.createElementNS(SVG_NS, 'line');
+      inLine.setAttribute('x1', x2 - nx); inLine.setAttribute('y1', y2 - ny);
+      inLine.setAttribute('x2', x1 - nx); inLine.setAttribute('y2', y1 - ny);
+      inLine.setAttribute('stroke', '#6d28d9');
+      inLine.setAttribute('stroke-width', '1.8');
+      inLine.setAttribute('stroke-linecap', 'round');
+      inLine.setAttribute('marker-end', 'url(#arr-bck)');
+      g.appendChild(inLine);
+
+      // Label for outgoing — at 40% along line, horizontally centred
+      const omx = x1 + (x2-x1)*0.42 + nx;
+      const omy = y1 + (y2-y1)*0.42 + ny;
+      const bgOut = document.createElementNS(SVG_NS, 'rect');
+      bgOut.setAttribute('x', omx - 30); bgOut.setAttribute('y', omy - 8);
+      bgOut.setAttribute('width', '60'); bgOut.setAttribute('height', '13');
+      bgOut.setAttribute('rx', '3'); bgOut.setAttribute('fill', 'white');
+      bgOut.setAttribute('opacity', '0.9');
+      g.appendChild(bgOut);
+      const lblOut = document.createElementNS(SVG_NS, 'text');
+      lblOut.setAttribute('x', omx); lblOut.setAttribute('y', omy + 1.5);
+      lblOut.setAttribute('text-anchor', 'middle');
+      lblOut.setAttribute('dominant-baseline', 'middle');
+      lblOut.setAttribute('font-family', "'Space Mono', monospace");
+      lblOut.setAttribute('font-size', '7.5');
+      lblOut.setAttribute('font-weight', '700');
+      lblOut.setAttribute('fill', '#7c3aed');
+      lblOut.textContent = 'input_json';
+      g.appendChild(lblOut);
+
+      // Label for return — at 58% along line
+      const imx = x1 + (x2-x1)*0.58 - nx;
+      const imy = y1 + (y2-y1)*0.58 - ny;
+      const bgIn = document.createElementNS(SVG_NS, 'rect');
+      bgIn.setAttribute('x', imx - 31); bgIn.setAttribute('y', imy - 8);
+      bgIn.setAttribute('width', '62'); bgIn.setAttribute('height', '13');
+      bgIn.setAttribute('rx', '3'); bgIn.setAttribute('fill', 'white');
+      bgIn.setAttribute('opacity', '0.9');
+      g.appendChild(bgIn);
+      const lblIn = document.createElementNS(SVG_NS, 'text');
+      lblIn.setAttribute('x', imx); lblIn.setAttribute('y', imy + 1.5);
+      lblIn.setAttribute('text-anchor', 'middle');
+      lblIn.setAttribute('dominant-baseline', 'middle');
+      lblIn.setAttribute('font-family', "'Space Mono', monospace");
+      lblIn.setAttribute('font-size', '7.5');
+      lblIn.setAttribute('font-weight', '700');
+      lblIn.setAttribute('fill', '#5b21b6');
+      lblIn.textContent = 'result_json';
+      g.appendChild(lblIn);
+
+      svg.appendChild(g);
+    }
+
+    drawPair(from.x, from.y, toCl.x, toCl.y);
+    drawPair(from.x, from.y, toDa.x, toDa.y);
+  });
+}
+
+document.fonts.ready.then(() => requestAnimationFrame(alignZones));
+window.addEventListener('resize', () => { requestAnimationFrame(alignZones); });
+</script>
+</body>
+</html>

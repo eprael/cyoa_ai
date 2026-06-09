@@ -1,0 +1,28 @@
+Create an interactive HTML visualization (as an artifact) showing the architecture of an AI-powered web application 
+that uses an asynchronous job queue. Make it an infographic-style diagram with colorful graphics, icons, and 
+simple animations. Use a clean, modern style with rounded containers and soft shadows.
+
+Show two distinct sections, visually separated and labeled:
+
+Left side — "Web Frontend" (blue theme):
+
+A browser icon at the top
+User actions flow downward: "User clicks Generate" → "PHP creates job row" → arrow pointing to the database queue in the center
+A polling loop shown with a circular arrow: "JavaScript polls every 4 seconds" → checks the database → "Result ready? Display it"
+Center — "Database Job Queue" (green/teal theme):
+
+Visualize the ai_jobs table as a literal queue/pipeline with colored job cards flowing through it
+Each card shows a status: pending (yellow), running (orange), completed (green), failed (red)
+Show jobs flowing left-to-right through the pipeline from pending → running → completed
+Right side — "Cron Worker" (purple/violet theme):
+
+A clock icon at the top labeled "Runs every 30 seconds"
+Flow: "Pick oldest pending job" → "Mark as running" → "Call AI API" (show Claude and DALL-E logos/labels as two possible paths) → "Store result" → "Mark as completed"
+Show the worker reading from and writing back to the database queue
+Additional details:
+
+Use arrows/connectors between sections to show data flow
+Add a subtle animation — like jobs slowly sliding through the queue, or a pulsing clock icon
+Include a small legend at the bottom explaining the status colors
+Keep text concise — this is a high-level overview, not a detailed spec
+Use Font Awesome or emoji icons for: browser (🌐), database (🗄️), clock (🕐), AI brain (🧠), image (🖼️), checkmark (✅), error (❌)

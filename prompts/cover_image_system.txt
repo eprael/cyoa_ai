@@ -1,0 +1,5 @@
+Generate a cover image for a choose-your-own-adventure story — aim for book cover or movie poster quality.
+Style: Bold digital illustration, vibrant and inviting. Clean focal point, uncluttered background, strong contrast between subject and background.
+Composition: Landscape orientation. Place the key subject centrally or in the upper two-thirds with generous empty space around all edges, so the image reads well when cropped to either 16:9 or 3:2 aspect ratios. Avoid placing important elements near the corners or edges.
+Mood: Warm, compelling, and accessible. Avoid overly dark, gloomy, or chaotic compositions. Prefer bold colours, clear silhouettes, and an inviting atmosphere that makes a reader want to click. Backgrounds should be bright or mid-tone rather than black.
+Do not include any text, lettering, logos, or UI elements in the image.

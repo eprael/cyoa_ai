@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc-markdown-css-theme" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>architecture</title>
+  <link rel="stylesheet" href="..\theme.css" />
+</head>
+<body>
+
+<header>
+<h1 class="title"></h1>
+<blockquote class="metadata">
+</blockquote>
+</header>
+
+<nav id="TOC" role="doc-toc">
+    <strong>Contents</strong><label for="contents">⊕</label>
+  <input type="checkbox" id="contents">
+  <ul>
+  <li><a href="#architecture-ai-social-features"
+  id="toc-architecture-ai-social-features">Architecture — AI &amp;
+  Social Features</a>
+  <ul>
+  <li><a href="#social-features" id="toc-social-features">1. Social
+  Features</a>
+  <ul>
+  <li><a href="#draft-published-status-shadow-draft-system"
+  id="toc-draft-published-status-shadow-draft-system">1.1 Draft /
+  Published Status (Shadow Draft System)</a></li>
+  <li><a href="#ratings-15-stars" id="toc-ratings-15-stars">1.2 Ratings
+  (1–5 Stars)</a></li>
+  <li><a href="#favourites" id="toc-favourites">1.3 Favourites</a></li>
+  <li><a href="#comments" id="toc-comments">1.4 Comments</a></li>
+  <li><a href="#view-tracking" id="toc-view-tracking">1.5 View
+  Tracking</a></li>
+  <li><a href="#story-summary-page-summary.php"
+  id="toc-story-summary-page-summary.php">1.6 Story Summary Page
+  (<code>summary.php</code>)</a></li>
+  </ul></li>
+  <li><a href="#ai-job-queue-architecture"
+  id="toc-ai-job-queue-architecture">2. AI Job Queue Architecture</a>
+  <ul>
+  <li><a href="#overview" id="toc-overview">2.1 Overview</a></li>
+  <li><a href="#job-types" id="toc-job-types">2.2 Job Types</a></li>
+  <li><a href="#job-statuses" id="toc-job-statuses">2.3 Job
+  Statuses</a></li>
+  <li><a href="#dispatcher-worker-design-parallel-processing"
+  id="toc-dispatcher-worker-design-parallel-processing">2.4 Dispatcher /
+  Worker Design (Parallel Processing)</a></li>
+  <li><a href="#result-application" id="toc-result-application">2.5
+  Result Application</a></li>
+  <li><a href="#ai-api-configuration" id="toc-ai-api-configuration">2.6
+  AI API Configuration</a></li>
+  <li><a href="#bring-your-own-keys-byok"
+  id="toc-bring-your-own-keys-byok">2.7 Bring Your Own Keys
+  (BYOK)</a></li>
+  <li><a href="#prompt-templates" id="toc-prompt-templates">2.8 Prompt
+  Templates</a></li>
+  <li><a href="#job-cost-tracking" id="toc-job-cost-tracking">2.9 Job
+  Cost Tracking</a></li>
+  <li><a href="#file-structure-for-ai-features"
+  id="toc-file-structure-for-ai-features">2.10 File Structure for AI
+  Features</a></li>
+  <li><a href="#security-considerations"
+  id="toc-security-considerations">2.11 Security Considerations</a></li>
+  </ul></li>
+  <li><a href="#job-queue-page-job_queue.php"
+  id="toc-job-queue-page-job_queue.php">3. Job Queue Page
+  (<code>job_queue.php</code>)</a>
+  <ul>
+  <li><a href="#user-view" id="toc-user-view">User view</a></li>
+  <li><a href="#admin-view" id="toc-admin-view">Admin view</a></li>
+  <li><a href="#seen-tracking-and-badge-dismissal"
+  id="toc-seen-tracking-and-badge-dismissal">“Seen” tracking and badge
+  dismissal</a></li>
+  </ul></li>
+  <li><a href="#header-notification-badge"
+  id="toc-header-notification-badge">4. Header Notification Badge</a>
+  <ul>
+  <li><a href="#badge-behaviour" id="toc-badge-behaviour">Badge
+  behaviour</a></li>
+  <li><a href="#polling" id="toc-polling">Polling</a></li>
+  </ul></li>
+  <li><a href="#soft-delete-trash-maintenance"
+  id="toc-soft-delete-trash-maintenance">5. Soft Delete, Trash &amp;
+  Maintenance</a></li>
+  <li><a href="#theme-engine-visual-layer-theme.php-fonts.php"
+  id="toc-theme-engine-visual-layer-theme.php-fonts.php">6. Theme Engine
+  (visual layer) — <code>theme.php</code>,
+  <code>fonts.php</code></a></li>
+  <li><a href="#story-image-gallery-v7-gallery.php"
+  id="toc-story-image-gallery-v7-gallery.php">7. Story Image Gallery
+  (v7) — <code>gallery.php</code></a></li>
+  <li><a href="#data-driven-content-layer-data.php-data.json"
+  id="toc-data-driven-content-layer-data.php-data.json">8. Data-Driven
+  Content Layer — <code>data.php</code> +
+  <code>data/*.json</code></a></li>
+  <li><a
+  href="#cross-instance-story-transfer-cliexport_story.php-cliimport_story.php"
+  id="toc-cross-instance-story-transfer-cliexport_story.php-cliimport_story.php">9.
+  Cross-Instance Story Transfer — <code>cli/export_story.php</code> /
+  <code>cli/import_story.php</code></a></li>
+  </ul></li>
+  </ul>
+</nav>
+
+<main>
+<h1 id="architecture-ai-social-features">Architecture — AI &amp; Social
+Features</h1>
+<h2 id="social-features">1. Social Features</h2>
+<h3 id="draft-published-status-shadow-draft-system">1.1 Draft /
+Published Status (Shadow Draft System)</h3>
+<p>Two columns on the <code>stories</code> table: - <code>status</code>
+(<code>ENUM('published','draft','deleted')</code>, default
+<code>draft</code>) - <code>published_story_id</code>
+(<code>INT DEFAULT NULL</code>) — links a shadow draft back to its
+published original</p>
+<blockquote>
+<p>Soft delete uses the <code>'deleted'</code> status: live/visible
+queries filter <code>status != 'deleted'</code>, while
+<code>date_deleted</code> records <em>when</em> it was trashed (used for
+trash ordering + retention purge). See §5.</p>
+</blockquote>
+<p><strong>Core Concept:</strong> Published stories are never set back
+to <code>draft</code> while being edited. Instead, a hidden <em>shadow
+draft</em> (a clone) is created for the author to work on. The published
+version stays live and playable. When the author publishes the draft, it
+replaces the original’s content while preserving the original
+<code>storyID</code> (so ratings, comments, views, and favourites are
+kept).</p>
+<p><strong>Two scenarios:</strong></p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New story (never published)</td>
+<td>Created as <code>draft</code>, stays draft until author clicks
+“Publish”. Visible only to owner/admins.</td>
+</tr>
+<tr>
+<td>Editing a published story</td>
+<td>Published version stays live. A shadow draft is cloned (with
+<code>published_story_id</code> pointing to original). All edits happen
+on the draft. “Publish” replaces original content. “Discard” deletes the
+draft.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rules:</strong> - Only <code>published</code> stories appear
+in the public gallery and can be rated/commented/favourited - Shadow
+drafts (<code>published_story_id IS NOT NULL</code>) are never shown in
+the gallery — they are working copies only - Standalone drafts
+(<code>published_story_id IS NULL, status = 'draft'</code>) are shown to
+their owner in the gallery with a “Draft” badge - The author explicitly
+publishes via a “Publish” button in the editor - Only one shadow draft
+can exist per published story at a time</p>
+<p><strong>Edit flow for published stories:</strong> 1. Author clicks
+“Edit” on a published story 2. System checks: does a shadow draft
+already exist? (<code>SELECT ... WHERE published_story_id = ?</code>) -
+<strong>Yes</strong> → redirect to that existing draft -
+<strong>No</strong> → clone the story via
+<code>create_edit_draft()</code>, set <code>status = 'draft'</code> and
+<code>published_story_id = originalStoryID</code> 3. Author edits the
+draft freely — original remains published and playable 4. Author clicks
+“Publish” → draft content replaces the original (transaction), draft row
+is deleted 5. Or author clicks “Discard Draft” → draft is deleted,
+original is untouched</p>
+<p><strong>Image handling for shadow drafts:</strong></p>
+<p>Shadow drafts <strong>share</strong> the published story’s image
+folder to avoid duplicating files on every edit session:</p>
+<ul>
+<li>A draft with <code>published_story_id</code> set resolves its image
+path using <code>images/stories/{published_story_id}/</code> instead of
+<code>images/stories/{draftStoryID}/</code></li>
+<li>Helper function <code>get_story_image_dir($storyID)</code> handles
+this transparently</li>
+<li>When the author changes or adds an image on the draft, a
+<code>images/stories/{draftStoryID}/</code> folder is created and the
+new image is saved there</li>
+<li>Unchanged images continue reading from the original folder (zero
+file copying)</li>
+<li>On publish: new/changed images are moved from
+<code>images/stories/{draftStoryID}/</code> →
+<code>images/stories/{publishedStoryID}/</code>, orphaned images are
+cleaned up, draft folder is deleted</li>
+<li>On discard: <code>images/stories/{draftStoryID}/</code> is deleted
+(if it exists), original images untouched</li>
+</ul>
+<p><strong>Implementation touch-points:</strong> -
+<code>get_all_stories()</code> — filter: show <code>published</code> to
+all, standalone drafts to owner, hide shadow drafts from gallery -
+<code>editor.php</code> — route “Edit” on published stories through
+shadow draft creation/lookup - <code>editor.php</code> — Publish /
+Discard Draft / Unpublish buttons; banner “Editing a draft — published
+version remains live” - <code>index.php</code> — gallery filtering logic
+(hide shadow drafts) - <code>get_story_image_dir()</code> — helper for
+resolving image paths - <code>publish_draft()</code> — transaction:
+replace original content, move images, delete draft -
+<code>discard_draft()</code> — delete draft row + image folder</p>
+<h3 id="ratings-15-stars">1.2 Ratings (1–5 Stars)</h3>
+<ul>
+<li>One rating per user per story (upsert pattern)</li>
+<li>Average displayed on gallery cards and summary page</li>
+<li>Stored in <code>cyoa_ai_ratings</code> table</li>
+</ul>
+<h3 id="favourites">1.3 Favourites</h3>
+<ul>
+<li>Toggle bookmark per user per story</li>
+<li>Accessible from gallery and story summary page</li>
+<li>Stored in <code>cyoa_ai_favorites</code> table</li>
+</ul>
+<h3 id="comments">1.4 Comments</h3>
+<ul>
+<li>Threaded comments (one level of nesting via
+<code>reply_to_comment_id</code>)</li>
+<li>Displayed on story summary page</li>
+<li>Admin can delete any comment; owner can delete comments on their
+story</li>
+<li>Stored in <code>cyoa_ai_comments</code> table</li>
+</ul>
+<h3 id="view-tracking">1.5 View Tracking</h3>
+<ul>
+<li>Increment on each visit to the story summary page (published stories
+only)</li>
+<li>One row per view event (allows future analytics)</li>
+<li>Stored in <code>cyoa_ai_views</code> table</li>
+</ul>
+<h3 id="story-summary-page-summary.php">1.6 Story Summary Page
+(<code>summary.php</code>)</h3>
+<p>Sits between the gallery and <code>play.php</code>: - Shows story
+cover image, title, description, author, theme, genre - Displays stats:
+view count, average rating, favourite count, comment count - Play button
++ Edit button (for owner/admin) + Clone button (logged-in users) -
+Comments section at the bottom - Visiting this page (for published
+stories) triggers a view count increment - Owners and admins can view
+their draft stories here as well (no auto-redirect to editor)</p>
+<hr />
+<h2 id="ai-job-queue-architecture">2. AI Job Queue Architecture</h2>
+<h3 id="overview">2.1 Overview</h3>
+<p>The AI system uses an asynchronous job queue because shared hosting
+cannot run long-lived processes. The flow is:</p>
+<ol type="1">
+<li><strong>User request</strong> → PHP creates a
+<code>cyoa_ai_jobs</code> row (status: <code>pending</code>) and
+immediately returns — the browser does not wait on the page</li>
+<li><strong>Dispatcher</strong> (<code>cron/ai_dispatcher.php</code>) →
+Invoked by cron (typically once a minute on shared hosting). Each
+invocation runs <strong>several dispatch passes</strong> spaced a few
+seconds apart (<code>$DISPATCH_PASSES</code> ×
+<code>$DISPATCH_INTERVAL</code>), so jobs born mid-minute are still
+picked up quickly. Each pass times out stale jobs, claims pending jobs
+(with an image-concurrency cap), and spawns a worker per claimed job,
+then the invocation exits.</li>
+<li><strong>Worker</strong> (<code>cron/ai_worker.php</code>) → Routes
+the job to the appropriate handler; the handler calls the AI API,
+applies the result to the database, and marks the job
+<code>completed</code></li>
+<li><strong>Header polling</strong> → JavaScript in
+<code>header.php</code> polls
+<code>api_jobs.php?action=unseen_count</code> every 5 seconds. When
+completed/failed jobs exist, the badge on the Job Queue link
+updates</li>
+<li><strong>User reviews</strong> → User opens
+<code>job_queue.php</code> to see all jobs; <code>seen_at</code> is
+stamped on load to clear the badge</li>
+</ol>
+<h3 id="job-types">2.2 Job Types</h3>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 28%" />
+<col style="width: 18%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th><code>job_type</code></th>
+<th>AI Service</th>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>image</code></td>
+<td>OpenAI (model configurable, default <code>gpt-image-2</code>)</td>
+<td>Prompt text, image style + optional mood modifier</td>
+<td>Image downloaded and saved to
+<code>images/stories/{storyID}/</code>; filename + prompt-used stored in
+<code>result_json</code></td>
+</tr>
+<tr>
+<td><code>scene</code></td>
+<td>Claude API</td>
+<td>Story context, genre, scene direction, tone, type</td>
+<td>JSON: <code>{title, description, hint, choices[]}</code> applied
+directly to the scene</td>
+</tr>
+<tr>
+<td><code>story</code></td>
+<td>Claude API (multi-phase)</td>
+<td>Story ID (pre-created draft), premise, genre, tone, target scenes,
+endings count, audience, image settings, publish flag</td>
+<td>Plan phase → scene-write phase → child <code>image</code> jobs
+queued for cover + each scene</td>
+</tr>
+</tbody>
+</table>
+<p>Child jobs (<code>image</code> jobs spawned by a <code>story</code>
+job) have <code>parent_job_id</code> set to the parent
+<code>story</code> job’s ID. Top-level jobs have
+<code>parent_job_id IS NULL</code> — this distinction matters for the
+per-user pending-job limit (counts top-level only) and for chain-cost
+rollup to the parent.</p>
+<p><strong>Note on “theme”:</strong> a story’s <em>theme</em> is
+strictly a visual label (a set of colours + fonts; see §6 Theme Engine).
+It is <strong>not</strong> sent to text or image generation — neither
+the story/scene prompts nor the image prompts receive the theme. The
+semantic hint for generation is the <strong>genre</strong>.</p>
+<h3 id="job-statuses">2.3 Job Statuses</h3>
+<table>
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pending</code></td>
+<td>Queued, waiting for cron pickup</td>
+</tr>
+<tr>
+<td><code>running</code></td>
+<td>Cron worker is actively processing</td>
+</tr>
+<tr>
+<td><code>completed</code></td>
+<td>Result applied; <code>result_json</code> populated</td>
+</tr>
+<tr>
+<td><code>completed_with_errors</code></td>
+<td>Partially completed (e.g. some scenes written but not all images
+generated)</td>
+</tr>
+<tr>
+<td><code>failed</code></td>
+<td>Error stored in <code>error_message</code>; user can retry</td>
+</tr>
+<tr>
+<td><code>cancelled</code></td>
+<td>User cancelled a <code>pending</code> job. Only <code>pending</code>
+jobs can be cancelled — once <code>running</code>, the API call is
+already in flight and cannot be aborted.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dispatcher-worker-design-parallel-processing">2.4 Dispatcher /
+Worker Design (Parallel Processing)</h3>
+<p>The cron system uses a <strong>dispatcher + worker</strong> pattern
+so multiple jobs run in parallel.</p>
+<p><strong>Dispatcher (<code>cron/ai_dispatcher.php</code>)</strong> —
+invoked by cron (commonly once a minute). Two tuning constants at the
+top of the file control the within-invocation cadence:</p>
+<ul>
+<li><code>$DISPATCH_PASSES</code> — number of dispatch passes per cron
+run (default 4)</li>
+<li><code>$DISPATCH_INTERVAL</code> — seconds between passes (default
+15)</li>
+</ul>
+<p>Keep <code>(DISPATCH_PASSES − 1) × DISPATCH_INTERVAL</code>
+comfortably under the cron period so a run never bleeds into the next
+invocation. Per invocation:</p>
+<pre><code>1. Connect to database; bail early if app_setting(&#39;ai_enabled&#39;) is off
+2. Launch maintenance.php once per calendar day (guarded by today&#39;s maintenance log)
+3. For each pass (1..DISPATCH_PASSES):
+   a. sleep($DISPATCH_INTERVAL) on passes after the first
+   b. Timeout stale jobs (running &gt; ai_job_timeout_seconds → mark failed)
+   c. Compute free image slots = ai_max_concurrent_image_jobs − running image jobs
+   d. Claim pending NON-image jobs atomically (status pending → running), then claim up to
+      &quot;free image slots&quot; pending image jobs
+   e. For each claimed job: spawn `php ai_worker.php &lt;job_id&gt;` as a detached background process
+4. Exit (workers keep running independently)</code></pre>
+<p>Why multiple passes: a job created while an invocation is alive is
+claimed by the <em>next</em> pass rather than waiting for the next cron
+minute. Workers are launched detached (proc_open on Windows,
+<code>exec("cmd &amp;")</code> on Linux), so a pass never waits on
+them.</p>
+<p><strong>Worker (<code>cron/ai_worker.php</code>)</strong> — one
+process per job:</p>
+<pre><code>1. Receive job_id as CLI argument
+2. Fetch job row, verify status = &#39;running&#39;
+3. Route based on job_type:
+   - image  → cron/ai_image_handler.php
+   - scene  → cron/ai_scene_handler.php
+   - story  → cron/ai_story_handler.php
+4. Handler calls the AI API, applies result to DB, marks job completed/failed</code></pre>
+<p><strong>Concurrency:</strong> All claimed jobs run simultaneously in
+separate PHP processes. Each worker has its own memory space and
+execution timeout. The <code>ai_max_concurrent_image_jobs</code> setting
+limits simultaneous image jobs to prevent OpenAI rate-limit errors.</p>
+<p><strong>Timeout:</strong> Controlled by
+<code>app_setting('ai_job_timeout_seconds')</code> (default 600 s). The
+dispatcher marks <code>running</code> jobs that exceed this threshold as
+<code>failed</code>.</p>
+<p><strong>Platform support:</strong> Dispatcher spawns workers with
+<code>exec("cmd &amp;")</code> on Linux and <code>proc_open()</code>
+(with NUL stdin + per-job log file) on Windows (XAMPP), so the worker
+inherits the full environment. Each worker writes to
+<code>cron/logs/job_&lt;id&gt;.log</code>; the dispatcher itself logs to
+<code>cron/logs/dispatcher.log</code>.</p>
+<h3 id="result-application">2.5 Result Application</h3>
+<p>Results are applied server-side by the handler, before marking the
+job <code>completed</code>. No browser interaction is required.</p>
+<ul>
+<li><strong><code>image</code> job:</strong> Update the target scene’s
+<code>image</code> field with the generated filename; store the prompt
+used in <code>image_gen</code>.</li>
+<li><strong><code>scene</code> job:</strong> Update the target scene
+with generated <code>title</code>, <code>description</code>, and
+<code>hint</code>. For each generated choice, create a stub scene (title
+from choice text, empty description) and a choice row linking the source
+to the stub.</li>
+<li><strong><code>story</code> job:</strong> Story record already exists
+as <code>draft</code> when the job runs (created by
+<code>api_create_story_ai.php</code> or
+<code>cli/create_stories.php</code>). Handled in
+<code>cron/ai_story_handler.php</code>, applied by
+<code>cron/ai_apply.php</code>:
+<ul>
+<li><em>Plan phase:</em> Claude returns the scene structure (titles,
+summaries, choice graph) as JSON. The plan always produces a title +
+description; whether they overwrite the story is gated by the
+<code>gen_title</code> / <code>gen_description</code> flags (when off,
+the user’s own values, seeded at creation, are kept).</li>
+<li><em>Scene-write phase:</em> For each planned scene, Claude writes
+the full content; scene + choice rows are inserted with
+<code>temp_id → real sceneID</code> remapping.</li>
+<li><em>Image phase:</em> If images were included, child
+<code>image</code> jobs are queued for the cover and each scene.</li>
+<li><em>Theme / layout:</em> taken from the user’s choices
+(<code>context_theme</code> / <code>context_theme_json</code> /
+<code>context_layout</code>) unless <code>gen_theme</code> is set; theme
+is visual-only and never drives generation.</li>
+</ul></li>
+<li><strong>Auto-publish
+(<code>maybe_publish_created_story()</code>):</strong> when the create
+form’s <code>publish</code> flag is set AND images were included, the
+story auto-publishes <strong>only if every job succeeds</strong> — the
+parent <code>story</code> job <em>and</em> all child <code>image</code>
+jobs must be <code>completed</code>. Any failure leaves it a
+<code>draft</code>. Image-less stories are never auto-published.</li>
+</ul>
+<p>AI apply operations always target the story in <code>draft</code>
+status, and <strong>any AI-applied change sets the story back to
+<code>draft</code></strong>. If the apply step itself fails (DB
+constraint, etc.), the job is marked <code>failed</code> with the error,
+and AI-generated content is preserved in <code>result_json</code> for
+manual retry.</p>
+<h3 id="ai-api-configuration">2.6 AI API Configuration</h3>
+<p>All runtime AI settings are stored in the
+<code>cyoa_ai_settings</code> database table and accessed via
+<code>app_setting('key')</code>. <code>config.php</code> retains only
+values needed before DB connect.</p>
+<p><strong><code>config.php</code> retains:</strong> - DB credentials
+(<code>DB_HOST</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>,
+<code>DB_NAME</code>, <code>DB_PREFIX</code>) - SMTP / email settings -
+<code>APP_URL</code>, <code>MAIN_ADMIN</code>, <code>APP_TIMEZONE</code>
+- <code>AI_IMAGE_PRICING</code> array — per-image cost lookup for all
+four models (not admin-editable) - <code>AI_COST_INPUT_PER_M</code>,
+<code>AI_COST_OUTPUT_PER_M</code> — Claude token rates (not
+admin-editable)</p>
+<p><strong><code>cyoa_ai_settings</code> table (admin-editable via the
+Site / Content / Users settings pages).</strong> Defaults live in
+<code>SETTING_DEFAULTS</code> in <code>settings.php</code> (the app
+works pre-migration off these); the two API keys are intentionally
+absent from defaults (null until configured).</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Setting key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>anthropic_api_key</code></td>
+<td>string (sensitive)</td>
+<td>— (null)</td>
+<td>Claude API key (site-wide)</td>
+</tr>
+<tr>
+<td><code>openai_api_key</code></td>
+<td>string (sensitive)</td>
+<td>— (null)</td>
+<td>OpenAI API key (site-wide)</td>
+</tr>
+<tr>
+<td><code>anthropic_model</code></td>
+<td>select</td>
+<td><code>claude-sonnet-4-6</code></td>
+<td>Claude model for all text generation</td>
+</tr>
+<tr>
+<td><code>openai_image_model</code></td>
+<td>select</td>
+<td><code>gpt-image-2</code></td>
+<td>OpenAI image model</td>
+</tr>
+<tr>
+<td><code>openai_image_quality</code></td>
+<td>select</td>
+<td><code>medium</code></td>
+<td>Default image quality (low/medium/high)</td>
+</tr>
+<tr>
+<td><code>openai_image_format</code></td>
+<td>select</td>
+<td><code>jpeg</code></td>
+<td>Output format / file extension</td>
+</tr>
+<tr>
+<td><code>scene_thumb_size</code></td>
+<td>int</td>
+<td><code>200</code></td>
+<td>Scene thumbnail size (px)</td>
+</tr>
+<tr>
+<td><code>ai_enabled</code></td>
+<td>bool</td>
+<td><code>1</code></td>
+<td>Global AI processing on/off switch</td>
+</tr>
+<tr>
+<td><code>ai_job_timeout_seconds</code></td>
+<td>int</td>
+<td><code>600</code></td>
+<td>Seconds before a stale <code>running</code> job is failed
+(watchdog)</td>
+</tr>
+<tr>
+<td><code>ai_image_request_timeout</code></td>
+<td>int</td>
+<td><code>300</code></td>
+<td>Per-image OpenAI curl timeout</td>
+</tr>
+<tr>
+<td><code>ai_claude_request_timeout</code></td>
+<td>int</td>
+<td><code>180</code></td>
+<td>Per-call Claude curl timeout</td>
+</tr>
+<tr>
+<td><code>ai_max_pending_per_user</code></td>
+<td>int</td>
+<td><code>5</code></td>
+<td>Max <strong>top-level</strong> pending jobs per user</td>
+</tr>
+<tr>
+<td><code>ai_max_concurrent_image_jobs</code></td>
+<td>int</td>
+<td><code>2</code></td>
+<td>Max simultaneous image jobs (rate-limit guard)</td>
+</tr>
+<tr>
+<td><code>app_title</code></td>
+<td>string</td>
+<td><code>Choose Your Own Adventure!</code></td>
+<td>Site title in header / page titles</td>
+</tr>
+<tr>
+<td><code>story_genres</code></td>
+<td>JSON array</td>
+<td>20 genres incl. <code>Other</code></td>
+<td>Genre chips + filter options</td>
+</tr>
+<tr>
+<td><code>image_styles</code></td>
+<td>JSON object</td>
+<td>category → styles map</td>
+<td>Grouped image-style dropdown source</td>
+</tr>
+<tr>
+<td><code>image_moods</code></td>
+<td>JSON array</td>
+<td>6 moods</td>
+<td>Image mood-modifier options</td>
+</tr>
+<tr>
+<td><code>guardrails_enabled</code></td>
+<td>bool</td>
+<td><code>1</code></td>
+<td>Append content guardrails to prompts</td>
+</tr>
+<tr>
+<td><code>guardrails_text</code></td>
+<td>text</td>
+<td>6 topics</td>
+<td>Restricted topics, one per line</td>
+</tr>
+<tr>
+<td><code>trash_retention</code></td>
+<td>select</td>
+<td><code>1week</code></td>
+<td>Soft-delete purge window
+(<code>1day</code>/<code>1week</code>/<code>1month</code>)</td>
+</tr>
+<tr>
+<td><code>log_retention</code></td>
+<td>select</td>
+<td><code>1month</code></td>
+<td>Log-file purge window</td>
+</tr>
+<tr>
+<td><code>gallery_page_size</code></td>
+<td>int</td>
+<td><code>12</code></td>
+<td>Home gallery stories per page</td>
+</tr>
+<tr>
+<td><code>jobs_history_page_size</code></td>
+<td>int</td>
+<td><code>25</code></td>
+<td>Job History rows per page</td>
+</tr>
+<tr>
+<td><code>gallery_tile_size</code></td>
+<td>int</td>
+<td><code>220</code></td>
+<td>Story image-gallery tile px (presets in
+<code>config.php</code>)</td>
+</tr>
+<tr>
+<td><code>gallery_filmstrip_size</code></td>
+<td>int</td>
+<td><code>72</code></td>
+<td>Gallery lightbox filmstrip thumb px</td>
+</tr>
+<tr>
+<td><code>gallery_tile_spacing</code></td>
+<td>int</td>
+<td><code>16</code></td>
+<td>Gallery tile gap px</td>
+</tr>
+</tbody>
+</table>
+<p>Access pattern: <code>app_setting('key')</code> — returns the DB
+value, else the <code>SETTING_DEFAULTS</code> default, else
+<code>null</code>. Per-user BYOK keys + quality override live on
+<code>cyoa_ai_users</code> (see §2.7).</p>
+<h3 id="bring-your-own-keys-byok">2.7 Bring Your Own Keys (BYOK)</h3>
+<p>Users can supply their own API keys so their AI usage is billed to
+their own account rather than the site owner’s.</p>
+<p><strong>Key resolution order (in cron handlers):</strong> 1. If the
+job’s user has a non-empty <code>claude_api_key</code> or
+<code>openai_api_key</code> stored in the <code>cyoa_ai_users</code>
+table, use that key for the matching API call. 2. Otherwise fall back to
+<code>app_setting('anthropic_api_key')</code> /
+<code>app_setting('openai_api_key')</code>.</p>
+<p><strong>Per-user settings stored on
+<code>cyoa_ai_users</code>:</strong> -
+<code>claude_api_key VARCHAR(255)</code> — personal Claude API key
+(optional) - <code>openai_api_key VARCHAR(255)</code> — personal OpenAI
+API key (optional) - <code>openai_image_quality VARCHAR(10)</code> —
+personal image quality override (optional)</p>
+<p><strong>Account page (<code>account.php</code>):</strong> “API Keys”
+section lets users view/update/clear their stored keys and quality
+override.</p>
+<h3 id="prompt-templates">2.8 Prompt Templates</h3>
+<p>All AI system prompt text lives in standalone <code>.txt</code> files
+under <code>prompts/</code>. Prompts that contain dynamic values use
+<code>{PLACEHOLDER}</code> tokens substituted in PHP via
+<code>str_replace()</code>.</p>
+<pre><code>prompts/
+  image_system.txt              — System context for OpenAI scene image generation
+  cover_image_system.txt        — System context for the story cover image
+  scene_system.txt              — System prompt for single scene generation (Claude)
+  story_plan_system.txt         — System prompt for story planning phase (Claude)
+  story_scene_writer_system.txt — System prompt for scene writing phase (Claude)</code></pre>
+<p>Helper function
+<code>load_prompt(string $name, array $vars = []): string</code> reads
+the file and performs placeholder substitution. See
+<code>ai-prompts.md</code> (same folder) for the full
+prompt-construction logic.</p>
+<h3 id="job-cost-tracking">2.9 Job Cost Tracking</h3>
+<p>The <code>cyoa_ai_jobs</code> table has cost columns (added in v3
+migration):</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input_tokens</code></td>
+<td>INT</td>
+<td>Claude input tokens consumed</td>
+</tr>
+<tr>
+<td><code>output_tokens</code></td>
+<td>INT</td>
+<td>Claude output tokens consumed</td>
+</tr>
+<tr>
+<td><code>image_count</code></td>
+<td>INT</td>
+<td>Number of images generated</td>
+</tr>
+<tr>
+<td><code>cost_usd</code></td>
+<td>DECIMAL(10,6)</td>
+<td>Calculated cost for this job</td>
+</tr>
+</tbody>
+</table>
+<p>For <code>story</code> parent jobs, the displayed cost is the
+<strong>chain cost</strong> — the sum of <code>cost_usd</code> across
+the parent job and all child jobs with the same
+<code>parent_job_id</code>. Child jobs show no cost label. A
+<code>…</code> suffix indicates the chain is still running.</p>
+<p>Functions: <code>db_update_job_cost()</code>,
+<code>db_get_chain_cost()</code>.</p>
+<h3 id="file-structure-for-ai-features">2.10 File Structure for AI
+Features</h3>
+<pre><code>cron/
+  ai_dispatcher.php      — Cron entry point; multi-pass claim, spawns workers, daily maintenance
+  ai_worker.php          — Single-job router; receives job_id via CLI arg
+  ai_story_handler.php   — Multi-phase Claude handler for `story` jobs (+ premise-seed resolution)
+  ai_scene_handler.php   — Claude handler for single `scene` jobs
+  ai_image_handler.php   — OpenAI image handler for `image` jobs
+  ai_apply.php           — Apply completed results to the DB; auto-publish gate
+  ai_helpers.php         — Shared cron helpers (HTTP, logging, prompt loading)
+  maintenance.php        — Daily cleanup: purge expired trash + old logs
+  logs/                  — Per-job + dispatcher + maintenance + guardrail logs
+
+cli/
+  create_stories.php     — Batch story-creation jobs (--file or generated)
+  export_story.php       — Bundle a story (rows + scenes + choices + images) for transfer
+  import_story.php       — Re-create an exported bundle on this instance with fresh IDs
+  validate_play_fonts.php— Verify every play-font family/weight resolves on Google Fonts
+  sample_stories.json    — Example batch input for create_stories.php --file
+
+data/                    — Data-driven content (loaded via data.php):
+  premises.json          — Story premise seeds (genre-tagged) for blank-premise creation
+  audiences.json         — Audience keys + writing guidance
+  themes.json            — Theme presets (colours + fonts)
+  play_fonts.json        — Curated, mood-tagged Google-Fonts allow-list (Phase 41)
+
+prompts/
+  image_system.txt  cover_image_system.txt
+  scene_system.txt  story_plan_system.txt  story_scene_writer_system.txt</code></pre>
+<h3 id="security-considerations">2.11 Security Considerations</h3>
+<ul>
+<li>API keys stored in DB <code>cyoa_ai_settings</code> (server-side
+only, never exposed to browser); masked in admin panel display</li>
+<li>Cron worker validates that the <code>ai_jobs</code> row belongs to a
+valid user/story before processing</li>
+<li>Rate limiting: <code>ai_max_pending_per_user</code> setting limits
+concurrent pending jobs per user</li>
+<li>Input sanitization: AI prompts are length-limited and stripped of
+HTML before sending to API</li>
+<li>Generated text is sanitized with <code>htmlspecialchars()</code>
+before storage</li>
+<li>Generated images are validated (file type, size) before saving</li>
+</ul>
+<hr />
+<h2 id="job-queue-page-job_queue.php">3. Job Queue Page
+(<code>job_queue.php</code>)</h2>
+<p>A dedicated page accessible from the header navigation for all
+logged-in users. Results are already applied by the time the user visits
+— this page is for visibility and navigation only.</p>
+<h3 id="user-view">User view</h3>
+<ul>
+<li>Table of the logged-in user’s jobs, newest first</li>
+<li>Columns: type, story title, scene title (if applicable), status,
+cost, submitted time, completed/failed time</li>
+<li><strong>“Go to scene/story” link</strong> on every row — takes the
+user to the editor at the relevant point</li>
+<li><strong>Retry button</strong> on failed rows — resets to
+<code>pending</code> for cron pickup</li>
+<li><strong>Cancel button</strong> on pending rows</li>
+</ul>
+<h3 id="admin-view">Admin view</h3>
+<p>When an admin visits <code>job_queue.php</code>, they see all users’
+jobs with an additional <strong>Username</strong> column. All actions
+(retry, cancel) are available across all users.</p>
+<h3 id="seen-tracking-and-badge-dismissal">“Seen” tracking and badge
+dismissal</h3>
+<p>When the page loads, all the current user’s <code>completed</code>
+and <code>failed</code> jobs with <code>seen_at IS NULL</code> are
+marked <code>seen_at = NOW()</code> in a single UPDATE. This clears the
+badge.</p>
+<hr />
+<h2 id="header-notification-badge">4. Header Notification Badge</h2>
+<p>All notification and polling logic lives in <code>header.php</code>.
+No page-specific JS is needed.</p>
+<h3 id="badge-behaviour">Badge behaviour</h3>
+<ul>
+<li>The Job Queue icon in the nav shows a badge with a count of unseen
+completed/failed jobs</li>
+<li>Badge disappears when the user opens <code>job_queue.php</code></li>
+<li>Badge reappears if new jobs complete while the user is on another
+page</li>
+</ul>
+<h3 id="polling">Polling</h3>
+<p><code>header.php</code> includes a JS block that polls
+<code>api_jobs.php?action=unseen_count</code> every 5 seconds:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">function</span> () {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> badge <span class="op">=</span> <span class="bu">document</span><span class="op">.</span><span class="fu">getElementById</span>(<span class="st">&#39;job-queue-badge&#39;</span>)<span class="op">;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="op">!</span>badge) <span class="cf">return</span><span class="op">;</span> <span class="co">// not logged in</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">function</span> <span class="fu">checkJobs</span>() {</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">fetch</span>(<span class="st">&#39;api_jobs.php?action=unseen_count&#39;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">then</span>(r <span class="kw">=&gt;</span> r<span class="op">.</span><span class="fu">json</span>())</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">then</span>(data <span class="kw">=&gt;</span> {</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> (data<span class="op">.</span><span class="at">count</span> <span class="op">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                    badge<span class="op">.</span><span class="at">textContent</span> <span class="op">=</span> data<span class="op">.</span><span class="at">count</span><span class="op">;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>                    badge<span class="op">.</span><span class="at">hidden</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                } <span class="cf">else</span> {</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                    badge<span class="op">.</span><span class="at">hidden</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                }</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>            })</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span><span class="fu">catch</span>(() <span class="kw">=&gt;</span> {})<span class="op">;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">checkJobs</span>()<span class="op">;</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="pp">setInterval</span>(checkJobs<span class="op">,</span> <span class="dv">5000</span>)<span class="op">;</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>})()<span class="op">;</span></span></code></pre></div>
+<hr />
+<h2 id="soft-delete-trash-maintenance">5. Soft Delete, Trash &amp;
+Maintenance</h2>
+<p>Stories are <strong>soft-deleted</strong>, not removed
+immediately:</p>
+<ul>
+<li><code>db_soft_delete_story()</code> sets
+<code>status = 'deleted'</code> and stamps
+<code>date_deleted = NOW()</code>. Live queries (gallery / editor /
+summary / favorites) filter <code>status != 'deleted'</code>;
+<code>date_deleted</code> records when it was trashed (for ordering +
+retention). Restore sets <code>status = 'draft'</code>,
+<code>date_deleted = NULL</code>.</li>
+<li><strong><code>trash.php</code></strong> lists the owner’s (or, for
+admins, all) <code>status = 'deleted'</code> stories with
+<strong>Restore</strong> and <strong>Delete permanently</strong>
+actions. An inline “Empty Trash” button purges the current user’s trash
+now.</li>
+<li><strong><code>cron/maintenance.php</code></strong> runs once per
+calendar day (launched by the dispatcher, guarded by that day’s
+maintenance log; it also has its own &lt;1h age guard against
+double-fires). It purges:
+<ul>
+<li><code>status = 'deleted'</code> stories whose
+<code>date_deleted</code> is older than <code>trash_retention</code>
+(<code>1day</code> / <code>1week</code> / <code>1month</code>), and</li>
+<li>log files in <code>cron/logs/</code> older than
+<code>log_retention</code>.</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="theme-engine-visual-layer-theme.php-fonts.php">6. Theme Engine
+(visual layer) — <code>theme.php</code>, <code>fonts.php</code></h2>
+<p>A story’s <strong>theme is purely visual</strong>: a body font +
+heading font (from the Phase 41 allow-list) and bg/text/accent colours,
+stored as JSON in <code>stories.theme_json</code>. The legacy
+<code>stories.theme</code> column holds a preset <em>slug</em> and
+serves as the per-field fallback. <strong>Theme is never sent to AI
+generation.</strong></p>
+<ul>
+<li><strong>Presets</strong> live in <code>data/themes.json</code>; the
+font allow-list in <code>data/play_fonts.json</code> (read via
+<code>fonts.php</code>). Both are data-driven so new presets/fonts
+appear automatically. (A <code>cyoa_ai_themes</code> table exists in the
+schema but is <strong>currently unused</strong> — the engine reads the
+JSON directly; the table is leftover Phase 42 scaffolding.)</li>
+<li><strong><code>theme_sanitize()</code></strong> is the single
+injection gate: colours must match a strict <code>#RRGGBB</code> regex,
+fonts must be on the allow-list, sizes are clamped, and a text-vs-bg
+contrast below WCAG AA falls back to the preset. <code>theme.php</code>
+only ever emits validated values.</li>
+<li><strong><code>play.php</code></strong> injects the resolved values
+as an inline
+<code>:root { --bg; --text; --accent; --font; --font-heading; --base-size }</code>
+block; <code>styles/play_theme.css</code> derives every bespoke shade
+via <code>color-mix()</code>. Google-Fonts <code>&lt;link&gt;</code>
+tags are built from the chosen families.</li>
+<li><strong>Editor UI:</strong> a theme editor (preset dropdown +
+heading/body font dropdowns + colour pickers + live preview) saved to
+<code>theme_json</code>. The AI may suggest a palette, but the user’s
+pick wins unless <code>gen_theme</code> is set.</li>
+</ul>
+<hr />
+<h2 id="story-image-gallery-v7-gallery.php">7. Story Image Gallery (v7)
+— <code>gallery.php</code></h2>
+<p>Per-story image gallery (cover first, then every scene that has an
+image; image-less scenes skipped).</p>
+<ul>
+<li><strong>Data seam —
+<code>get_gallery_items(int $storyID): array</code></strong>
+(db_functions.php) returns ordered <code>{type, id, title, src}</code>
+items, resolving shadow-draft image folders like summary/editor do. This
+single function is the extension point for an eventual (deferred) global
+gallery.</li>
+<li><strong><code>gallery.php</code></strong> renders the tile grid
+server-side and embeds the items as JSON for
+<strong><code>gallery.js</code></strong> (lightbox: prev/next
+wrap-around, keyboard nav, filmstrip).
+<strong><code>styles/gallery.css</code></strong> sizes tiles from the
+<code>gallery_*</code> settings. The same lightbox is reused in
+<code>editor.php</code> to enlarge thumbnails.</li>
+<li>Access is owner/admin only, entered from the editor’s Scenes header
+and the summary page.</li>
+</ul>
+<hr />
+<h2 id="data-driven-content-layer-data.php-data.json">8. Data-Driven
+Content Layer — <code>data.php</code> + <code>data/*.json</code></h2>
+<p><code>data.php</code> provides <code>load_data_json('name')</code>
+(cached read of <code>data/name.json</code>). Content that used to be
+hardcoded now lives in JSON so it can grow without code edits:</p>
+<ul>
+<li><strong><code>premises.json</code></strong> — genre-tagged premise
+seeds. On a blank premise, <code>ai_pick_seed()</code> draws one
+(filtered by genre, or the whole list when genre is “Any”); batch/CLI
+runs pick <strong>without replacement</strong> to avoid near-duplicate
+stories.</li>
+<li><strong><code>audiences.json</code></strong> — audience keys +
+writing guidance injected into prompts.</li>
+<li><strong><code>themes.json</code></strong> /
+<strong><code>play_fonts.json</code></strong> — theme engine inputs (see
+§6).</li>
+</ul>
+<p>“Any” defaults: the create form’s Genre / Tone / Audience default to
+<strong>Any</strong>; <code>ai_resolve_story_params()</code> expands
+these to concrete random values <strong>in code</strong> before the job
+is queued, so the AI always receives a concrete value while the UI stays
+unconstrained. A blank image style resolves to <strong>one</strong>
+random style for the whole story (<code>ai_random_image_style()</code>)
+so every image shares a look.</p>
+<hr />
+<h2
+id="cross-instance-story-transfer-cliexport_story.php-cliimport_story.php">9.
+Cross-Instance Story Transfer — <code>cli/export_story.php</code> /
+<code>cli/import_story.php</code></h2>
+<p>Moves a story between app instances (e.g. local ↔︎ host), which differ
+in IDs and image folders.</p>
+<ul>
+<li><strong>Export</strong> writes a bundle directory:
+<code>story.json</code> (story + scenes with <code>temp_id</code> =
+original sceneID + choices referencing temp_ids) plus a copy of the
+image files.</li>
+<li><strong>Import</strong> recreates the story with <strong>fresh
+IDs</strong> using the same two-pass remap as <code>clone_story()</code>
+(create all scenes → write choices with remapped destinations), copies
+images into the new <code>images/stories/&lt;newID&gt;/</code>, assigns
+an owner (<code>--owner</code> / <code>--owner-email</code> / default
+<code>MAIN_ADMIN</code>), and imports as a <strong>draft</strong>.
+Missing images clear their reference; unresolvable choice destinations
+fall back to “ending”.</li>
+</ul>
+</main>
+
+<script>
+;(function() {
+  // Non-essential if user has JavaScript off. Just makes checkboxes look nicer.
+  var selector = '.task-list > li > input[type="checkbox"]';
+  var checkboxes = document.querySelectorAll(selector);
+  Array.from(checkboxes).forEach((checkbox) => {
+    var wasChecked = checkbox.checked;
+    checkbox.disabled = false;
+    checkbox.addEventListener('click', (ev) => {ev.target.checked = wasChecked});
+  });
+
+  function hoistAbove() {
+    const toHoist = document.querySelectorAll('main > .sidenote-wrapper + :not(.sidenote-wrapper)');
+    for (let i = toHoist.length - 1; i >= 0; i--) {
+      const source = toHoist[i];
+      let target = source.previousElementSibling;
+      while (target.previousElementSibling?.classList.contains('sidenote-wrapper')) {
+        target = target.previousElementSibling;
+      }
+      source.parentNode.insertBefore(source, target);
+    }
+  }
+
+  function sinkBelow() {
+    const toHoist = document.querySelectorAll('main > :not(.sidenote-wrapper) + .sidenote-wrapper');
+    for (let i = 0; i < toHoist.length; i++) {
+      const source = toHoist[i].previousElementSibling;
+      let target = source.nextElementSibling;
+      while (target.classList.contains('sidenote-wrapper')) {
+        target = target.nextElementSibling;
+      }
+      source.parentNode.insertBefore(source, target);
+    }
+  }
+
+  if (window.matchMedia('screen')) {
+    if (window.innerWidth <= 796) {
+      hoistAbove();
+    }
+    let prevSize = window.innerWidth;
+    // Needs to mirror breakpoints in :root settings in CSS variables
+    // 745px = --main-width-narrow
+    // 26px = --line-height
+    // 169px = side note min width narrow
+    const breakpoint = 26 + 550 + 26 + 169 + 26 - 1;
+    window.addEventListener('resize', function() {
+      const newSize = window.innerWidth;
+      if (prevSize >= breakpoint && newSize < breakpoint) {
+        hoistAbove();
+      } else if (prevSize < breakpoint && newSize >= breakpoint) {
+        sinkBelow();
+      }
+      prevSize = newSize;
+    });
+  }
+})();
+</script>
+</body>
+</html>

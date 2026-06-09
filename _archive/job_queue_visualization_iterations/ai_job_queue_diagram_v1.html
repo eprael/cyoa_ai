@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Job Queue Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-light: #dbeafe;
+    --blue-mid: #3b82f6;
+    --blue-dark: #1d4ed8;
+    --blue-bg: #eff6ff;
+    --teal-light: #ccfbf1;
+    --teal-mid: #14b8a6;
+    --teal-dark: #0f766e;
+    --teal-bg: #f0fdfa;
+    --purple-light: #ede9fe;
+    --purple-mid: #8b5cf6;
+    --purple-dark: #6d28d9;
+    --purple-bg: #faf5ff;
+    --yellow: #fbbf24;
+    --orange: #f97316;
+    --green: #22c55e;
+    --red: #ef4444;
+    --bg: #f1f5f9;
+    --card-bg: #ffffff;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: rgba(0,0,0,0.08);
+    --shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+    --shadow-lg: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px 16px;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(59,130,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(139,92,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(20,184,166,0.04) 0%, transparent 60%);
+  }
+
+  h1.title {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+
+  /* ── Layout ── */
+  .diagram {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto 24px;
+    align-items: start;
+  }
+
+  /* ── Panels ── */
+  .panel {
+    border-radius: 20px;
+    padding: 20px 18px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    background: var(--card-bg);
+    position: relative;
+  }
+  .panel-blue  { background: var(--blue-bg);   border-color: rgba(59,130,246,0.2); }
+  .panel-teal  { background: var(--teal-bg);   border-color: rgba(20,184,166,0.2); }
+  .panel-purple{ background: var(--purple-bg); border-color: rgba(139,92,246,0.2); }
+
+  .panel-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin-bottom: 16px;
+  }
+  .label-blue   { background: var(--blue-mid);   color: #fff; }
+  .label-teal   { background: var(--teal-mid);   color: #fff; }
+  .label-purple { background: var(--purple-mid); color: #fff; }
+
+  /* ── Icon circles ── */
+  .icon-circle {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    margin: 0 auto 12px;
+    box-shadow: var(--shadow);
+  }
+  .icon-blue   { background: linear-gradient(135deg, #60a5fa, #3b82f6); }
+  .icon-teal   { background: linear-gradient(135deg, #2dd4bf, #14b8a6); }
+  .icon-purple { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+
+  /* ── Step blocks ── */
+  .step {
+    background: white;
+    border-radius: 12px;
+    padding: 9px 12px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--border);
+    text-align: center;
+    position: relative;
+  }
+  .step.blue-step   { border-left: 3px solid var(--blue-mid); }
+  .step.purple-step { border-left: 3px solid var(--purple-mid); }
+
+  /* ── Arrows between steps ── */
+  .arrow-down {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1;
+    margin: 5px 0;
+  }
+
+  /* ── Poll loop ── */
+  .poll-loop {
+    background: var(--blue-light);
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    border: 1.5px dashed var(--blue-mid);
+    position: relative;
+  }
+  .poll-loop .loop-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .poll-step {
+    font-size: 0.75rem;
+    padding: 5px 9px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-weight: 500;
+    border: 1px solid rgba(59,130,246,0.2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .poll-step:last-child { margin-bottom: 0; }
+  .rotating-arrow {
+    display: inline-block;
+    animation: spin 3s linear infinite;
+    font-size: 0.9rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── DB Queue / Pipeline ── */
+  .queue-section {
+    margin-top: 8px;
+  }
+  .queue-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--teal-dark);
+    text-align: center;
+    margin-bottom: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .pipeline {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    overflow: hidden;
+    padding: 10px 6px;
+    background: white;
+    border-radius: 14px;
+    border: 1.5px solid rgba(20,184,166,0.25);
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.04);
+    position: relative;
+  }
+  .pipe-stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .pipe-stage-label {
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  .pipe-arrow {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-top: -10px;
+  }
+
+  /* ── Job cards ── */
+  .job-card {
+    border-radius: 8px;
+    padding: 5px 7px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-align: center;
+    width: 100%;
+    min-width: 48px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    animation: slideIn 0.4s ease;
+  }
+  .job-card.pending   { background: #fef3c7; color: #92400e; border: 1.5px solid #fbbf24; }
+  .job-card.running   { background: #ffedd5; color: #9a3412; border: 1.5px solid #f97316; }
+  .job-card.completed { background: #dcfce7; color: #14532d; border: 1.5px solid #22c55e; }
+  .job-card.failed    { background: #fee2e2; color: #7f1d1d; border: 1.5px solid #ef4444; }
+
+  @keyframes slideIn { from { opacity:0; transform: translateX(-8px); } to { opacity:1; transform: translateX(0); } }
+
+  /* ── AI paths ── */
+  .ai-paths {
+    display: flex;
+    gap: 6px;
+    margin: 4px 0;
+  }
+  .ai-path {
+    flex: 1;
+    border-radius: 10px;
+    padding: 7px 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1.5px solid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
+  .ai-path.claude  { background: #fef3c7; border-color: #fbbf24; color: #78350f; }
+  .ai-path.dalle   { background: #ede9fe; border-color: #8b5cf6; color: #4c1d95; }
+  .ai-path .ai-icon { font-size: 1.2rem; }
+
+  /* ── Clock pulse ── */
+  .clock-icon {
+    display: inline-block;
+    animation: pulse 2s ease-in-out infinite;
+    font-size: 1.5rem;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.12); opacity: 0.8; }
+  }
+
+  /* ── Cross-section connectors ── */
+  .connector-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    max-width: 1100px;
+    margin: -4px auto 4px;
+    padding: 0 calc(33.33% + 8px);
+    pointer-events: none;
+  }
+  /* Using absolute/SVG overlay approach instead */
+  .diagram-wrapper {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto 24px;
+  }
+
+  /* ── Arrows between panels (overlaid SVG) ── */
+  .arrows-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* ── DB table visual ── */
+  .db-table {
+    background: white;
+    border-radius: 12px;
+    border: 1.5px solid rgba(20,184,166,0.25);
+    overflow: hidden;
+    margin-top: 10px;
+    font-size: 0.68rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .db-table-header {
+    background: linear-gradient(135deg, var(--teal-mid), var(--teal-dark));
+    color: white;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 6px 10px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .db-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 70px 40px;
+    gap: 4px;
+    padding: 4px 8px;
+    align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-weight: 500;
+    color: var(--text);
+    font-size: 0.65rem;
+    animation: fadeRow 0.5s ease;
+  }
+  .db-row:last-child { border-bottom: none; }
+  @keyframes fadeRow { from { opacity:0; background: rgba(20,184,166,0.1); } to { opacity:1; background: transparent; } }
+  .db-row .id { font-family: 'Space Mono', monospace; color: var(--text-muted); font-size: 0.6rem; }
+  .db-row .prompt { color: var(--text); font-size: 0.63rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .db-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px 6px;
+    border-radius: 6px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .badge-pending   { background: #fef3c7; color: #92400e; }
+  .badge-running   { background: #ffedd5; color: #9a3412; }
+  .badge-completed { background: #dcfce7; color: #14532d; }
+  .badge-failed    { background: #fee2e2; color: #7f1d1d; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 20px;
+    max-width: 700px;
+    margin: 0 auto 8px;
+    background: white;
+    padding: 12px 20px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .legend-title {
+    width: 100%;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  .legend-dot {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── Section divider lines ── */
+  .divider-label {
+    text-align: center;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 6px 0 10px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .divider-label::before,
+  .divider-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.3;
+  }
+
+  /* ── Flow arrows (inline SVG connectors) ── */
+  .flow-arrows {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    gap: 16px;
+    pointer-events: none;
+    margin-bottom: 8px;
+  }
+  .flow-connector {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, currentColor, transparent);
+    opacity: 0.4;
+  }
+
+  /* animated job slider in pipeline */
+  .pipeline-wrapper {
+    overflow: hidden;
+    position: relative;
+  }
+  .sliding-jobs {
+    display: flex;
+    gap: 6px;
+    animation: slideJobs 6s linear infinite;
+    width: max-content;
+  }
+  @keyframes slideJobs {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .section-caption {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    text-align: center;
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+
+  /* Cross-arrows between panels */
+  .cross-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 6px 0;
+  }
+
+  @media (max-width: 700px) {
+    .diagram { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<h1 class="title">🧠 AI-Powered App — Async Job Queue Architecture</h1>
+<p class="subtitle">How user requests flow from browser → database queue → AI worker → result</p>
+
+<div class="diagram-wrapper">
+<div class="diagram">
+
+  <!-- ══════════════ LEFT: WEB FRONTEND ══════════════ -->
+  <div class="panel panel-blue">
+    <div class="panel-label label-blue">🌐 Web Frontend</div>
+
+    <div class="icon-circle icon-blue">🌐</div>
+
+    <div class="step blue-step">👤 User clicks <strong>"Generate"</strong></div>
+    <div class="arrow-down">↓</div>
+    <div class="step blue-step">🐘 PHP creates <code style="font-size:0.72rem;background:#eff6ff;padding:1px 4px;border-radius:4px;">ai_jobs</code> row<br><span style="font-size:0.65rem;color:var(--text-muted);">status = <strong>pending</strong></span></div>
+    <div class="arrow-down">↓</div>
+
+    <div class="cross-arrow" style="color:var(--blue-mid);">
+      <span style="font-size:0.7rem;">🗄️</span>
+      <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.3px;">INSERT → DB Queue</span>
+      <span>→</span>
+    </div>
+
+    <div class="divider-label" style="color:var(--blue-mid);">Polling Loop</div>
+
+    <div class="poll-loop">
+      <div class="loop-label"><span class="rotating-arrow">↻</span> Polls every 4 seconds</div>
+      <div class="poll-step">🔍 <span>Fetch job status from DB</span></div>
+      <div class="poll-step">⏳ <span>Result ready?</span></div>
+      <div class="poll-step">✅ <span><strong>Display result to user</strong></span></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CENTER: DB QUEUE ══════════════ -->
+  <div class="panel panel-teal">
+    <div class="panel-label label-teal">🗄️ Database Job Queue</div>
+
+    <div class="icon-circle icon-teal">🗄️</div>
+
+    <div class="db-table">
+      <div class="db-table-header">🗄️ &nbsp;ai_jobs table</div>
+      <div id="db-rows-container">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <div class="queue-label">Pipeline — jobs flow left → right</div>
+      <div class="pipeline-wrapper" style="height:70px;display:flex;align-items:center;overflow:hidden;background:white;border-radius:14px;border:1.5px solid rgba(20,184,166,0.25);padding:8px 6px;">
+        <div class="sliding-jobs" id="sliding-jobs">
+          <!-- cards duplicated for seamless loop -->
+        </div>
+      </div>
+      <div class="section-caption" style="margin-top:6px;">← pending enters, completed exits →</div>
+    </div>
+
+    <!-- Stage labels row -->
+    <div style="display:flex;justify-content:space-around;margin-top:6px;">
+      <div style="text-align:center;font-size:0.58rem;font-weight:700;color:var(--yellow);">PENDING<br>⏳</div>
+      <div style="text-align:center;font-size:0.58rem;color:var(--text-muted);">▶</div>
+      <div style="text-align:center;font-size:0.58rem;font-weight:700;color:var(--orange);">RUNNING<br>⚡</div>
+      <div style="text-align:center;font-size:0.58rem;color:var(--text-muted);">▶</div>
+      <div style="text-align:center;font-size:0.58rem;font-weight:700;color:var(--green);">DONE<br>✅</div>
+      <div style="text-align:center;font-size:0.58rem;color:var(--text-muted);">/</div>
+      <div style="text-align:center;font-size:0.58rem;font-weight:700;color:var(--red);">FAIL<br>❌</div>
+    </div>
+  </div>
+
+  <!-- ══════════════ RIGHT: CRON WORKER ══════════════ -->
+  <div class="panel panel-purple">
+    <div class="panel-label label-purple">⚙️ Cron Worker</div>
+
+    <div class="icon-circle icon-purple">
+      <span class="clock-icon">🕐</span>
+    </div>
+    <div style="text-align:center;font-size:0.72rem;font-weight:600;color:var(--purple-dark);margin-bottom:12px;">Runs every <strong>30 seconds</strong></div>
+
+    <div class="cross-arrow" style="color:var(--purple-mid);">
+      <span>←</span>
+      <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.3px;">READ from DB Queue</span>
+      <span style="font-size:0.7rem;">🗄️</span>
+    </div>
+
+    <div class="step purple-step">📌 Pick oldest <strong>pending</strong> job</div>
+    <div class="arrow-down">↓</div>
+    <div class="step purple-step">⚡ Mark as <strong>running</strong></div>
+    <div class="arrow-down">↓</div>
+
+    <div class="divider-label" style="color:var(--purple-mid);">Call AI API</div>
+
+    <div class="ai-paths">
+      <div class="ai-path claude">
+        <span class="ai-icon">🧠</span>
+        <span>Claude</span>
+        <span style="font-size:0.58rem;font-weight:400;">Text / Code</span>
+      </div>
+      <div class="ai-path dalle">
+        <span class="ai-icon">🖼️</span>
+        <span>DALL-E</span>
+        <span style="font-size:0.58rem;font-weight:400;">Images</span>
+      </div>
+    </div>
+
+    <div class="arrow-down">↓</div>
+    <div class="step purple-step">💾 Store result in DB</div>
+    <div class="arrow-down">↓</div>
+    <div class="step purple-step">✅ Mark as <strong>completed</strong></div>
+
+    <div class="cross-arrow" style="color:var(--purple-mid);margin-top:4px;">
+      <span style="font-size:0.7rem;">🗄️</span>
+      <span style="font-size:0.6rem;font-weight:700;letter-spacing:0.3px;">WRITE result → DB Queue</span>
+      <span>→</span>
+    </div>
+  </div>
+
+</div><!-- /.diagram -->
+</div><!-- /.diagram-wrapper -->
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-title">Job Status Legend</div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#fbbf24;border:1.5px solid #f59e0b;"></div>
+    <span>⏳ Pending — waiting in queue</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#f97316;border:1.5px solid #ea580c;"></div>
+    <span>⚡ Running — worker processing</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#22c55e;border:1.5px solid #16a34a;"></div>
+    <span>✅ Completed — result ready</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#ef4444;border:1.5px solid #dc2626;"></div>
+    <span>❌ Failed — check error log</span>
+  </div>
+</div>
+
+<script>
+// ── DB table rows (cycle through with animation) ──
+const jobs = [
+  { id: '#104', prompt: 'Summarize report…', status: 'pending',   badge: 'badge-pending',   icon: '⏳' },
+  { id: '#103', prompt: 'Generate hero image', status: 'running',  badge: 'badge-running',   icon: '⚡' },
+  { id: '#102', prompt: 'Write email draft…', status: 'completed', badge: 'badge-completed', icon: '✅' },
+  { id: '#101', prompt: 'Logo concept…',       status: 'failed',   badge: 'badge-failed',    icon: '❌' },
+];
+
+function renderRows(list) {
+  const c = document.getElementById('db-rows-container');
+  c.innerHTML = list.map(j => `
+    <div class="db-row" style="animation-delay:${Math.random()*0.3}s">
+      <span class="id">${j.id}</span>
+      <span class="prompt">${j.prompt}</span>
+      <span class="db-badge ${j.badge}">${j.icon} ${j.status}</span>
+      <span style="font-size:0.6rem;color:var(--text-muted);">${j.status==='pending'?'now':j.status==='running'?'5s ago':j.status==='completed'?'2m ago':'1m ago'}</span>
+    </div>
+  `).join('');
+}
+renderRows(jobs);
+
+// Rotate rows every 4 seconds
+let offset = 0;
+setInterval(() => {
+  offset = (offset + 1) % jobs.length;
+  const rotated = [...jobs.slice(offset), ...jobs.slice(0, offset)];
+  renderRows(rotated);
+}, 4000);
+
+// ── Sliding job pipeline cards ──
+const pipelineCards = [
+  { label: '#107', status: 'pending',   cls: 'pending',   icon: '⏳' },
+  { label: '#106', status: 'running',   cls: 'running',   icon: '⚡' },
+  { label: '#105', status: 'completed', cls: 'completed', icon: '✅' },
+  { label: '#104', status: 'pending',   cls: 'pending',   icon: '⏳' },
+  { label: '#103', status: 'running',   cls: 'running',   icon: '⚡' },
+  { label: '#102', status: 'completed', cls: 'completed', icon: '✅' },
+  { label: '#101', status: 'failed',    cls: 'failed',    icon: '❌' },
+];
+
+// duplicate for seamless loop
+const all = [...pipelineCards, ...pipelineCards];
+const sl = document.getElementById('sliding-jobs');
+sl.innerHTML = all.map(c => `
+  <div class="job-card ${c.cls}" style="min-width:60px;">
+    ${c.icon}<br>
+    <span style="font-family:'Space Mono',monospace;font-size:0.55rem;">${c.label}</span>
+  </div>
+`).join('');
+
+// Fix animation width dynamically
+const cardW = 66; // approx card+gap width
+const half = pipelineCards.length * cardW;
+sl.style.animationDuration = (pipelineCards.length * 1.2) + 's';
+</script>
+</body>
+</html>

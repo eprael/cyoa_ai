@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appendix A - The Implementation
+Plan - CYOA Maker Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../report.css" />
+  <link rel="stylesheet" href="../lightbox.css" />
+</head>
+<body>
+  <div id="report-header"></div>
+  <main class="page">
+    <p class="toplink"><a href="../index.html">&larr; Report Index</a></p>
+    <h1>The Implementation Plans</h1>
+    <div class="lead">
+
+<p>This project was built as a series of
+<strong>implementation plans</strong>, where every plan was written
+out in great detail <em>before</em> a round
+of work would begin. It would lay out the phases, the files each would touch, and the
+decisions made up front. This appendix documents the whole history, from the first plan to the last.</p>
+
+<p>I ended up creating seven of these plans.
+Each one took the application to a new level with new features or improvements. During the planning
+the AI is like a real collaborator - communicating ideas back and
+forth, helping you organize your thoughts, asking about things you might not have thought about
+yet. When the AI sees the bigger picture it can make better
+decisions about the implementation. It can catch problems before
+they happen and the code ends up being better organized. Most of
+my time was spent reviewing and revising these plans. Once good,
+the AI worked through the entire plan in one pass - no constant confirmations, no surprises.
+In most cases the implementations were successful on the first try.
+</p>
+
+
+
+
+</div>
+    <nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#plan-1-foundation-setup"
+id="toc-plan-1-foundation-setup">Plan 1 - Foundation &amp; Setup</a>
+<ul>
+<li><a href="#phase-0-foundation-database-config"
+id="toc-phase-0-foundation-database-config">Phase 0 - Foundation
+(Database + Config)</a></li>
+<li><a href="#phase-1-draftpublished-system-wordpress-style"
+id="toc-phase-1-draftpublished-system-wordpress-style">Phase 1 -
+Draft/Published System (WordPress-style)</a></li>
+<li><a href="#phase-2-story-summary-page-social-features"
+id="toc-phase-2-story-summary-page-social-features">Phase 2 - Story
+Summary Page + Social Features</a></li>
+<li><a href="#phase-3-ai-job-queue-infrastructure"
+id="toc-phase-3-ai-job-queue-infrastructure">Phase 3 - AI Job Queue
+Infrastructure</a></li>
+<li><a href="#phase-4-level-1-ai-image-generation"
+id="toc-phase-4-level-1-ai-image-generation">Phase 4 - Level 1: AI Image
+Generation</a></li>
+<li><a href="#phase-5-level-2-ai-scene-generation"
+id="toc-phase-5-level-2-ai-scene-generation">Phase 5 - Level 2: AI Scene
+Generation</a></li>
+<li><a href="#phase-6-level-3-ai-full-story-generation"
+id="toc-phase-6-level-3-ai-full-story-generation">Phase 6 - Level 3: AI
+Full Story Generation</a></li>
+<li><a href="#phase-7-ui-redesign" id="toc-phase-7-ui-redesign">Phase 7
+- UI Redesign</a></li>
+</ul></li>
+<li><a href="#plan-2-ui-feature-enhancements"
+id="toc-plan-2-ui-feature-enhancements">Plan 2 - UI &amp; Feature
+Enhancements</a>
+<ul>
+<li><a href="#phase-8-cosmetic-fixes-quick-wins"
+id="toc-phase-8-cosmetic-fixes-quick-wins">Phase 8 - Cosmetic Fixes
+&amp; Quick Wins</a></li>
+<li><a href="#phase-9-navigation-account-restructuring"
+id="toc-phase-9-navigation-account-restructuring">Phase 9 - Navigation
+&amp; Account Restructuring</a></li>
+<li><a href="#phase-10-gallery-enhancements"
+id="toc-phase-10-gallery-enhancements">Phase 10 - Gallery
+Enhancements</a></li>
+<li><a href="#phase-11-summary-page-adjustments"
+id="toc-phase-11-summary-page-adjustments">Phase 11 - Summary Page
+Adjustments</a></li>
+<li><a href="#phase-12-story-editor-scene-card-redesign"
+id="toc-phase-12-story-editor-scene-card-redesign">Phase 12 - Story
+Editor - Scene Card Redesign</a></li>
+<li><a href="#phase-13-scene-editor-enhancements"
+id="toc-phase-13-scene-editor-enhancements">Phase 13 - Scene Editor
+Enhancements</a></li>
+<li><a href="#phase-14-create-story-tabbed-ai-generator"
+id="toc-phase-14-create-story-tabbed-ai-generator">Phase 14 - Create
+Story - Tabbed AI Generator</a></li>
+<li><a href="#phase-15-job-notification-grouping"
+id="toc-phase-15-job-notification-grouping">Phase 15 - Job Notification
+Grouping</a></li>
+<li><a href="#phase-16-play-page-sticky-layout"
+id="toc-phase-16-play-page-sticky-layout">Phase 16 - Play Page - Sticky
+Layout</a></li>
+</ul></li>
+<li><a href="#plan-3-ai-integration-redesign"
+id="toc-plan-3-ai-integration-redesign">Plan 3 - AI Integration
+Redesign</a>
+<ul>
+<li><a href="#phase-17-admin-settings-table-config-migration"
+id="toc-phase-17-admin-settings-table-config-migration">Phase 17 - Admin
+Settings Table &amp; Config Migration</a></li>
+<li><a href="#phase-18-story-scene-ai-integration-redesign"
+id="toc-phase-18-story-scene-ai-integration-redesign">Phase 18 - Story
+&amp; Scene AI Integration Redesign</a></li>
+<li><a href="#phase-19-header-redesign"
+id="toc-phase-19-header-redesign">Phase 19 - Header Redesign</a></li>
+<li><a href="#phase-20-ai-job-cost-tracking"
+id="toc-phase-20-ai-job-cost-tracking">Phase 20 - AI Job Cost
+Tracking</a></li>
+<li><a href="#phase-21-extract-ai-prompts-to-external-files"
+id="toc-phase-21-extract-ai-prompts-to-external-files">Phase 21 -
+Extract AI Prompts to External Files</a></li>
+</ul></li>
+<li><a href="#plan-4-ui-polish-social-enhancements-ai-improvements"
+id="toc-plan-4-ui-polish-social-enhancements-ai-improvements">Plan 4 -
+UI Polish, Social Enhancements &amp; AI Improvements</a>
+<ul>
+<li><a href="#phase-23-global-modal-system"
+id="toc-phase-23-global-modal-system">Phase 23 - Global Modal
+System</a></li>
+<li><a href="#phase-24-soft-delete-trash-system"
+id="toc-phase-24-soft-delete-trash-system">Phase 24 - Soft Delete &amp;
+Trash System</a></li>
+<li><a href="#phase-25-gallery-genre-summary-page-improvements"
+id="toc-phase-25-gallery-genre-summary-page-improvements">Phase 25 -
+Gallery, Genre &amp; Summary Page Improvements</a></li>
+<li><a href="#phase-26-story-editor-tweaks"
+id="toc-phase-26-story-editor-tweaks">Phase 26 - Story Editor
+Tweaks</a></li>
+<li><a href="#phase-27-api-rate-limit-retry"
+id="toc-phase-27-api-rate-limit-retry">Phase 27 - API Rate-Limit
+Retry</a></li>
+<li><a
+href="#phase-28-db-driven-settings-image-styles-genres-ai-creator-overhaul"
+id="toc-phase-28-db-driven-settings-image-styles-genres-ai-creator-overhaul">Phase
+28 - DB-Driven Settings: Image Styles, Genres &amp; AI Creator
+Overhaul</a></li>
+<li><a href="#phase-29-ai-guardrails"
+id="toc-phase-29-ai-guardrails">Phase 29 - AI Guardrails</a></li>
+<li><a href="#phase-30-admin-maintenance-section"
+id="toc-phase-30-admin-maintenance-section">Phase 30 - Admin Maintenance
+Section</a></li>
+<li><a href="#phase-31-story-tree-view"
+id="toc-phase-31-story-tree-view">Phase 31 - Story Tree View</a></li>
+<li><a href="#phase-32-job-queue-enhancements"
+id="toc-phase-32-job-queue-enhancements">Phase 32 - Job Queue
+Enhancements</a></li>
+</ul></li>
+<li><a href="#plan-5-cosmetic-polish-settings-rework"
+id="toc-plan-5-cosmetic-polish-settings-rework">Plan 5 - Cosmetic Polish
+&amp; Settings Rework</a>
+<ul>
+<li><a href="#phase-33-genre-backfill-data"
+id="toc-phase-33-genre-backfill-data">Phase 33 - Genre Backfill
+(data)</a></li>
+<li><a href="#phase-34-account-admin-settings-restructure"
+id="toc-phase-34-account-admin-settings-restructure">Phase 34 - Account
+&amp; Admin Settings Restructure</a></li>
+<li><a href="#phase-35-main-gallery-tweaks"
+id="toc-phase-35-main-gallery-tweaks">Phase 35 - Main Gallery
+Tweaks</a></li>
+<li><a href="#phase-36-summary-page-tweaks"
+id="toc-phase-36-summary-page-tweaks">Phase 36 - Summary Page
+Tweaks</a></li>
+<li><a href="#phase-37-story-editor-tree-view-tweaks"
+id="toc-phase-37-story-editor-tree-view-tweaks">Phase 37 - Story Editor
+&amp; Tree View Tweaks</a></li>
+<li><a href="#phase-38-play-page-tweaks"
+id="toc-phase-38-play-page-tweaks">Phase 38 - Play Page Tweaks</a></li>
+</ul></li>
+<li><a href="#plan-6-backend-cleanups-theme-engine"
+id="toc-plan-6-backend-cleanups-theme-engine">Plan 6 - Backend Cleanups
+&amp; Theme Engine</a>
+<ul>
+<li><a href="#phase-39-audience-instruction-lookup-prompt-refactor"
+id="toc-phase-39-audience-instruction-lookup-prompt-refactor">Phase 39 -
+Audience Instruction Lookup (prompt refactor)</a></li>
+<li><a href="#phase-40-pagination-gallery-job-history"
+id="toc-phase-40-pagination-gallery-job-history">Phase 40 - Pagination
+(gallery + job history)</a></li>
+<li><a href="#phase-41-curated-mood-tagged-font-allow-list"
+id="toc-phase-41-curated-mood-tagged-font-allow-list">Phase 41 - Curated
+Mood-Tagged Font Allow-List</a></li>
+<li><a href="#phase-42-data-driven-theme-engine"
+id="toc-phase-42-data-driven-theme-engine">Phase 42 - Data-Driven Theme
+Engine</a></li>
+</ul></li>
+<li><a href="#plan-7-story-image-gallery"
+id="toc-plan-7-story-image-gallery">Plan 7 - Story Image Gallery</a>
+<ul>
+<li><a href="#phase-44-story-image-gallery"
+id="toc-phase-44-story-image-gallery">Phase 44 - Story Image
+Gallery</a></li>
+</ul></li>
+<li><a href="#documentation"
+id="toc-documentation">Documentation</a></li>
+</ul>
+    </nav>
+<style>
+  /* bold the level-1 (Plan) entries in the table of contents */
+  nav#TOC > ul > li > a { font-weight: 700; }
+  /* right-aligned "back to top" arrow on each plan / phase heading */
+  .page h2 .uptop, .page h3 .uptop {
+    float: right;
+    font-size: 0.6em;
+    font-weight: 600;
+    line-height: 2.2;
+    color: var(--accent-dk);
+    text-decoration: none;
+  }
+  .page h2 .uptop:hover, .page h3 .uptop:hover { color: var(--blue); }
+</style>
+<h2 id="plan-1-foundation-setup">Plan 1 - Foundation &amp; Setup</h2>
+<p>Phased rollout with dependencies mapped. Each phase builds on the
+previous one.</p>
+<h3 id="phase-0-foundation-database-config">Phase 0 - Foundation
+(Database + Config)</h3>
+<p>Get all database changes in place and configure AI service
+credentials.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>0.1</strong> - Write and run the migration SQL script</li>
+<li><strong>0.2</strong> - Rename <code>cyoa_ai_storypoints</code> →
+<code>cyoa_ai_scenes</code>; rename <code>storypointID</code> →
+<code>sceneID</code> column</li>
+<li><strong>0.3</strong> - Rename all PHP variables, function names, and
+UI text from “storypoint” → “scene”</li>
+<li><strong>0.4</strong> - Add <code>claude_api_key</code> and
+<code>openai_api_key</code> columns to <code>users</code> table</li>
+<li><strong>0.5</strong> - Add optional API Keys section to sign-up form
+(<code>register.php</code>)</li>
+<li><strong>0.6</strong> - Add API Keys section to account settings page
+(<code>account.php</code>)</li>
+<li><strong>0.13</strong> - Update admin user table view to show “own
+key” checkmark columns</li>
+<li><strong>0.8</strong> - Add <code>status</code> and
+<code>published_story_id</code> columns to stories table</li>
+<li><strong>0.9</strong> - Set all existing stories to
+<code>published</code></li>
+<li><strong>0.10</strong> - Create <code>ai_jobs</code> table</li>
+<li><strong>0.11</strong> - Create <code>ratings</code>,
+<code>favorites</code>, <code>comments</code>, <code>views</code>
+tables</li>
+<li><strong>0.12</strong> - Add AI config constants to
+<code>config.php</code></li>
+</ul>
+<h3 id="phase-1-draftpublished-system-wordpress-style">Phase 1 -
+Draft/Published System (WordPress-style)</h3>
+<p>Stories have a status. Only published stories are publicly visible.
+The editor always shows a single version - authors never see “shadow
+draft” as a concept. Editing a published story creates a shadow draft
+behind the scenes, but the editor simply presents the story as being in
+Draft state with Revert / Publish options.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>1.1</strong> - Update <code>get_all_stories()</code> to
+filter by status - show <code>published</code> to all, standalone drafts
+(<code>published_story_id IS NULL</code>) to owner, hide shadow drafts
+from gallery entirely</li>
+<li><strong>1.2</strong> - Add <code>publish_story()</code> and
+<code>set_story_draft()</code> functions for standalone (new)
+stories</li>
+<li><strong>1.3</strong> - Add shadow draft functions:
+<code>get_edit_draft()</code>, <code>create_edit_draft()</code>,
+<code>publish_draft()</code>, <code>discard_draft()</code>,
+<code>is_edit_draft()</code></li>
+<li><strong>1.4</strong> - Add <code>get_story_image_dir()</code> helper
+- returns <code>images/{published_story_id}/</code> for shadow drafts,
+<code>images/{storyID}/</code> otherwise</li>
+<li><strong>1.5</strong> - Update editor routing: clicking “Edit” on a
+published story → look up or create shadow draft → redirect to draft.
+The editor renders the draft transparently - the author just sees their
+story in Draft state.</li>
+<li><strong>1.6</strong> - Show <strong>Revert to Original</strong> and
+<strong>Publish</strong> buttons when a shadow draft is active. No
+banner or mention of “shadow draft” - the editor just shows Draft state.
+(The published version remains live to other users in the
+background.)</li>
+<li><strong>1.7</strong> - Show <strong>Publish</strong> +
+<strong>Delete</strong> buttons for new stories and standalone drafts.
+Show <strong>Edit</strong> + <strong>Unpublish</strong> buttons for
+published stories with no active shadow draft. Unpublish is never shown
+when a draft is active - the draft state actions (1.6) take over
+instead.</li>
+<li><strong>1.8</strong> - Update image upload/save to use
+<code>get_story_image_dir()</code> for reading,
+<code>images/{storyID}/</code> for writing new images on drafts</li>
+<li><strong>1.9</strong> - Implement <code>publish_draft()</code> logic:
+transaction to replace original scenes/choices/metadata, move changed
+images, delete draft</li>
+<li><strong>1.10</strong> - Update gallery (<code>index.php</code>) to
+show draft badge on owner’s standalone drafts</li>
+<li><strong>1.11</strong> - In <code>play.php</code> and
+<code>summary.php</code>, return a 404 if the requested story is a draft
+and the current user is not the owner. Owners are redirected to the
+editor instead.</li>
+</ul>
+<h3 id="phase-2-story-summary-page-social-features">Phase 2 - Story
+Summary Page + Social Features</h3>
+<p>New summary page between gallery and play. Ratings, favourites,
+comments, views all working.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>2.1</strong> - Create <code>summary.php</code> - layout with
+cover image, stats, description, play/edit buttons</li>
+<li><strong>2.2</strong> - Wire gallery card links to
+<code>summary.php</code> instead of <code>play.php</code></li>
+<li><strong>2.3</strong> - Implement view tracking - record a view each
+time summary page loads</li>
+<li><strong>2.4</strong> - Create <code>api_social.php</code> with rate,
+toggle_favorite, comment, delete_comment endpoints</li>
+<li><strong>2.5</strong> - Build star rating widget (JS + CSS) on
+summary page</li>
+<li><strong>2.6</strong> - Build favourite toggle button on summary
+page</li>
+<li><strong>2.7</strong> - Build comments section on summary page (post,
+reply, delete)</li>
+<li><strong>2.8</strong> - Update gallery cards to show view count,
+average rating, favourite count</li>
+<li><strong>2.9</strong> - Add “My Favourites” section to user
+profile/account page</li>
+</ul>
+<h3 id="phase-3-ai-job-queue-infrastructure">Phase 3 - AI Job Queue
+Infrastructure</h3>
+<p>The job queue works end to end. A job can be created, auto-applied by
+cron, and the user is notified via the header badge.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>3.1</strong> - Create <code>api_jobs.php</code> - create,
+unseen_count, cancel, retry, list, apply (admin) endpoints</li>
+<li><strong>3.2</strong> - Create <code>cron/ai_dispatcher.php</code> -
+claims pending jobs atomically, spawns worker processes, exits</li>
+<li><strong>3.3</strong> - Create <code>cron/ai_worker.php</code> -
+single-job processor: calls API handler, calls apply, marks
+completed/failed</li>
+<li><strong>3.4</strong> - Implement stale job timeout in dispatcher
+(running &gt; 5 min → mark failed)</li>
+<li><strong>3.5</strong> - Create <code>cron/ai_apply.php</code> -
+functions to apply completed results to story/scene tables (called by
+worker, not browser)</li>
+<li><strong>3.6</strong> - Add header badge polling -
+<code>header.php</code> JS polls
+<code>api_jobs.php?action=unseen_count</code> every 5 seconds and
+updates the Job Queue link badge</li>
+<li><strong>3.7</strong> - Build <code>job_queue.php</code> - user’s job
+list with status, “go to scene/story” links, retry/cancel actions</li>
+<li><strong>3.8</strong> - Mark jobs seen on <code>job_queue.php</code>
+load (stamp <code>seen_at</code>, clears badge)</li>
+<li><strong>3.9</strong> - Admin view on <code>job_queue.php</code> -
+shows all users’ jobs, adds Username column</li>
+<li><strong>3.10</strong> - Set up cron schedule (every 30 seconds) for
+<code>ai_dispatcher.php</code> on server</li>
+</ul>
+<h3 id="phase-4-level-1-ai-image-generation">Phase 4 - Level 1: AI Image
+Generation</h3>
+<p>Authors can generate images for scenes using AI.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>4.1</strong> - Create <code>cron/ai_image_handler.php</code>
+- DALL-E API call + image download</li>
+<li><strong>4.2</strong> - Wire image handler into
+<code>ai_worker.php</code> for <code>job_type = 'image'</code></li>
+<li><strong>4.3</strong> - Add image apply logic - save file, update
+scene <code>image</code> and <code>image_gen</code>; add
+<code>update_scene_image()</code> to <code>db_functions.php</code></li>
+<li><strong>4.4</strong> - Add AI image generation panel to the scene
+editor UI - prompt input + “Generate” button</li>
+<li><strong>4.5</strong> - Wire “Generate” button →
+<code>api_jobs.php?action=create</code> → inline status message (not a
+flash - JS updates text in the panel)</li>
+<li><strong>4.6</strong> - Change “Add Scene” to auto-create a blank DB
+row immediately and redirect to the edit form - required so a
+<code>sceneID</code> exists before the panel renders and the user can
+submit a job. Add a <strong>Discard</strong> button that deletes the
+blank row if the user cancels. Preserve the <code>is_new</code> flag
+through validation errors.</li>
+</ul>
+<h3 id="phase-5-level-2-ai-scene-generation">Phase 5 - Level 2: AI Scene
+Generation</h3>
+<p>Authors can generate a complete scene (title, description, hint,
+choices) with AI.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>5.1</strong> - Create <code>cron/ai_scene_handler.php</code>
+- Claude API call with scene prompt</li>
+<li><strong>5.2</strong> - Wire scene handler into
+<code>ai_worker.php</code> for <code>job_type = 'scene'</code></li>
+<li><strong>5.3</strong> - Add scene apply logic - create/update scene +
+choices</li>
+<li><strong>5.4</strong> - Build the AI Scene Generator form in the
+editor</li>
+<li><strong>5.5</strong> - Show story map context (existing scenes) on
+the generation form</li>
+<li><strong>5.6</strong> - Wire “Generate Scene” button →
+<code>api_jobs.php?action=create</code> → flash “Job queued”
+message</li>
+</ul>
+<h3 id="phase-6-level-3-ai-full-story-generation">Phase 6 - Level 3: AI
+Full Story Generation</h3>
+<p>Authors can generate a complete branching story from a premise.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>6.1</strong> - Create <code>cron/ai_story_handler.php</code>
+- two-phase plan + write pipeline</li>
+<li><strong>6.2</strong> - Wire story handler into
+<code>ai_worker.php</code> for <code>job_type = 'full_story'</code></li>
+<li><strong>6.3</strong> - Add full story apply logic - create story +
+all scenes + all choices</li>
+<li><strong>6.4</strong> - Build the Full Story Generator page</li>
+<li><strong>6.5</strong> - Add configuration form (premise, genre, tone,
+length, endings)</li>
+<li><strong>6.6</strong> - Wire “Generate Story” button →
+<code>api_jobs.php?action=create</code> → flash “Job queued”
+message</li>
+<li><strong>6.7</strong> - Optional: queue image jobs for each scene
+after story is generated</li>
+</ul>
+<h3 id="phase-7-ui-redesign">Phase 7 - UI Redesign</h3>
+<p>Updated navigation bar and polished UI across all pages.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>7.1</strong> - Redesign <code>header.php</code> - my
+stories, create, explore, job queue link (with badge), user
+dropdown</li>
+<li><strong>7.2</strong> - Add admin menu dropdown (gold button) for
+admin users</li>
+<li><strong>7.3</strong> - Polish gallery cards with new stat icons and
+draft badges</li>
+<li><strong>7.4</strong> - Polish summary page layout</li>
+<li><strong>7.5</strong> - Polish editor pages for AI panels</li>
+</ul>
+<h4 id="suggested-build-order">Suggested Build Order</h4>
+<p>Phase 7 tasks can be interleaved at any point - they’re cosmetic and
+don’t block other work.</p>
+<hr />
+<h4 id="testing-checkpoints">Testing Checkpoints</h4>
+<p>After each phase, verify:</p>
+<ul class="task-list">
+<li><label><input type="checkbox" />All new database functions work
+(manual test via PHP script or phpMyAdmin)</label></li>
+<li><label><input type="checkbox" />No regressions - existing story
+creation, editing, playing, cloning all still work</label></li>
+<li><label><input type="checkbox" />New UI elements render correctly on
+both desktop and mobile</label></li>
+<li><label><input type="checkbox" />For AI phases: test with a real API
+call, verify the full submit → cron → poll → apply cycle</label></li>
+<li><label><input type="checkbox" />Admin panel shows correct data for
+the new features</label></li>
+</ul>
+<h2 id="plan-2-ui-feature-enhancements">Plan 2 - UI &amp; Feature
+Enhancements</h2>
+<p>Continues from 1 (Phases 0–7). All phases below build on the
+completed foundation.</p>
+<h4 id="guest-user-convention">Guest User Convention</h4>
+<p>Any interactive element that requires a login (favouriting, rating,
+commenting) must still be <strong>visible</strong> to guests but
+<strong>non-functional</strong>. On click, redirect to
+<code>login.php</code>. Never silently fail or hide the element - guests
+should understand the feature exists and that logging in unlocks it.
+Read-only features (search, browse, play, view counts, average ratings)
+work for everyone.</p>
+<hr />
+<h3 id="phase-8-cosmetic-fixes-quick-wins">Phase 8 - Cosmetic Fixes
+&amp; Quick Wins</h3>
+<p>Scattered low-effort improvements that can be verified in
+isolation.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>8.1</strong> - Add a favicon (create/source a small icon
+file, link in <code>&lt;head&gt;</code>)</li>
+<li><strong>8.2</strong> - Header: widen container and increase logo
+size</li>
+<li><strong>8.3</strong> - Gallery: change heading from “Choose a story
+to Play” to “Choose a story to Explore”</li>
+<li><strong>8.4</strong> - Story editor: render scene descriptions as
+HTML instead of showing raw tags (use <code>innerHTML</code> in JS or
+strip-and-render server-side)</li>
+<li><strong>8.5</strong> - Story editor: add visible gap/divider between
+scene cards in the scene list</li>
+<li><strong>8.6</strong> - Job queue: collapse jobs older than 24 hours
+behind a “Past jobs” toggle link; recent jobs shown by default</li>
+</ul>
+<h3 id="phase-9-navigation-account-restructuring">Phase 9 - Navigation
+&amp; Account Restructuring</h3>
+<p>Streamline the header, move misplaced sections, and fix the
+live-polling bug.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>9.1</strong> - Badge: only render/show the red dot when
+unseen count &gt; 0; hide it entirely when count is 0 (currently an
+empty dot is visible)</li>
+<li><strong>9.2</strong> - Fix live job-status polling:
+<code>job_queue.php</code> job rows do not update without a full page
+refresh. Add a JS interval that re-fetches
+<code>api_jobs.php?action=list</code> every 5 s and updates status
+badges in-place while any job is <code>pending</code> or
+<code>running</code>; stops polling when all visible jobs are in a
+terminal state</li>
+<li><strong>9.3</strong> - Remove <strong>Generate</strong> link from
+the main nav (it moves to the Create Story tab in Phase 14)</li>
+<li><strong>9.4</strong> - Remove <strong>My Stories</strong> from the
+main nav; add it as the first item in the account dropdown (below the
+user name, above Account)</li>
+<li><strong>9.5</strong> - Add <strong>My Favourites</strong> to the
+account dropdown as a link to
+<code>index.php?filter=favourites</code></li>
+<li><strong>9.6</strong> - Remove the <strong>My Favourites</strong>
+section from <code>account.php</code> (it now lives as a gallery
+filter)</li>
+<li><strong>9.7</strong> - Remove the <strong>Image Generation
+Quality</strong> select and info button from <code>account.php</code>;
+update <code>update_user_api_keys()</code> and
+<code>get_user_by_id()</code> to drop the
+<code>openai_image_quality</code> column. Quality will be a per-request
+choice (Phases 13 &amp; 14). During the interim,
+<code>ai_image_handler.php</code> falls back to the
+<code>OPENAI_IMAGE_QUALITY</code> site constant.</li>
+<li><strong>9.8</strong> - Remove the redundant <strong>Edit</strong>
+button on the published-story editor view. Editing any scene already
+auto-creates a shadow draft; the standalone Edit button serves no
+additional purpose.</li>
+</ul>
+<h3 id="phase-10-gallery-enhancements">Phase 10 - Gallery
+Enhancements</h3>
+<p>My Favourites as a first-class filter, story search, and interactive
+heart icons on cards.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>10.1</strong> - Add <strong>My Favourites</strong> filter
+tab alongside All Stories / My Stories; wire to
+<code>get_user_favorites()</code> already in
+<code>db_functions.php</code></li>
+<li><strong>10.2</strong> - Add a search bar between the filter tabs and
+the Create New Story button; search filters by story title and
+description via a <code>?q=</code> GET parameter; add a
+<code>search_stories()</code> function to
+<code>db_functions.php</code></li>
+<li><strong>10.3</strong> - Cards: double the size of the eye (views)
+icon</li>
+<li><strong>10.4</strong> - Cards: show the heart icon as
+hollow/outlined by default; fill it red if the logged-in user has
+favourited the story. Pass a <code>$userFavouriteIDs</code> set from the
+server so no extra queries per card. Guests always see hollow
+hearts.</li>
+<li><strong>10.5</strong> - Cards: make the heart icon clickable -
+toggle favourite via <code>api_social.php?action=toggle_favorite</code>
+and update the icon and count in-place without a page reload. Guests
+clicking the heart are redirected to <code>login.php</code>.</li>
+</ul>
+<h3 id="phase-11-summary-page-adjustments">Phase 11 - Summary Page
+Adjustments</h3>
+<p>Consolidate the favourite button and reposition the star rating.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>11.1</strong> - Remove the separate
+<strong>Favourite</strong> button next to Edit Story; the existing
+favourites count badge (heart + count) becomes the sole toggle button.
+Guests see the badge but clicking redirects to
+<code>login.php</code>.</li>
+<li><strong>11.2</strong> - Move the star-rating widget to below the
+<strong>Play Story</strong> button. Layout: stars on one line, average
+rating in brackets; line below reads “You rated this X / 5” for
+logged-in users, “Log in to rate this story” for guests. Guest stars are
+non-interactive.</li>
+</ul>
+<h3 id="phase-12-story-editor-scene-card-redesign">Phase 12 - Story
+Editor - Scene Card Redesign</h3>
+<p>Scene cards show a thumbnail, metadata, and choices instead of just a
+title row.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>12.1</strong> - Redesign each scene card: thumbnail on the
+left (target ~300 × 300 px, configurable via a
+<code>SCENE_THUMB_SIZE</code> constant in <code>config.php</code>),
+scene title + first ~150 chars of description + choice list to the
+right</li>
+<li><strong>12.2</strong> - Display the scene’s choices on its card
+(choice text only, no edit controls) so the story structure is visible
+at a glance</li>
+<li><strong>12.3</strong> - Make the thumbnail clickable: clicking opens
+a modal overlay showing the full-size image</li>
+</ul>
+<h3 id="phase-13-scene-editor-enhancements">Phase 13 - Scene Editor
+Enhancements</h3>
+<p>Rich text editing for scene descriptions; inline AI image generation
+with quality control.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>13.1</strong> - Integrate <strong>Quill</strong> rich-text
+editor (loaded from CDN) for the Scene Description field; on save, store
+the HTML output; on load, initialise Quill with the stored HTML</li>
+<li><strong>13.2</strong> - Replace the existing “Generate Scene Image
+with AI” panel’s separate prompt area with an inline <strong>Generate
+with AI</strong> button placed directly beside the file-chooser button
+under Scene Image</li>
+<li><strong>13.3</strong> - Add an image-quality dropdown (Low / Medium
+/ High) with the pricing info button next to the Generate button. Pass
+the selected quality in <code>input_json</code> when creating the image
+job. Update <code>ai_image_handler.php</code> to read
+<code>$input['quality']</code> first, falling back to
+<code>OPENAI_IMAGE_QUALITY</code>.</li>
+</ul>
+<h3 id="phase-14-create-story-tabbed-ai-generator">Phase 14 - Create
+Story - Tabbed AI Generator</h3>
+<p>New-story and edit-story-properties pages gain a two-step AI
+generation flow; generate_story.php is retired.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>14.1</strong> - Split the Create New Story / Edit Story
+Properties form into two tabs: <strong>Create by Hand</strong> (existing
+fields) and <strong>Generate with AI</strong></li>
+<li><strong>14.2</strong> - <strong>Generate Story Properties</strong>
+button (Tab 2): synchronous call to a new
+<code>api_ai_properties.php</code> endpoint that calls Claude and
+returns <code>{title, description, theme}</code> JSON; the form fields
+auto-fill with the result. User can click repeatedly to regenerate
+before committing.</li>
+<li><strong>14.3</strong> - <strong>Generate Scenes</strong> button (Tab
+2): submits an async <code>full_story</code> job using the current form
+values (title, description, theme from step 1 or hand-typed). Existing
+<code>generate_story.php</code> job-creation logic moves here;
+<code>generate_story.php</code> is removed and its nav link (already
+removed in Phase 9) is gone.</li>
+<li><strong>14.4</strong> - Add <strong>average scene word
+length</strong> dropdown (50 / 100 / 200 words) to the Generate tab;
+pass value in <code>input_json</code>; update
+<code>ai_story_handler.php</code> prompt to respect the target word
+count</li>
+<li><strong>14.5</strong> - Replace the “also generate images” checkbox
+with a quality dropdown: Don’t generate / Low / Medium / High. Pass
+selection in <code>input_json</code>. Update <code>ai_apply.php</code>
+to read quality when queuing child image jobs.</li>
+<li><strong>14.6</strong> - Add a <strong>“Generate cover
+image”</strong> dropdown (same Low/Medium/High options + info button)
+beside the Story Thumbnail file chooser on both tabs. Submits an image
+job with <code>scene_id = NULL</code> and a new
+<code>target = 'story_cover'</code> field; apply logic saves to
+<code>images/{storyID}/cover_ai_{ts}.png</code> and updates the story’s
+<code>image</code> column.</li>
+<li><strong>14.7</strong> - Add a <strong>“Generate everything”</strong>
+button (Tab 2) that chains 14.2 (properties) then immediately submits a
+scenes job - skipping the manual review step. Triggered with a single
+click; shows a spinner while properties are fetched synchronously, then
+queues the scenes job.</li>
+<li><strong>14.8</strong> - Update job queue “Go to story” link for
+<code>full_story</code> jobs to point to
+<code>editor.php?storyID=X&amp;action=view_story</code> (the Story
+Properties / overview page) instead of the scene list</li>
+</ul>
+<h3 id="phase-15-job-notification-grouping">Phase 15 - Job Notification
+Grouping</h3>
+<p>Users get one notification when a story or scene is fully done - not
+one per child image job.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>15.1</strong> - Add
+<code>parent_job_id INT DEFAULT NULL</code> column to
+<code>ai_jobs</code> (migration SQL); add FK to same table; add
+<code>get_child_jobs()</code> and
+<code>update_parent_job_status()</code> helpers to
+<code>db_functions.php</code></li>
+<li><strong>15.2</strong> - When <code>ai_apply.php</code> queues child
+image jobs (for scene or full_story), set <code>parent_job_id</code> on
+each child to the originating job’s <code>job_id</code></li>
+<li><strong>15.3</strong> - Badge
+(<code>api_jobs.php?action=unseen_count</code>): exclude jobs where
+<code>parent_job_id IS NOT NULL</code> - child image jobs never count
+toward the notification badge</li>
+<li><strong>15.4</strong> - When a child image job completes, check if
+all siblings are done. If any sibling failed, set the parent’s status to
+a new <code>completed_with_errors</code> value (shown as ⚠ in the job
+queue). If all succeeded, leave the parent as
+<code>completed</code>.</li>
+<li><strong>15.5</strong> - Update <code>ai_jobs</code>
+<code>status</code> ENUM to include
+<code>'completed_with_errors'</code>; update <code>job_queue.php</code>
+to render this state as a yellow ⚠ badge with tooltip “Story generated -
+some images failed”</li>
+<li><strong>15.6</strong> - On <code>job_queue.php</code>, show child
+image job rows nested/indented under their parent (collapsed by
+default), so users can inspect individual image failures without the
+failures polluting the top-level list</li>
+</ul>
+<h3 id="phase-16-play-page-sticky-layout">Phase 16 - Play Page - Sticky
+Layout</h3>
+<p>Title and scene image remain on screen while long descriptions and
+choices scroll.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>16.1</strong> - Refactor <code>play.php</code> layout into
+two regions: a sticky header zone (title always centred at top + scene
+image in its configured position - left / right / top) and a scrollable
+content zone (description text + choice buttons)</li>
+<li><strong>16.2</strong> - Implement the three sticky image positions
+using CSS: <strong>top</strong> (image below title, full width, content
+scrolls below); <strong>left</strong> / <strong>right</strong> (image
+fixed to its side, content scrolls in the remaining column). All three
+keep the title pinned at the very top.</li>
+<li><strong>16.3</strong> - Ensure sticky layout degrades gracefully on
+mobile: on narrow screens, always stack title → image → scrollable
+content regardless of the configured layout</li>
+</ul>
+<h4 id="suggested-build-order-1">Suggested Build Order</h4>
+<p>Phase 16 has no dependencies beyond the base app and can be slotted
+in anywhere after Phase 8.</p>
+<h2 id="plan-3-ai-integration-redesign">Plan 3 - AI Integration
+Redesign</h2>
+<h4 id="overview">Overview</h4>
+<p>This plan replaces the earlier two-tab story properties redesign with
+a broader rework of how AI is integrated across all editor pages. Key
+design principles:</p>
+<ul>
+<li>AI is opt-in and never blocks the manual workflow</li>
+<li>Story creation with AI is fully async (background job); the user is
+redirected immediately</li>
+<li>Scene AI uses a modal; scene thumbnail AI uses an inline expandable
+section</li>
+<li>Edit Story Properties is simplified - the only AI available is cover
+image regeneration</li>
+<li>The old tab structure, Generate Everything chain, and synchronous
+<code>api_ai_properties.php</code> flow are retired entirely</li>
+</ul>
+<hr />
+<h3 id="phase-17-admin-settings-table-config-migration">Phase 17 - Admin
+Settings Table &amp; Config Migration</h3>
+<p>Foundation phase. All subsequent phases that reference configurable
+values (model selection, pricing, job settings, site title) read from
+this table instead of <code>config.php</code>. Implement this before any
+other phase.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>17.1</strong> - Schema</li>
+<li><strong>17.2</strong> - DB helper functions</li>
+<li><strong>17.3</strong> - Settings bootstrap
+(<code>settings.php</code>)</li>
+<li><strong>17.3a</strong> - Code migration sweep</li>
+<li><strong>17.4</strong> - config.php cleanup</li>
+<li><strong>17.5</strong> - Admin panel: Site Settings section</li>
+</ul>
+<h3 id="phase-18-story-scene-ai-integration-redesign">Phase 18 - Story
+&amp; Scene AI Integration Redesign</h3>
+<p><strong>AI toggle off:</strong> Checkboxes hidden, all fields
+editable normally. Form saves manually.</p>
+<h4 id="flows">Flows</h4>
+<h5 id="create-story-with-ai">Create Story with AI</h5>
+<h5 id="scene-ai-modal">Scene AI Modal</h5>
+<hr />
+<h4 id="task-breakdown">Task breakdown</h4>
+<h5 id="form-field-reorder">18.1 - Form field reorder</h5>
+<p>Reorder the story properties form fields on <strong>both</strong>
+Create New Story and Edit Story Properties:</p>
+<p><strong>New order:</strong> Theme → Layout → Story Title →
+Description → Story Thumbnail</p>
+<p>This puts Theme and Layout directly below the AI settings section
+(when visible) so randomized values are immediately adjacent to the
+dropdowns that show them.</p>
+<h5 id="create-new-story-ai-toggle-settings-section">18.2 - Create New
+Story: AI toggle + settings section</h5>
+<ul>
+<li>Add <code>[✨ AI]</code> toggle button to the right of the
+<code>&lt;h3&gt;Create New Story&lt;/h3&gt;</code> heading</li>
+<li>Button style: filled purple with yellow/white text; lighter shade
+when active</li>
+<li><code>toggleStoryAI()</code> in JS: shows/hides
+<code>#story-ai-section</code>; updates button appearance; shows/hides
+the “Use AI” checkboxes; persists state to <code>localStorage</code> key
+<code>cyoa_story_ai_open</code></li>
+<li><code>#story-ai-section</code> contains:
+<ul>
+<li>Genre, Tone, Number of Scenes, Number of Endings, Scene Word Length,
+Scene Image Quality dropdowns</li>
+<li>Dice <code>🎲</code> button (tooltip <code>Randomize</code>) calling
+<code>randomizeStoryAI()</code></li>
+</ul></li>
+<li><code>randomizeStoryAI()</code> - sets all AI dropdowns
+<strong>and</strong> the Theme + Layout dropdowns in the main form; no
+API calls, no jobs</li>
+</ul>
+<p><strong>Randomization pools:</strong></p>
+<h5 id="create-new-story-use-ai-checkboxes">18.3 - Create New Story:
+“Use AI” checkboxes</h5>
+<p>When <code>#story-ai-section</code> is visible:</p>
+<ul>
+<li>Show a <code>☐ Use AI</code> select-all checkbox above the first
+form field</li>
+<li>Show individual checkboxes in front of: Theme, Layout, Story Title,
+Description, Story Thumbnail</li>
+<li>Checking a field: sets its input to <code>readonly</code>, clears
+its value, sets placeholder to <code>generated</code></li>
+<li>Unchecking a field: restores editable state, clears placeholder</li>
+<li>Select-all: checks/unchecks all individual checkboxes</li>
+</ul>
+<p><strong>Thumbnail checkbox special behaviour:</strong> - If an image
+filename is already present when the thumbnail checkbox is checked: show
+a confirm dialog
+<code>This will replace the existing image. Continue?</code> - Cancel:
+leaves checkbox unchecked - OK: collapse
+<code>#story-thumb-ai-expand</code> if open; set filename field to
+readonly + gray; disable <code>[✨ AI]</code> button; placeholder
+<code>generated</code> - When thumbnail checkbox is unchecked: restore
+filename field and <code>[✨ AI]</code> button</p>
+<p>When <code>#story-ai-section</code> is hidden (AI toggled off): all
+checkboxes hidden, all fields editable.</p>
+<h5 id="story-thumbnail-ai-button-create-edit-story-pages">18.4 - Story
+Thumbnail <code>[✨ AI]</code> button (Create + Edit Story pages)</h5>
+<ul>
+<li>Small <code>[✨ AI]</code> button placed immediately to the right of
+the filename input</li>
+<li>Tooltip: <code>Generate image with AI</code></li>
+<li>Clicking toggles <code>#story-thumb-ai-expand</code> (inline
+expandable div)</li>
+<li>Expanded section contains:
+<ul>
+<li>Description textarea (placeholder
+<code>use story description</code>; when blank the job uses the story’s
+saved description field as the image prompt)</li>
+<li>Image quality dropdown</li>
+<li><code>[Generate Image]</code> submit button</li>
+</ul></li>
+<li>Expanded section has a distinct background shade
+(<code>var(--bg-light)</code> with a border)</li>
+<li>Submit queues an async <code>story_cover</code> image job; shows a
+small inline status message; does not navigate away</li>
+</ul>
+<h5 id="create-button-story-creation-job-queuing">18.5 - Create button:
+story creation + job queuing</h5>
+<p>On form submit when AI toggle is on:</p>
+<ol type="1">
+<li>Collect which checkboxes are checked (array of field names)</li>
+<li>POST to a new <code>api_create_story_ai.php</code> endpoint:
+<ul>
+<li>All form field values (for context)</li>
+<li>Checked fields list</li>
+<li>AI settings (genre, tone, scene count, endings, word length, image
+quality)</li>
+</ul></li>
+<li>Endpoint creates story record (<code>status = draft</code>), saves
+unchecked field values, leaves checked fields NULL, inserts
+<code>create_story</code> job row, returns
+<code>{ ok: true, storyID: X }</code></li>
+<li>JS shows <code>alert()</code> with submission message</li>
+<li>On acknowledgement: <code>window.location = 'index.php'</code></li>
+</ol>
+<p>When AI toggle is off: form submits normally via POST (existing
+save_story handler); no change to current create-story flow.</p>
+<h5 id="edit-story-properties-simplify">18.6 - Edit Story Properties:
+simplify</h5>
+<ul>
+<li>Remove all tab markup, AI dropdowns, premise textarea, and all
+Generate buttons</li>
+<li>Form contains only: Theme, Layout, Story Title, Description, Story
+Thumbnail (in that order)</li>
+<li>Thumbnail <code>[✨ AI]</code> button from task 18.4 is present</li>
+<li>Save button: unchanged, submits existing <code>save_story</code>
+POST handler</li>
+</ul>
+<h5 id="scene-pages-ai-modal-button">18.7 - Scene pages: AI modal
+button</h5>
+<ul>
+<li>Add
+<code>&lt;button class="btn-ai-inline" id="btn-scene-ai"&gt;✨ AI&lt;/button&gt;</code>
+to the right of the scene page <code>&lt;h3&gt;</code> heading</li>
+<li>Tooltip: <code>Generate With AI</code> (create) or
+<code>Regenerate with AI</code> (edit)</li>
+<li>Click handler <code>openSceneAIModal()</code>:
+<ol type="1">
+<li>Check if any scene field (title, description, choices, image) has
+non-default content</li>
+<li>If yes: show confirm dialog
+<code>This will overwrite the current scene content. Continue?</code>
+<ul>
+<li>Cancel: do nothing</li>
+<li>OK: open modal</li>
+</ul></li>
+<li>If no existing content: open modal directly</li>
+</ol></li>
+<li>Modal (<code>#scene-ai-modal</code>) contains:
+<ul>
+<li>Scene Direction textarea</li>
+<li>Mode dropdown (Continue Story / End Story)</li>
+<li>Number of Choices dropdown</li>
+<li>Tone dropdown</li>
+<li>Include Image checkbox</li>
+<li><code>[Generate]</code> and <code>[Cancel]</code> buttons</li>
+</ul></li>
+<li>Generate: POST to <code>api_jobs.php</code> with scene generation
+parameters; on success redirect to
+<code>editor.php?action=edit_story&amp;storyID=&lt;?= $storyID ?&gt;</code></li>
+<li>AI replaces all scene content (title, description, choices, image)
+on completion</li>
+</ul>
+<h5 id="scene-thumbnail-ai-button-scene-pages">18.8 - Scene Thumbnail
+<code>[✨ AI]</code> button (scene pages)</h5>
+<p>Same pattern as task 18.4 but for scene pages:</p>
+<ul>
+<li><code>[✨ AI]</code> button to the right of the scene image filename
+selector</li>
+<li>Tooltip: <code>Generate image with AI</code></li>
+<li>Expands <code>#scene-thumb-ai-expand</code> with: description
+(placeholder <code>use scene description</code>), quality dropdown,
+<code>[Generate Image]</code> button</li>
+<li>Submit queues an async scene image job; shows inline status; does
+not navigate away</li>
+</ul>
+<h5 id="new-job-type-create_story">18.9 - New job type:
+<code>create_story</code></h5>
+<p>New cron handler to process <code>create_story</code> jobs. Extend
+<code>ai_worker.php</code> to route this type.</p>
+<p><strong>Job payload (stored in <code>jobs.input_json</code>
+JSON):</strong></p>
+<p><strong>Handler phases (<code>cron/ai_story_handler.php</code>
+extended or new file):</strong></p>
+<ol type="1">
+<li><strong>Properties phase</strong> (if <code>generate_fields</code>
+is non-empty):
+<ul>
+<li>Call Claude with genre + tone + context values → generate only the
+checked fields</li>
+<li>Update story record with generated values</li>
+</ul></li>
+<li><strong>Story plan phase:</strong>
+<ul>
+<li>Call Claude with final title + description + AI settings → story
+outline (scene titles + summaries)</li>
+</ul></li>
+<li><strong>Scene write phase:</strong>
+<ul>
+<li>For each scene in the plan: write full scene content</li>
+<li>Insert scene rows into DB</li>
+</ul></li>
+<li><strong>Apply phase (<code>ai_apply.php</code> →
+<code>apply_create_story_result()</code>):</strong>
+<ul>
+<li>Mark parent job complete</li>
+<li>If <code>image_quality !== 'none'</code>: queue one
+<code>scene_image</code> child job per scene</li>
+<li>If <code>generate_cover === true</code>: queue one
+<code>story_cover</code> child job</li>
+</ul></li>
+</ol>
+<h5 id="remove-old-structure">18.10 - Remove old structure</h5>
+<p>Remove from <code>editor.php</code>: - <code>.story-form-tabs</code>
+markup and the two tab wrapper divs - <code>#ai-premise</code> textarea
+- <code>Generate Story Properties</code>, <code>Generate Scenes</code>,
+<code>Generate Everything</code> buttons - Any “how it works”
+explanation paragraph from the old Tab 2</p>
+<p>Remove from editor JS: - <code>switchStoryTab()</code> -
+<code>generateProperties()</code> - <code>generateScenes()</code> -
+<code>generateEverything()</code> - <code>randomizeAll()</code> →
+replaced by <code>randomizeStoryAI()</code> (task 18.2)</p>
+<p><code>api_ai_properties.php</code> - no longer called from the UI
+after this phase (new flow is async via
+<code>api_create_story_ai.php</code>). Move to <code>retired/</code> -
+see task 18.12.</p>
+<h5 id="css-updates">18.11 - CSS updates</h5>
+<p><strong>Remove / deprecate:</strong> - <code>.story-form-tabs</code>,
+<code>.story-tab-btn</code> (keep in file but comment as deprecated)</p>
+<p><strong>Add:</strong> - <code>.story-ai-section</code> - AI settings
+panel:
+<code>background: var(--bg-light); border: 1px solid var(--border); border-radius: var(--radius);   padding: 1.25rem; margin-bottom: 1.5rem;</code>
+- <code>.story-ai-header</code> - flex row, space-between: label left,
+dice button right - <code>.story-ai-dropdowns</code> - grid or flex-wrap
+of label+select pairs - <code>.use-ai-checklist</code> - the checkbox
+column beside the form fields - <code>.thumb-ai-expand</code> -
+expandable image AI section:
+<code>background: var(--bg-light); border: 1px solid var(--border); border-radius: var(--radius);   padding: 1rem; margin-top: 0.5rem;</code>
+- <code>.btn-ai-inline</code> - the <code>[✨ AI]</code> pill button
+used beside headings and file inputs: small, outlined, purple accent -
+<code>#scene-ai-modal</code> - modal overlay styles (fixed, dark
+backdrop, centered card) - <code>.field-ai-checked</code> - applied to
+readonly AI-checked inputs:
+<code>opacity: 0.55; background: var(--bg-light);</code></p>
+<h5 id="file-retirement">18.12 - File retirement</h5>
+<p>Move the following files to a <code>retired/</code> subfolder at the
+project root. The folder acts as a temporary holding area - files are
+kept for reference until all functionality has been confirmed, then
+deleted.</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>File</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api_ai_properties.php</code></td>
+<td>Replaced by async <code>api_create_story_ai.php</code> (task
+18.5)</td>
+</tr>
+<tr>
+<td><code>generate_story.php</code></td>
+<td>Already superseded (redirects to <code>editor.php</code>); no longer
+needed</td>
+</tr>
+</tbody>
+</table>
+<p>Create the <code>retired/</code> folder if it does not exist. No code
+changes needed - these files are simply moved, not modified.</p>
+<hr />
+<h4 id="what-changes-vs-what-stays-the-same">What changes vs what stays
+the same</h4>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Item</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>editor.php</code> story form - tab structure</td>
+<td><strong>Removed</strong></td>
+</tr>
+<tr>
+<td><code>editor.php</code> - Create New Story form</td>
+<td><strong>Reworked</strong> (18.1–18.5)</td>
+</tr>
+<tr>
+<td><code>editor.php</code> - Edit Story Properties form</td>
+<td><strong>Simplified</strong> (18.6)</td>
+</tr>
+<tr>
+<td><code>editor.php</code> - Create/Edit Scene form</td>
+<td><strong>Modal button added</strong> (18.7–18.8)</td>
+</tr>
+<tr>
+<td><code>api_ai_properties.php</code></td>
+<td><strong>Retired</strong> - moved to <code>retired/</code>
+(18.12)</td>
+</tr>
+<tr>
+<td><code>generate_story.php</code></td>
+<td><strong>Retired</strong> - moved to <code>retired/</code>
+(18.12)</td>
+</tr>
+<tr>
+<td><code>api_jobs.php</code></td>
+<td><strong>Unchanged</strong> (still used by scene modal)</td>
+</tr>
+<tr>
+<td><code>api_create_story_ai.php</code></td>
+<td><strong>New file</strong> (18.5)</td>
+</tr>
+<tr>
+<td><code>cron/ai_worker.php</code></td>
+<td><strong>Minor: route new create_story type</strong></td>
+</tr>
+<tr>
+<td><code>cron/ai_story_handler.php</code></td>
+<td><strong>Extended: properties phase added</strong></td>
+</tr>
+<tr>
+<td><code>cron/ai_apply.php</code></td>
+<td><strong>Extended: apply_create_story_result()</strong></td>
+</tr>
+<tr>
+<td><code>generateProperties()</code> / <code>generateScenes()</code> /
+<code>generateEverything()</code></td>
+<td><strong>Removed</strong></td>
+</tr>
+<tr>
+<td><code>randomizeAll()</code> → <code>randomizeStoryAI()</code></td>
+<td><strong>Renamed + scoped to story create page</strong></td>
+</tr>
+<tr>
+<td><code>switchStoryTab()</code></td>
+<td><strong>Removed</strong></td>
+</tr>
+<tr>
+<td>Scene generation job type + handlers</td>
+<td><strong>Unchanged</strong></td>
+</tr>
+<tr>
+<td>Cover image job type</td>
+<td><strong>Unchanged</strong></td>
+</tr>
+<tr>
+<td>Play page</td>
+<td><strong>Unchanged</strong></td>
+</tr>
+<tr>
+<td><code>save_story</code> POST handler</td>
+<td><strong>Unchanged</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h4 id="files-to-change">Files to change</h4>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>editor.php</code></td>
+<td>Rework story form (18.1–18.6), add scene AI modal + thumbnail
+buttons (18.7–18.8)</td>
+</tr>
+<tr>
+<td><code>styles/editor.css</code></td>
+<td>Remove tab styles, add AI panel + modal + thumbnail expand styles
+(18.11)</td>
+</tr>
+<tr>
+<td><code>api_create_story_ai.php</code></td>
+<td><strong>New</strong> - create draft story record + queue
+create_story job</td>
+</tr>
+<tr>
+<td><code>cron/ai_worker.php</code></td>
+<td>Route <code>create_story</code> job type to new handler</td>
+</tr>
+<tr>
+<td><code>cron/ai_story_handler.php</code></td>
+<td>Add properties generation phase for <code>create_story</code>
+jobs</td>
+</tr>
+<tr>
+<td><code>cron/ai_apply.php</code></td>
+<td>Add <code>apply_create_story_result()</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-19-header-redesign">Phase 19 - Header Redesign</h3>
+<p>Separate phase. No dependency on Phase 18. Reads
+<code>app_title</code> from <code>$SETTINGS</code> (set in Phase
+17).</p>
+<h3 id="phase-20-ai-job-cost-tracking">Phase 20 - AI Job Cost
+Tracking</h3>
+<p>No dependency on Phase 18 or 19. Depends on Phase 17 (settings table
+provides active model and pricing reference). Phase 18’s
+<code>create_story</code> job type picks up cost tracking automatically
+once its handlers call <code>db_update_job_cost()</code>.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>20.1</strong> - Schema</li>
+<li><strong>20.2</strong> - Cost rate constants</li>
+<li><strong>20.3</strong> - DB helper functions</li>
+<li><strong>20.4</strong> - Log usage in cron workers</li>
+<li><strong>20.5</strong> - Display in UI</li>
+</ul>
+<h3 id="phase-21-extract-ai-prompts-to-external-files">Phase 21 -
+Extract AI Prompts to External Files</h3>
+<p>Moves all system prompt text out of PHP handler files and into
+standalone <code>.txt</code> template files in a new
+<code>prompts/</code> directory. Prompts that contain dynamic values use
+<code>{PLACEHOLDER}</code> tokens that are substituted in PHP via
+<code>str_replace()</code>.</p>
+<h2 id="plan-4-ui-polish-social-enhancements-ai-improvements">Plan 4 -
+UI Polish, Social Enhancements &amp; AI Improvements</h2>
+<h4 id="overview-1">Overview</h4>
+<p>This plan continues from 3 (Phases 17–22). Phase numbering runs
+23–33. Phase 22 (documentation) was deferred from 3 and is rolled into
+Phase 33 here.</p>
+<p>Broad areas covered:</p>
+<ol type="1">
+<li><strong>UI / UX polish</strong> - global modal system, gallery card
+overhaul, soft delete &amp; trash, story tree view, job queue
+enhancements</li>
+<li><strong>Story management</strong> - multi-genre stories, clone
+relocation, editor tweaks, summary page draft access</li>
+<li><strong>AI enhancements</strong> - rate-limit retry with backoff,
+audience targeting, two-level image style selector, mood/lighting
+modifiers, per-story image settings, guardrails</li>
+<li><strong>Admin / automation</strong> - DB-driven genre + image style
+lists with chip editors, guardrails section, maintenance cron, log &amp;
+trash retention settings</li>
+</ol>
+<p>All phases assume 3 is complete and deployed.</p>
+<hr />
+<h3 id="phase-23-global-modal-system">Phase 23 - Global Modal
+System</h3>
+<p>Replace all <code>alert()</code>, <code>confirm()</code>, and
+<code>prompt()</code> JavaScript calls site-wide with a shared modal
+component. This phase must come before all others that open modals (tree
+view, delete confirmations, clone confirms, etc.).</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>23.1</strong> - <code>styles/modal.css</code></li>
+<li><strong>23.2</strong> - <code>modal.js</code></li>
+<li><strong>23.3</strong> - Sweep: replace <code>alert()</code> /
+<code>confirm()</code></li>
+<li><strong>23.4</strong> - Include in <code>header.php</code></li>
+</ul>
+<h3 id="phase-24-soft-delete-trash-system">Phase 24 - Soft Delete &amp;
+Trash System</h3>
+<p>Introduces a <code>deleted</code> story status so that deleting a
+story moves it to a trash bin rather than removing it permanently.
+Owners can restore; admins can restore or permanently purge. Permanent
+deletion is handled automatically by the maintenance cron (Phase
+29).</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>24.1</strong> - Schema</li>
+<li><strong>24.2</strong> - DB functions</li>
+<li><strong>24.3</strong> - Exclude deleted stories from existing
+queries</li>
+<li><strong>24.4</strong> - Delete action in <code>editor.php</code> and
+<code>summary.php</code></li>
+<li><strong>24.5</strong> - New <code>trash.php</code></li>
+<li><strong>24.6</strong> - Header changes in
+<code>header.php</code></li>
+</ul>
+<h3 id="phase-25-gallery-genre-summary-page-improvements">Phase 25 -
+Gallery, Genre &amp; Summary Page Improvements</h3>
+<p>Adds a <code>genre</code> column to stories, exposes it in
+creation/edit forms, and overhauls the gallery cards and filtering bar.
+The clone button moves from the gallery card to
+<code>summary.php</code>. <code>summary.php</code> is also fixed to stop
+auto-redirecting owners/admins to the editor so that draft stories have
+a proper landing page. The social section on <code>summary.php</code> is
+redesigned into a unified horizontal strip with larger icons and
+numbers, and the “Favorites” feature is renamed to “Likes” throughout
+the UI.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>25.1</strong> - Schema</li>
+<li><strong>25.2</strong> - DB: genre in story CRUD</li>
+<li><strong>25.3</strong> - Remove owner-redirect from
+<code>summary.php</code></li>
+<li><strong>25.4</strong> - Gallery card changes
+(<code>index.php</code>)</li>
+<li><strong>25.5</strong> - Filter/sort bar in
+<code>index.php</code></li>
+<li><strong>25.6</strong> - Clone button on
+<code>summary.php</code></li>
+<li><strong>25.7</strong> - Genre field in story forms</li>
+<li><strong>25.8</strong> - Summary page social strip redesign</li>
+<li><strong>25.9</strong> - Rename “Favorites” to “Likes” (UI labels
+only)</li>
+</ul>
+<h3 id="phase-26-story-editor-tweaks">Phase 26 - Story Editor
+Tweaks</h3>
+<p>Small targeted changes to <code>editor.php</code>.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>26.1</strong> - Show story owner</li>
+<li><strong>26.2</strong> - Back button</li>
+<li><strong>26.3</strong> - “Set to Draft” button label</li>
+<li><strong>26.4</strong> - Admin delete override</li>
+</ul>
+<h3 id="phase-27-api-rate-limit-retry">Phase 27 - API Rate-Limit
+Retry</h3>
+<p>Adds a consistent retry-with-backoff wrapper around all AI API calls
+across the three cron handlers. Currently a 429 rate-limit response
+immediately fails the job; this phase gives each call up to 5 retries
+with a 20-second delay between attempts before giving up.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>27.1</strong> - <code>api_call_with_retry()</code>
+helper</li>
+<li><strong>27.2</strong> - Update
+<code>cron/ai_image_handler.php</code></li>
+<li><strong>27.3</strong> - Update
+<code>cron/ai_scene_handler.php</code></li>
+<li><strong>27.4</strong> - Update
+<code>cron/ai_story_handler.php</code></li>
+<li><strong>27.5</strong> - Ensure <code>logs/</code> directory
+exists</li>
+</ul>
+<h3
+id="phase-28-db-driven-settings-image-styles-genres-ai-creator-overhaul">Phase
+28 - DB-Driven Settings: Image Styles, Genres &amp; AI Creator
+Overhaul</h3>
+<p>Extends the AI creator with audience targeting, a rich two-level
+image style selector, and mood/lighting modifiers. Moves image style
+options and the story genre list from hardcoded PHP arrays into
+admin-editable DB settings with chip-list editors. Upgrades stories from
+single-genre to multi-genre (JSON array). Stores chosen image settings
+on each story so inline cover and scene image panels can offer a “Use
+story settings” shortcut.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>28.1</strong> - Schema migrations</li>
+<li><strong>28.2</strong> - DB settings: seed defaults</li>
+<li><strong>28.3</strong> - Admin UI: list editors in
+<code>account.php</code></li>
+<li><strong>28.4</strong> - Replace hardcoded <code>$genreList</code>
+throughout the app</li>
+<li><strong>28.5</strong> - DB function updates for multi-genre</li>
+<li><strong>28.6</strong> - Multi-genre in <code>editor.php</code></li>
+<li><strong>28.7</strong> - Multi-genre display (<code>index.php</code>
++ <code>summary.php</code>)</li>
+<li><strong>28.8</strong> - Audience dropdown in <code>editor.php</code>
+AI panel</li>
+<li><strong>28.9</strong> - Image options row in <code>editor.php</code>
+AI panel</li>
+<li><strong>28.10</strong> - Per-story image settings storage</li>
+<li><strong>28.11</strong> - “Use story settings” checkbox in inline
+image panels</li>
+<li><strong>28.12</strong> - Randomize function update</li>
+<li><strong>28.13</strong> - Job input_data and cron handler
+updates</li>
+<li><strong>28.14</strong> - Claude prompt updates for audience</li>
+<li><strong>28.15</strong> - Image prompt composition update</li>
+</ul>
+<h3 id="phase-29-ai-guardrails">Phase 29 - AI Guardrails</h3>
+<p>Adds admin-configurable content guardrails to all AI generation.
+Claude is instructed to return a <code>red_flag</code> field when
+generated content breaches a guardrail topic; image prompts receive a
+“Do not depict” prefix. Breaches set the job to error and are
+logged.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>29.1</strong> - New admin settings</li>
+<li><strong>29.2</strong> - Admin panel: Guardrails section</li>
+<li><strong>29.3</strong> - Helper:
+<code>get_guardrail_clause()</code></li>
+<li><strong>29.4</strong> - Inject into Claude system prompts</li>
+<li><strong>29.5</strong> - Inject into OpenAI image prompts</li>
+<li><strong>29.6</strong> - Red flag detection in Claude handlers</li>
+<li><strong>29.7</strong> - <code>log_guardrail_breach()</code>
+helper</li>
+<li><strong>29.8</strong> - Apply red_flag check to all Claude
+handlers</li>
+</ul>
+<h3 id="phase-30-admin-maintenance-section">Phase 30 - Admin Maintenance
+Section</h3>
+<p>Adds a Maintenance section to the admin panel for controlling
+automatic cleanup of deleted stories and log files. A new
+<code>cron/maintenance.php</code> CLI script performs the actual work,
+invoked daily by the AI dispatcher.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>30.1</strong> - New admin settings</li>
+<li><strong>30.2</strong> - Admin panel: Maintenance section</li>
+<li><strong>30.3</strong> - Retention → SQL interval helper</li>
+<li><strong>30.4</strong> - DB:
+<code>db_purge_deleted_stories(string $interval): array</code></li>
+<li><strong>30.5</strong> - <code>cron/maintenance.php</code></li>
+<li><strong>30.6</strong> - Update
+<code>cron/ai_dispatcher.php</code></li>
+</ul>
+<h3 id="phase-31-story-tree-view">Phase 31 - Story Tree View</h3>
+<p>Adds a “Tree View” button to the story editor that opens a modal
+containing an SVG-rendered, navigable tree of all scenes in the story.
+Nodes are clickable links to the scene editor.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>31.1</strong> - Data endpoint <code>api_tree.php</code></li>
+<li><strong>31.2</strong> - Tree layout and SVG renderer
+(<code>tree-view.js</code>)</li>
+<li><strong>31.3</strong> - Modal trigger in
+<code>editor.php</code></li>
+<li><strong>31.4</strong> - Styles</li>
+</ul>
+<h3 id="phase-32-job-queue-enhancements">Phase 32 - Job Queue
+Enhancements</h3>
+<p>Upgrades <code>job_queue.php</code> with a stat dashboard (admin
+only), search/filter bar (all users), a “Clear Completed” button, and a
+job detail modal showing raw input/result JSON with syntax
+highlighting.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>32.1</strong> - Admin stat cards</li>
+<li><strong>32.2</strong> - Search / filter bar</li>
+<li><strong>32.3</strong> - “Clear Completed” button</li>
+<li><strong>32.4</strong> - Job detail modal</li>
+</ul>
+<h2 id="plan-5-cosmetic-polish-settings-rework">Plan 5 - Cosmetic Polish
+&amp; Settings Rework</h2>
+<p>Cosmetic polish plus a re-work of the account/admin settings area.
+Source of truth: <code>_dev/implementation/5/notes-5.txt</code>.</p>
+<p>Phases continue from the 4 sequence. 5 runs <strong>Phases
+33–38</strong> and contains <strong>no documentation phase</strong> -
+the documentation update (which also absorbs 4’s never-done Phase 33)
+now lives in <strong>6</strong>, see
+<code>_dev/implementation/6/notes-6.md</code>.</p>
+<h4 id="conventions-for-5">Conventions for 5</h4>
+<ul>
+<li><strong>No migration file.</strong> Schema/data changes are applied
+<strong>directly to the live DB</strong> (<code>192.168.1.184</code>, db
+<code>evan</code>, prefix <code>cyoa_ai_</code>) during implementation.
+Record any schema change in the phase’s progress notes; the
+<code>.claude/</code> schema/doc sync happens in the 6 documentation
+pass.</li>
+<li>Keep PHP procedural; vanilla JS (no framework); read runtime config
+via <code>app_setting()</code>.</li>
+<li>Smoke-test each phase in the browser before moving on; keep a
+<code>implementation-plan-5-progress</code> doc updated per phase
+(created when implementation starts).</li>
+</ul>
+<h3 id="phase-33-genre-backfill-data">Phase 33 - Genre Backfill
+(data)</h3>
+<p>Populate <code>genre</code> for stories that currently have none, by
+analysing each story’s title + description and assigning one or two
+genres from the managed <code>story_genres</code> list.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>33.1</strong> - Query the affected stories
+(<code>storyID, title, description</code>) from the DB.</li>
+<li><strong>33.2</strong> - For each, pick 1–2 best-fit genres from
+<code>story_genres</code> based on its summary.</li>
+<li><strong>33.3</strong> -
+<code>UPDATE cyoa_ai_stories SET genre = '&lt;json&gt;' WHERE storyID = ?</code>
+for each, writing a valid JSON array. Verify with a re-query (no rows
+left matching the “missing genre” predicate).</li>
+</ul>
+<h3 id="phase-34-account-admin-settings-restructure">Phase 34 - Account
+&amp; Admin Settings Restructure</h3>
+<p>Split the monolithic <code>account.php</code> into focused pages and
+turn the header cog into a settings dropdown. This is the only
+non-cosmetic phase.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>34.1</strong> - Slim down <code>account.php</code> (all
+users)</li>
+<li><strong>34.2</strong> - Header cog → settings dropdown (admin
+only)</li>
+<li><strong>34.3</strong> - <code>settings_site.php</code> (admin)</li>
+<li><strong>34.4</strong> - <code>settings_content.php</code>
+(admin)</li>
+<li><strong>34.5</strong> - <code>settings_users.php</code> (admin)</li>
+<li><strong>34.6</strong> - Input styling pass</li>
+</ul>
+<h3 id="phase-35-main-gallery-tweaks">Phase 35 - Main Gallery
+Tweaks</h3>
+<p><code>index.php</code> story cards + the “My Likes” label.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>35.1</strong> - Rename the <strong>“My Likes”</strong>
+filter button (and the matching item in the header user dropdown) to
+<strong>“Favorites”</strong>. Keep the <code>filter=likes</code> GET
+param unchanged (label only).</li>
+<li><strong>35.2</strong> - Card: move the <strong>star rating</strong>
+to the <strong>end</strong> of the social strip (currently it sits
+between Views and Comments; it’s shown dynamically, so order it
+last).</li>
+<li><strong>35.3</strong> - Card: move the <strong>genre tag(s)</strong>
+onto the <strong>same line as the social strip</strong> - social strip
+<strong>left-justified</strong>, genre chip(s)
+<strong>right-justified</strong> (flex
+<code>justify-content: space-between</code>).</li>
+<li><strong>35.4</strong> - Card: move the <strong>“by
+{author}”</strong> line to <strong>directly below the title</strong>, in
+a <strong>smaller font</strong> (it currently shares the meta line with
+the genre chips).</li>
+</ul>
+<h3 id="phase-36-summary-page-tweaks">Phase 36 - Summary Page
+Tweaks</h3>
+<p><code>summary.php</code> social strip and header.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>36.1</strong> - Like label: show <strong>“like”</strong>
+when the count is 1, <strong>“likes”</strong> otherwise (update the
+static label set in Phase-prior work, and keep it in sync in the like
+JS).</li>
+<li><strong>36.2</strong> - Replace the star widget’s text with a
+compact display format:
+<strong><code>[avg] [solid stars][open stars] ([total ratings])</code></strong>
+- e.g. <code>3 ★★★☆☆ (1,222)</code>. - Stars render the
+<strong>average</strong> (filled up to rounded avg); total ratings shown
+with thousands commas. Stars remain clickable to submit a rating (hover
+preview retained); after rating, refresh avg + count from the server
+response. - <strong>Remove</strong> all rating status text: “Click to
+rate”, “You rated n/5”, “avg x (n)”.</li>
+<li><strong>36.3</strong> - Badges: <strong>remove the theme
+badge</strong>; show <strong>genre badges only</strong>.</li>
+<li><strong>36.4</strong> - Remove the <strong>draft notice
+line</strong> between the breadcrumb and the summary card. Instead show
+a <strong>published/draft tag above the title</strong> - pastel
+<strong>green</strong> (published) / <strong>red</strong> (draft).</li>
+</ul>
+<h3 id="phase-37-story-editor-tree-view-tweaks">Phase 37 - Story Editor
+&amp; Tree View Tweaks</h3>
+<p><code>editor.php</code> (story + scene views), the AI generation
+modals, and the tree-view modal width.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>37.1</strong> - Story editor: rename the <strong>“Back to
+Landing Page”</strong> button to <strong>“Back to Story
+Summary”</strong> (link target unchanged -
+<code>summary.php?storyID=…</code>).</li>
+<li><strong>37.2</strong> - Scene editor: add a <strong>Tree
+View</strong> link/button next to the <strong>“Back to story”</strong>
+button (reuse the Phase-31 fetch → <code>TreeView.build</code> →
+<code>Modal.open</code> flow already wired in
+<code>editor.php</code>).</li>
+<li><strong>37.3</strong> - Bug: the <strong>AI
+scene-generation</strong> modal shows <strong>no image-style
+options</strong> - it should surface the same image category / sub-style
+/ mood controls used elsewhere. Investigate the inline image-style
+controls (<code>render_inline_image_style_controls()</code> /
+<code>window.inlineStyleParams</code>, Phase 28) and ensure they render
+in the scene-AI modal.</li>
+<li><strong>37.4</strong> - Bug: the <strong>AI
+image-generation</strong> sub-style dropdown <strong>does not
+populate</strong> when a category is chosen (the category→sub-style
+cascade isn’t wiring up). Fix the populate logic.</li>
+<li><strong>37.5</strong> - Move the <strong>“Generate Image”</strong>
+button to <strong>below</strong> the image-style options in the
+image-generation modal.</li>
+<li><strong>37.6</strong> - Tree View modal: the tree renders in only
+the <strong>left half</strong> of the near-full-width modal. Make the
+<code>.tree-container</code> fill the widened modal (currently capped at
+<code>min(86vw,1000px)</code> while
+<code>.modal-box:has(.tree-container)</code> is <code>92vw</code>) -
+align the container width to the modal.</li>
+</ul>
+<h3 id="phase-38-play-page-tweaks">Phase 38 - Play Page Tweaks</h3>
+<p><code>play.php</code> and <code>styles/play_layout.css</code>.
+<strong>No theme files are touched in 5.</strong></p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>38.1</strong> - <code>layout-image_top</code> text
+alignment. Keep the <strong>image and the text block centered on the
+page</strong>, but <strong>left-align the text inside the
+block</strong>; the <strong>choice buttons stay separate and
+centered</strong>. - The block is already centered as a column
+(<code>.layout-image_top .play-layout { max-width:1400px; margin:0 auto }</code>).
+Constrain the text column so left-aligned text still reads centered
+under the image - e.g. give <code>.layout-image_top .content</code> a
+<code>max-width</code> (~70ch) + <code>margin: 0 auto</code>. - Set
+<code>.layout-image_top .content { text-align: left; }</code> for the
+scene title + body paragraphs. - Choices unchanged - they live in
+<code>.choices</code> (<code>justify-content: center</code>), separate
+from <code>.content</code>, and stay centered. - The current
+<code>text-align: center</code> is set in <strong>two</strong> places:
+<code>styles/play_layout.css</code> (line ~81) <strong>and</strong> each
+<code>themes/*_theme.css</code>. <strong>Do the fix only in
+<code>play_layout.css</code></strong> - it’s
+<code>&lt;link&gt;</code>-ed <strong>after</strong> the theme CSS in
+<code>play.php</code>, so an equal-specificity
+<code>text-align: left</code> there wins over the theme rule. This keeps
+5 from touching any theme files (no theme changes in 5). - <em>(Detail
+to eyeball: whether the scene title looks better left or centered -
+start left per the note, easy to flip.)</em></li>
+<li><strong>38.2</strong> - <code>layout-image_top</code>: the image is
+vertically <strong>centered</strong> within its crop area; change the
+crop to anchor from the <strong>top</strong>
+(<code>object-position: top</code> / <code>object-fit: cover</code>).
+Done in <code>play_layout.css</code> only.</li>
+<li><strong>38.3</strong> - Logged-in owner/admin: rename the top-right
+<strong>“Edit”</strong> button to <strong>“Edit Scene”</strong>.</li>
+<li><strong>38.4</strong> - Add a second button to its
+<strong>left</strong>, <strong>“Edit Story”</strong>, linking to the
+story editor (<code>editor.php?storyID=…</code>).</li>
+</ul>
+<h4 id="resolved-decisions">Resolved decisions</h4>
+<ol type="1">
+<li><strong>Profile Image panel</strong> (34.1): <strong>Keep</strong>
+on <code>account.php</code> (Password + BYOK + Profile Image).</li>
+<li><strong>Scene thumbnail sizes</strong> (34.3): Small=140 /
+Medium=200 / Large=280 px, defined as a tunable reference array in
+<strong><code>config.php</code></strong>.</li>
+<li><strong>Play themes</strong>: <strong>deferred to 6.</strong> No
+theme changes in 5. The data-driven theme engine (one CSS-variable
+template + presets table + AI-generated per-story palettes, curated
+mood-tagged Google-font allow-list, user override) is captured in
+<code>_dev/implementation/6/notes-6.md</code>. The 5 image_top fixes are
+play-layout only.</li>
+</ol>
+<h2 id="plan-6-backend-cleanups-theme-engine">Plan 6 - Backend Cleanups
+&amp; Theme Engine</h2>
+<p>Backend/AI cleanups plus the larger nice-to-haves parked after 5.
+<strong>All 6 items are now specified as phases below</strong> -
+<code>notes-6.md</code> has been closed out (everything promoted here).
+<code>notes-6.txt</code> remains the owner’s raw scratchpad.</p>
+<p>Phases continue from the 5 sequence (5 ran Phases 33–38). 6 starts at
+<strong>Phase 39</strong>. The <strong>Documentation Update stays
+last</strong> so it can capture everything that ships.</p>
+<h4 id="conventions-for-6">Conventions for 6</h4>
+<ul>
+<li><strong>No migration file.</strong> Schema/data changes are applied
+<strong>directly to the live DB</strong> (<code>192.168.1.184</code>, db
+<code>evan</code>, prefix <code>cyoa_ai_</code>) during implementation.
+Record any schema change in the phase’s progress notes; the
+<code>.claude/</code> schema/doc sync happens in the Documentation
+phase.</li>
+<li>Keep PHP procedural; vanilla JS (no framework); read runtime config
+via <code>app_setting()</code>.</li>
+<li><code>config.php</code> holds <strong>developer-tuned reference
+data</strong> (constants/arrays like <code>AI_IMAGE_PRICING</code>,
+<code>SCENE_THUMB_SIZES</code>); admin-tunable runtime config goes in
+the <code>cyoa_ai_settings</code> table via <code>app_setting()</code>.
+UI copy says “the AI”, not provider names, except provider-specific
+settings.</li>
+<li>Smoke-test each phase before moving on; create/keep an
+<code>implementation-plan-6-progress.md</code> updated per phase
+(created when implementation actually starts, per the 5 pattern).</li>
+</ul>
+<h3 id="phase-39-audience-instruction-lookup-prompt-refactor">Phase 39 -
+Audience Instruction Lookup (prompt refactor)</h3>
+<p>Stop making the AI re-derive the audience complexity from an inline
+table; resolve it server-side and pass the specific instruction into the
+prompt.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>39.1</strong> - Add <code>STORY_AUDIENCES</code> to
+<code>config.php</code>.</li>
+<li><strong>39.2</strong> - Add <code>resolve_audience()</code> (key →
+<code>['label', 'complexity']</code>, fallback
+<code>middle_grade</code>). Update
+<code>build_scene_writer_system_prompt()</code> and
+<code>build_plan_system_prompt()</code> to pass
+<code>audience_label</code> + <code>audience_complexity</code>
+placeholders (drop the raw <code>audience</code> token where the table
+was).</li>
+<li><strong>39.3</strong> - Edit
+<code>prompts/story_scene_writer_system.txt</code> and
+<code>prompts/story_plan_system.txt</code>: replace the inline 5-row
+table + <code>{AUDIENCE}</code> with the two-line
+<code>{AUDIENCE_LABEL}</code> / <code>{AUDIENCE_COMPLEXITY}</code>
+form.</li>
+<li><strong>39.4</strong> - Verify the <strong>single-scene</strong>
+path: <code>cron/ai_scene_handler.php</code> loads
+<code>scene_system</code> (a <em>different</em> prompt). Check whether
+<code>scene_system.txt</code> embeds the same audience table; if so,
+fold it into this refactor, otherwise leave it. - <strong>39.5 (optional
+follow-up)</strong> - Make <code>api_create_story_ai.php</code>
+<code>$allowedAudiences</code> and the <code>editor.php</code>
+dropdown/<code>AUDIENCES</code> array <strong>derive from
+<code>STORY_AUDIENCES</code></strong> (keys = <code>array_keys</code>,
+labels = the map), so adding/renaming an audience is a one-place edit.
+Can be deferred.</li>
+</ul>
+<h3 id="phase-40-pagination-gallery-job-history">Phase 40 - Pagination
+(gallery + job history)</h3>
+<p>Three long lists need paging; do the two that matter now, leave users
+for later. Decisions are locked with the owner.</p>
+<h3 id="phase-41-curated-mood-tagged-font-allow-list">Phase 41 - Curated
+Mood-Tagged Font Allow-List</h3>
+<p>A data foundation for Phase 42 (the theme engine): a vetted set of
+Google fonts the AI can pick from, each tagged by mood and
+<strong>guaranteed to load</strong>. Built once; reused by the engine’s
+AI step, the play-page font <code>&lt;link&gt;</code>, and the editor’s
+font picker. (Like the Phase 33 genre backfill, this is a small but
+distinct data-foundation phase - it gates Phase 42’s AI font selection,
+so it lands first.)</p>
+<h3 id="phase-42-data-driven-theme-engine">Phase 42 - Data-Driven Theme
+Engine</h3>
+<p>Replace the per-file play themes with a single CSS-variable template
+driven by stored values - enabling unlimited looks, AI-generated
+per-story palettes, and full user override. <strong>Builds on the Phase
+41 font allow-list.</strong></p>
+<h2 id="plan-7-story-image-gallery">Plan 7 - Story Image Gallery</h2>
+<h3 id="phase-44-story-image-gallery">Phase 44 - Story Image
+Gallery</h3>
+<p>A per-story image gallery - a companion to the Tree View - that shows
+the cover image first, then every scene that has artwork (scenes without
+an image are skipped). A site-wide gallery was deferred, but the data
+layer is built behind a reusable seam so a global mode can be added
+later without a rewrite.</p>
+<p><strong>Tasks:</strong></p>
+<ul>
+<li><strong>44.1</strong> - Data seam
+<code>get_gallery_items($storyID)</code> in
+<code>db_functions.php</code>: returns an ordered list (cover first,
+then scenes with images), resolving shadow-draft image folders the same
+way the summary and tree views do. This single function is the extension
+point a future global gallery would build on.</li>
+<li><strong>44.2</strong> - Standalone <code>gallery.php</code> page
+(owner/admin only) that renders the tile grid server-side and embeds the
+items as JSON for the lightbox; breadcrumb and back link are driven by a
+<code>?from=editor|summary</code> parameter.</li>
+<li><strong>44.3</strong> - <code>styles/gallery.css</code>: a
+theme-aware tile grid with preset Small/Medium/Large sizing, raised
+tiles, single-line ellipsis captions, and a lightbox with edge chevrons
+and a bottom filmstrip.</li>
+<li><strong>44.4</strong> - <code>gallery.js</code>: lightbox
+open/close, prev/next with wrap-around, keyboard control (←/→/Esc), and
+a clickable filmstrip.</li>
+<li><strong>44.5</strong> - Entry points from the Story Editor and the
+Summary page, plus a new preset-size “Gallery” block in Site
+Settings.</li>
+</ul>
+<h2 id="documentation">Documentation</h2>
+<p>A final documentation pass kept the steering documents - the
+<code>.claude/</code> references and the project’s
+<code>CLAUDE.md</code> rule book - in sync with everything that shipped.
+It was scheduled <strong>last</strong> in each round so it only ever
+described features that actually landed, and it involved no
+application-code changes.
+
+<script>
+(function () {
+  function addArrows() {
+    document.querySelectorAll('.page h2, .page h3').forEach(function (h) {
+      if (h.querySelector('.uptop')) return;
+      var a = document.createElement('a');
+      a.href = '#report-header';
+      a.className = 'uptop';
+      a.title = 'Back to top';
+      a.setAttribute('aria-label', 'Back to top');
+      a.innerHTML = '&uarr;';
+      h.appendChild(a);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addArrows);
+  else addArrows();
+})();
+</script>
+    <p class="back-link"><a href="../index.html">&larr; Back to report index</a></p>
+  </main>
+  <script src="../header.js"></script>
+  <script src="../lightbox.js"></script>
+</body>
+</html>

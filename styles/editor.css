@@ -1,0 +1,714 @@
+/* ==========================================
+   Editor
+   ========================================== */
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.editor-header h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.8rem;
+    color: var(--primary-dark);
+}
+
+.stories-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Story Overview */
+.story-overview {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.story-overview-header {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.story-overview-image {
+    width: 333px;
+    height: 250px;
+    border-radius: var(--radius);
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #e9ecef;
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.35);
+}
+
+.story-overview-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.story-overview-info { flex: 1; }
+
+/* Title row: title on the left, status tag pinned top-right. */
+.story-overview-titlebar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+.story-overview-titlebar h3 { margin-bottom: 0; }
+.story-overview-titlebar .status-tag { flex-shrink: 0; white-space: nowrap; }
+
+.story-overview-info h3 {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.story-overview-info p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.story-overview-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    flex-wrap: wrap;
+}
+
+.story-overview-meta span {
+    background: #e9ecef;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+}
+
+.story-overview-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.story-actions-left {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Scene List (renamed from storypoint) */
+.scene-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.scene-item {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--transition);
+}
+
+.scene-item:hover { box-shadow: var(--shadow-hover); }
+
+.scene-item-info { flex: 1; }
+
+.scene-item-info h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.scene-item-info p {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.scene-item-thumb {
+    width: 180px;
+    min-width: 180px;
+    height: 180px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-light);
+}
+
+.scene-item-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Clickable thumb button */
+.scene-thumb-btn {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: zoom-in;
+    overflow: hidden;
+}
+.scene-thumb-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.2s;
+}
+.scene-thumb-btn:hover img { transform: scale(1.04); }
+
+/* Choices list on scene card */
+.scene-card-choices {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+.scene-card-choices li {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.scene-card-no-choices {
+    font-size: 0.82rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin: 0.5rem 0 0;
+}
+
+/* Full-size image modal */
+.scene-img-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.scene-img-modal[hidden] { display: none; }
+.scene-img-modal img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: var(--radius);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    object-fit: contain;
+}
+.scene-img-modal-close {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+}
+.scene-img-modal-close:hover { opacity: 1; }
+
+.scene-item-thumb .placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.scene-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Storypoint List */
+.storypoints-section {
+    margin-top: 1.5rem;
+}
+
+.storypoints-section > h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.storypoint-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.storypoint-item {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    transition: var(--transition);
+}
+
+.storypoint-item:hover { box-shadow: var(--shadow-hover); }
+
+.storypoint-item-info { flex: 1; }
+
+.storypoint-item-info h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.storypoint-item-info p {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.storypoint-item-thumb {
+    width: 180px;
+    min-width: 180px;
+    height: 180px;
+    min-height: 180px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--bg-light);
+}
+
+.storypoint-item-thumb img {
+    width: 180px;
+    height: 180px;
+    max-width: 180px;
+    max-height: 180px;
+    object-fit: cover;
+    display: block;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+.storypoint-item-thumb .placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.storypoint-item-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Editor Form */
+.editor-form {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    margin: 0 auto;
+}
+
+.editor-form h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    color: var(--primary-dark);
+    margin-bottom: 1.5rem;
+}
+
+.editor-form .form-group label {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 0.4rem;
+}
+
+/* Choices Editor */
+.choices-editor {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+.choices-editor h4 {
+    font-size: 1.05rem;
+    margin-bottom: 0.75rem;
+}
+
+.choice-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.choice-row input {
+    flex: 2;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: var(--transition);
+    background: var(--input-bg, #fff);
+    color: var(--text);
+}
+.choice-row select {
+    flex: 1;
+    min-width: 150px;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: var(--transition);
+    background: var(--input-bg, #fff);
+    color: var(--text);
+}
+.choice-row input:focus,
+.choice-row select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(41,82,176,0.15);
+}
+
+.choice-row .btn-remove {
+    background: #dc3545;
+    color: #fff;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: var(--transition);
+}
+
+.choice-row .btn-remove:hover { background: #c82333; }
+
+/* ==========================================
+   Story status pill (Published / Draft) — base styles + colours are shared in
+   styles/styles.css (.status-tag, .status-published, .status-draft). The editor
+   only adds layout via `.story-overview-titlebar .status-tag` above.
+   ========================================== */
+
+.story-actions-right {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* ==========================================
+   Quill rich-text editor
+   ========================================== */
+.quill-editor {
+    min-height: 160px;
+    border-radius: 0 0 var(--radius) var(--radius);
+    background: var(--bg);
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.ql-toolbar.ql-snow {
+    border-color: var(--border) !important;
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: var(--bg-light, #f8f9fa);
+    font-family: inherit;
+}
+
+.ql-container.ql-snow {
+    border-color: var(--border) !important;
+    border-radius: 0 0 var(--radius) var(--radius);
+    font-family: inherit;
+    font-size: 0.95rem;
+}
+
+.ql-editor {
+    min-height: 160px;
+    line-height: 1.6;
+}
+
+/* ==========================================
+   Inline AI image generation
+   ========================================== */
+#ai-image-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 0.25rem;
+}
+
+.ai-inline-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    background: var(--input-bg, #fff);
+    color: var(--text);
+    transition: border-color 0.2s;
+}
+
+.ai-inline-textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.ai-inline-select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.875rem;
+    background: var(--input-bg, #fff);
+    color: var(--text);
+}
+
+/* ==========================================
+   Story Form Tabs (deprecated — kept for reference)
+   ========================================== */
+/* .story-form-tabs { … } */
+/* .story-tab-btn  { … } */
+
+/* ==========================================
+   AI Section — Create New Story
+   ========================================== */
+/* Tweak these two variables to adjust the AI panel gradient colour and direction */
+:root {
+    --ai-panel-color-a: #ded5fc;   /* gradient start (top-left)  */
+    --ai-panel-color-b: #cbbdf6;   /* gradient end   (bottom-right) */
+}
+.story-ai-section {
+    background: linear-gradient(135deg, var(--ai-panel-color-a), var(--ai-panel-color-b));
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.story-ai-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--primary-dark, #1a3a6b);
+}
+
+.btn-ai-dice {
+    background: #e0e0e0;
+    border: 1px solid #bbb;
+    border-radius: var(--radius);
+    padding: 0.4rem 0.6rem;
+    font-size: 1.0rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.15s;
+    color: var(--text);
+}
+.btn-ai-dice:hover { background: #cacaca; }
+
+.story-ai-dropdowns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.story-ai-dropdowns .form-group {
+    flex: 1;
+    min-width: 130px;
+    margin-bottom: 0;
+}
+
+/* Image-property selects styled to match the AI dropdowns above */
+.ai-image-controls select {
+    flex: 1;
+    min-width: 130px;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    font-family: inherit;
+    background: var(--input-bg, #fff);
+    color: var(--text);
+    transition: var(--transition);
+}
+.ai-image-controls select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(41,82,176,0.15);
+}
+.ai-image-controls select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   Use-AI checklist row (select-all)
+   ========================================== */
+.use-ai-checklist {
+    margin-bottom: 0.5rem;
+}
+#use-ai-row[hidden] { display: none; }
+.use-ai-select-all-cb {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    margin-top: 0.85rem;
+    accent-color: #7c3aed;
+}
+.use-ai-select-all-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--accent, #7c3aed);
+    cursor: pointer;
+    margin-top: 0.7rem;
+}
+
+/* Field rows with optional AI checkbox */
+.field-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+}
+.field-row .ai-field-cb {
+    margin-top: 0.25rem;
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #AAA;
+}
+.field-ai-checked {
+    opacity: 0.55;
+    background: var(--bg-light, #f8f9fa) !important;
+}
+
+/* When a field's "Use AI" box is checked, hide its input(s) entirely — only the
+   heading (label) and the checkbox remain, so "Use AI for all fields" collapses
+   the form to a list of headings + checkboxes. !important overrides the inline
+   display:flex on some field wrappers (e.g. the thumbnail row). */
+.field-row.ai-generated > div > :not(label) { display: none !important; }
+
+/* ==========================================
+   Inline thumbnail AI expand
+   ========================================== */
+.thumb-ai-expand {
+    background: var(--bg-light, #f8f9fa);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* ==========================================
+   Inline AI button (pill beside headings / file inputs)
+   ========================================== */
+.btn-ai-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.82rem;
+    font-family: inherit;
+    font-weight: 600;
+    border: 1.5px solid #6d28d9;
+    border-radius: 999px;
+    background: #7c3aed;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+.btn-ai-inline:hover,
+.btn-ai-inline.active {
+    background: #9370fc;
+    border-color: #9370fc;
+    color: #fff;
+}
+.btn-ai-inline:disabled {
+    opacitys: 0.45;
+    cursor: not-allowed;
+}
+
+/* ==========================================
+   Scene AI Modal
+   ========================================== */
+#scene-ai-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+#scene-ai-modal[hidden] { display: none; }
+
+.scene-ai-modal-card {
+    background: var(--card-bg, #fff);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+    padding: 2rem;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.scene-ai-modal-card h3 {
+    margin-top: 0;
+    margin-bottom: 1.25rem;
+    font-size: 1.2rem;
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+@media (max-width: 768px) {
+    .stories-list { grid-template-columns: 1fr; }
+    .story-overview-header { flex-direction: column; }
+    .story-overview-image { width: 100%; height: 200px; }
+    .storypoint-item { flex-direction: column; align-items: flex-start; }
+    .choice-row { flex-direction: column; }
+    .editor-header { flex-direction: column; align-items: flex-start; }
+    .story-overview-actions { flex-direction: column; align-items: flex-start; }
+}

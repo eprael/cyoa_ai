@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Term 3 Project Proposal – CYOA Maker Upgrade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      background: #fafaf8;
+      color: #1a1a2e;
+      line-height: 1.75;
+    }
+
+    .page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    h1 {
+      font-size: 2.6em;
+      margin-bottom: 0.25rem;
+      color: #2c3e50;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      color: #555;
+      font-style: italic;
+      margin-bottom: 2rem;
+      font-size: 1.15em;
+    }
+
+    hr {
+      border: none;
+      border-top: 3px solid #2c3e50;
+      margin: 2rem 0;
+    }
+
+    nav {
+      background: #f0f0ea;
+      border-left: 4px solid #2c3e50;
+      padding: 28px 32px;
+      margin-bottom: 60px;
+      border-radius: 0 4px 4px 0;
+    }
+
+    nav h2 {
+      font-size: 1.1em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #2c3e50;
+      margin-bottom: 16px;
+    }
+
+    nav ol {
+      padding-left: 20px;
+    }
+
+    nav > ol > li {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    nav ol ol {
+      font-weight: normal;
+      font-size: 0.92em;
+      padding-left: 20px;
+      margin-top: 4px;
+    }
+
+    nav li {
+      margin-bottom: 0.3rem;
+    }
+
+    nav a {
+      color: #2c3e50;
+      text-decoration: none;
+      font-size: 0.97rem;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    section {
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    section:last-of-type {
+      border-bottom: none;
+    }
+
+    h2.section-title {
+      font-size: 1.8em;
+      color: #2c3e50;
+      border-bottom: 2px solid #2c3e50;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+
+    h3 {
+      font-size: 1.25em;
+      color: #2c3e50;
+      margin: 28px 0 10px;
+    }
+
+    p {
+      margin-bottom: 14px;
+    }
+
+    ul, ol {
+      margin: 0 0 14px 24px;
+    }
+
+    li {
+      margin-bottom: 5px;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #edf2ff;
+      color: #3a5ccc;
+      font-size: 0.8rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      margin-right: 0.3rem;
+    }
+
+    .level-card {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 1.1rem 1.4rem;
+      margin-bottom: 1.1rem;
+      background: #f7f7f2;
+    }
+
+    .level-card h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.93em;
+      margin: 16px 0 24px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 9px 12px;
+    }
+
+    th {
+      background: #2c3e50;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    td {
+      border-bottom: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) td {
+      background: #f7f7f2;
+    }
+
+    .note {
+      font-size: 0.88em;
+      color: #777;
+      font-style: italic;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.85em;
+      color: #aaa;
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+
+    /* ── Lightbox ────────────────────────────────────── */
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.85);
+      z-index: 1000;
+      cursor: zoom-out;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: lb-fade .18s ease;
+    }
+    .lightbox-overlay.active { display: flex; }
+
+    @keyframes lb-fade { from { opacity: 0; } to { opacity: 1; } }
+
+    .lightbox-overlay img {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 6px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.6);
+      cursor: default;
+      animation: lb-zoom .18s ease;
+    }
+    @keyframes lb-zoom { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .lightbox-close {
+      position: fixed;
+      top: 16px; right: 20px;
+      color: #fff;
+      font-size: 2em;
+      line-height: 1;
+      cursor: pointer;
+      opacity: .7;
+      transition: opacity .15s;
+      background: none; border: none;
+      font-family: sans-serif;
+    }
+    .lightbox-close:hover { opacity: 1; }
+
+    /* ── Mockup figures ──────────────────────────────── */
+    figure.mockup {
+      margin: 28px 0 10px;
+      border: 1px solid #d6d0c8;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 3px 12px rgba(44,62,80,.10);
+    }
+
+    figure.mockup img {
+      display: block;
+      width: 100%;
+      height: auto;
+      cursor: zoom-in;
+      transition: opacity .15s;
+    }
+    figure.mockup img:hover { opacity: .92; }
+
+    figure.mockup figcaption {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #f0f0ea;
+      border-top: 1px solid #d6d0c8;
+      font-size: 0.83em;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    figure.mockup figcaption .fig-label {
+      display: inline-block;
+      background: #2c3e50;
+      color: #fff;
+      font-size: 0.78em;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <h1>CYOA Maker - Upgrade Proposal</h1>
+  <p class="subtitle">Term 3 Project &nbsp;|&nbsp; WebTech 10 &nbsp;|&nbsp; 2025–2026</p>
+
+  <hr />
+
+  <!-- TABLE OF CONTENTS -->
+  <nav>
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#overview">Project Overview</a></li>
+      <li><a href="#ui">UI Redesign</a>
+        <ol>
+          <li><a href="#ui-nav">Updated Header / Navigation Bar</a></li>
+          <li><a href="#ui-summary">New Story Summary Page</a></li>
+        </ol>
+      </li>
+      <li><a href="#features">New Features</a>
+        <ol>
+          <li><a href="#draft">Draft &amp; Published Modes</a></li>
+          <li><a href="#ratings">Ratings</a></li>
+          <li><a href="#favorites">Favorites</a></li>
+          <li><a href="#comments">Comments</a></li>
+          <li><a href="#views">View Tracking</a></li>
+        </ol>
+      </li>
+      <li><a href="#ai">AI Features</a>
+        <ol>
+          <li><a href="#ai-image">Level 1 – Image Generation</a></li>
+          <li><a href="#ai-point">Level 2 – Story Point Generation</a></li>
+          <li><a href="#ai-full">Level 3 – Full Story Generation</a></li>
+          <li><a href="#ai-how">How AI Jobs Will Work</a></li>
+        </ol>
+      </li>
+      <li><a href="#database">Database Changes</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. OVERVIEW -->
+  <section id="overview">
+    <h2 class="section-title">1. Project Overview</h2>
+    <p>
+      This project is an upgrade to the existing <strong>Choose Your Own Adventure (CYOA) Maker</strong> — a web app where users can build, share, and play branching stories.
+    </p>
+    <p>
+      The goal is to make the app feel more like a real community platform. Right now it lets people write and play stories, but it's missing the social side — there's no way to rate a story, save your favourites, leave a comment, or know how popular something is.
+    </p>
+    <p>
+      On top of those social features, this upgrade also adds <strong>AI-powered tools</strong> so authors can get help generating images, writing individual scenes, or even producing an entire branching story from a single idea.
+    </p>
+  </section>
+
+  <!-- 2. UI REDESIGN -->
+  <section id="ui">
+    <h2 class="section-title">2. UI Redesign</h2>
+
+    <h3 id="ui-nav">Updated Header / Navigation Bar</h3>
+    <p>The top bar will be reorganised so common actions are always one click away:</p>
+    <ul>
+      <li><strong>Mail icon</strong> — shows received messages / notifications</li>
+      <li><strong>My Stories icon</strong> — quick link to the user's own stories</li>
+      <li><strong>Create</strong> — start a new story</li>
+      <li><strong>Explore</strong> — browse the public story gallery</li>
+      <li><strong>Username dropdown</strong> — opens a menu with:
+        <ul>
+          <li>Profile page (profile picture, change password, view your likes &amp; favourites)</li>
+          <li>My Stories</li>
+        </ul>
+      </li>
+      <li><strong>Admin menu</strong> (admin users only) — manage or delete user accounts</li>
+    </ul>
+
+    <figure class="mockup">
+      <img src="01_nav_header.png" alt="Mockup of the updated navigation header showing both regular user and admin views with their respective dropdown menus open" />
+      <figcaption>
+        <span class="fig-label">Mockup 1</span>
+        Navigation bar in regular-user view (top) and admin view (bottom), both with dropdowns open. The admin-only button is highlighted in gold and reveals a separate admin panel menu.
+      </figcaption>
+    </figure>
+
+    <h3 id="ui-summary">New Story Summary Page</h3>
+    <p>
+      Currently, clicking a story goes straight to the play page. A new <strong>summary page</strong> will sit in between, giving players a preview before they commit:
+    </p>
+    <ul>
+      <li>Story thumbnail and instructions</li>
+      <li>Stats: total views, likes, and favourites</li>
+      <li>A <strong>Play</strong> button (for everyone) and an <strong>Edit</strong> button (for the author or admin)</li>
+      <li>A comments section — read existing comments and post your own</li>
+    </ul>
+
+    <figure class="mockup">
+      <img src="03_story_summary.png" alt="Mockup of the story summary page showing the cover image, stats bar, description, and threaded comments section" />
+      <figcaption>
+        <span class="fig-label">Mockup 3</span>
+        Story summary page showing the cover image, metadata panel, stat bar (views / likes / star rating), description, and the threaded comments section with a comment input box.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- 3. NEW FEATURES -->
+  <section id="features">
+    <h2 class="section-title">3. New Features</h2>
+
+    <section id="draft">
+      <h3>3.1 &nbsp;Draft &amp; Published Modes</h3>
+      <p>
+        Every story will have a status of either <strong>draft</strong> or <strong>published</strong>. Only published stories appear in the public gallery and can be rated, commented on, or favourited.
+      </p>
+      <p>
+        Any edit to a story — whether made by the author or applied by the AI — automatically moves it back to <strong>draft</strong>. This prevents a half-finished story from being visible while changes are in progress. The author must explicitly <em>publish</em> the story again when they're happy with it.
+      </p>
+      <p>
+        This is a small change to the existing stories table: a <code>status</code> column (values: <code>draft</code> or <code>published</code>) is all that's needed. New stories start as drafts by default.
+      </p>
+    </section>
+
+    <section id="ratings">
+      <h3>3.2 &nbsp;Ratings (1–5 Stars)</h3>
+      <p>
+        Each logged-in user can give a story between one and five stars — once per story. The average rating will show up on the gallery card so players can spot the best stories at a glance. This gives authors feedback and motivates quality writing.
+      </p>
+    </section>
+
+    <section id="favorites">
+      <h3>3.3 &nbsp;Favourites</h3>
+      <p>
+        Users can bookmark any story as a favourite. Their full favourites list is accessible from their profile page, making it easy to return to stories they enjoyed.
+      </p>
+    </section>
+
+    <section id="comments">
+      <h3>3.4 &nbsp;Comments</h3>
+      <p>
+        Players can leave a comment on a story's summary page. Comments can be nested (replies to other comments). Admins will be able to moderate or delete comments from the admin panel.
+      </p>
+    </section>
+
+    <section id="views">
+      <h3>3.5 &nbsp;View Tracking</h3>
+      <p>
+        Every time a story's summary page is opened, the view count goes up by one. This is shown on the summary page and the gallery card alongside likes and favourites.
+      </p>
+    </section>
+
+    <figure class="mockup">
+      <img src="02_story_cards.png" alt="Mockup of the story gallery showing story cards with thumbnails, heart/like buttons, star ratings, and eye/view counts beneath each image" />
+      <figcaption>
+        <span class="fig-label">Mockup 2</span>
+        Story gallery (Explore page) showing the card grid. Each card displays a thumbnail, title, author, and three interactive stat icons: ❤️ likes, ⭐ average rating, and 👁 view count. Draft stories owned by the current user show a Draft badge and greyed-out stats.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- 4. AI FEATURES -->
+  <section id="ai">
+    <h2 class="section-title">4. AI Features</h2>
+    <p>
+      AI was already used heavily during development. The next step is putting AI tools directly in the hands of authors, so they can get help when they're stuck or just want to move faster.
+    </p>
+    <p>
+      There are three levels of AI assistance, from a quick image to a complete story:
+    </p>
+
+    <div class="level-card" id="ai-image">
+      <h3>Level 1 — Image Generation</h3>
+      <p>
+        An author types a short description and clicks <em>"Generate with AI"</em>. An AI image model (such as DALL-E 3) creates an illustration that matches the story's theme and the scene being described. The result is applied directly to the story point.
+      </p>
+      <p>
+        Because any AI change moves the story to <strong>draft</strong>, the author can freely navigate away and come back to review or adjust things before publishing again.
+      </p>
+    </div>
+
+    <figure class="mockup">
+      <img src="04_storypoint_edit_image_ai.png" alt="Mockup of the story point editor showing the scene form on the left and the AI image generation panel on the right, with a generated preview image ready to accept or regenerate" />
+      <figcaption>
+        <span class="fig-label">Mockup 4</span>
+        Story point editor with the AI Image Generation panel (right side). The author enters a prompt, clicks Generate, and a preview appears with Accept / Regenerate options. The existing upload option remains available above the AI panel.
+      </figcaption>
+    </figure>
+
+    <div class="level-card" id="ai-point">
+      <h3>Level 2 — Story Point Generation</h3>
+      <p>
+        The AI writes a full scene: title, description, a short hint, and a set of choices for the player. It takes into account the story's theme, what happened in previous scenes, and what kind of moment this should be (mid-story, climax, or ending).
+      </p>
+      <p>
+        A text AI (such as Claude) is used here, asked to return the result as structured data so it can be loaded straight into the editor.
+      </p>
+    </div>
+
+    <figure class="mockup">
+      <img src="05_storypoint_ai_generate.png" alt="Mockup of the AI scene generator page showing a story map overview, a prompt form with tone and type options, and a generated scene result card ready to save or edit" />
+      <figcaption>
+        <span class="fig-label">Mockup 5</span>
+        AI Scene Generator page. The story map at the top shows where the new scene will be inserted. The author provides a direction prompt and selects scene type, number of choices, and tone. The generated result (title, description, hint, and labelled choices) appears below for review before saving.
+      </figcaption>
+    </figure>
+
+    <div class="level-card" id="ai-full">
+      <h3>Level 3 — Full Story Generation</h3>
+      <p>
+        An author provides a premise — for example, <em>"a mystery set in medieval Japan"</em> — and the AI generates a complete branching story from scratch.
+      </p>
+      <p>
+        This works in stages: first the AI plans the whole story structure (all scenes and how they connect), then each scene is written individually with the full plan as context. This makes the story coherent rather than just a series of disconnected scenes.
+      </p>
+    </div>
+
+    <figure class="mockup">
+      <img src="06_story_ai_generate.png" alt="Mockup of the full story AI generation page showing the level selector, premise and configuration form, estimated structure preview, generate button, and a live progress tracker" />
+      <figcaption>
+        <span class="fig-label">Mockup 6</span>
+        Full Story Generator page. The author picks Level 3, enters a premise and configuration (genre, length, number of endings, tone), reviews the estimated branching structure, then clicks Generate. A live progress tracker shows each stage — planning, scene writing, image generation, and finalising — as the job runs in the background.
+      </figcaption>
+    </figure>
+
+    <section id="ai-how">
+      <h3>4.4 &nbsp;How AI Jobs Will Work Behind the Scenes</h3>
+      <p>
+        Because the server can't run AI calls indefinitely in the background, a simple <strong>job queue</strong> approach is used:
+      </p>
+      <ol>
+        <li>The author clicks "Generate with AI" — the server creates a job record and returns immediately.</li>
+        <li>A scheduled task (cron job) running every 30 seconds picks up the job, calls the AI service, and stores the result.</li>
+        <li>The browser quietly checks for the result every few seconds in the background.</li>
+        <li>When the result is ready, it is applied directly and the story is moved to <strong>draft</strong>. A notification lets the author know it's done.</li>
+      </ol>
+      <p class="note">
+        This approach was chosen because standard web hosting doesn't allow long-running processes — a cron job is the most reliable option in this environment.
+      </p>
+
+      <figure class="mockup">
+        <img src="07_admin_ai_jobs.png" alt="Mockup of the admin AI jobs monitor showing stat cards for pending, running, completed, and failed jobs, a filterable table of all recent jobs, and an expanded detail pane showing the input and partial result JSON for a running job" />
+        <figcaption>
+          <span class="fig-label">Mockup 7</span>
+          Admin AI Jobs Monitor. Stat cards at the top give a live count by status. The table lists every job with its type (image / scene / full story), status badge, user, linked story, duration bar, and action buttons (View, Retry, Cancel, Delete). Failed rows are highlighted and show a truncated error message. An expanded detail pane at the bottom shows the full input and partial result JSON for any selected job.
+        </figcaption>
+      </figure>
+    </section>
+  </section>
+
+  <!-- 5. DATABASE -->
+  <section id="database">
+    <h2 class="section-title">5. Database Changes</h2>
+
+    <h3>Existing Table — Stories</h3>
+    <p>
+      One column is added to the existing stories table to support draft/published modes:
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Column</th>
+          <th>Type</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>status</strong></td>
+          <td>ENUM('draft', 'published')</td>
+          <td>Defaults to <em>draft</em>. Set to <em>draft</em> automatically whenever the story or any of its story points are edited or touched by AI.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>New Tables</h3>
+    <p>Five new tables will be added to support the remaining features:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Table</th>
+          <th>Purpose</th>
+          <th>Key Fields</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ratings</strong></td>
+          <td>Stores each user's star rating for a story</td>
+          <td>rating_id, user_id, story_id, rating</td>
+        </tr>
+        <tr>
+          <td><strong>views</strong></td>
+          <td>Records each time a story is viewed</td>
+          <td>view_id, user_id, story_id</td>
+        </tr>
+        <tr>
+          <td><strong>comments</strong></td>
+          <td>Stores comments and replies on stories</td>
+          <td>comment_id, user_id, story_id, comment, comment_date, reply_to_comment_id</td>
+        </tr>
+        <tr>
+          <td><strong>favorites</strong></td>
+          <td>Tracks which stories a user has bookmarked</td>
+          <td>favorite_id, user_id, story_id</td>
+        </tr>
+        <tr>
+          <td><strong>ai_jobs</strong></td>
+          <td>Manages AI generation requests and results</td>
+          <td>job_id, user_id, story_id, storypoint_id, job_type, status, input_json, result_json, error_message, created_at, updated_at</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- 6. SUMMARY -->
+  <section id="summary">
+    <h2 class="section-title">6. Summary</h2>
+    <p>
+      This upgrade turns the CYOA Maker from a writing tool into a small creative community — where stories can be discovered, rated, discussed, and bookmarked.
+    </p>
+    <p>
+      The AI features add a layer that goes beyond most student projects: authors can get instant help at whatever level they need, from a single image all the way to a fully generated story ready to edit.
+    </p>
+    <p>
+      Together, the UI improvements, social features, and AI tools make the app significantly more useful and engaging for both authors and players.
+    </p>
+  </section>
+
+  <footer>
+    CYOA Maker Upgrade &nbsp;·&nbsp; Term 3 Project Proposal &nbsp;·&nbsp; WebTech 10 &nbsp;·&nbsp; 2025–2026
+  </footer>
+
+</div>
+<!-- Lightbox -->
+<div class="lightbox-overlay" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close" title="Close (Esc)">✕</button>
+  <img id="lightbox-img" src="" alt="" />
+</div>
+
+<script>
+  const overlay  = document.getElementById('lightbox');
+  const lbImg    = document.getElementById('lightbox-img');
+  const lbClose  = document.getElementById('lightbox-close');
+
+  document.querySelectorAll('figure.mockup img').forEach(img => {
+    img.addEventListener('click', () => {
+      lbImg.src = img.src;
+      lbImg.alt = img.alt;
+      overlay.classList.add('active');
+    });
+  });
+
+  function closeLightbox() { overlay.classList.remove('active'); }
+
+  lbClose.addEventListener('click', closeLightbox);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeLightbox(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>

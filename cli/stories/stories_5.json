@@ -1,0 +1,12 @@
+[
+  {"image-style": "Golden hour / Natural light", "audience": "adults", "scenes": 10, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Cartoon / Saturday morning cartoon", "audience": "picture_book", "scenes": 10, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Gouache", "audience": "early_readers", "scenes": 10, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Dark fantasy / Gothic", "audience": "adults", "scenes": 10, "endings": 3, "words": 50, "images": "medium", "publish": true},
+
+  {"image-style": "Steampunk", "audience": "picture_book", "scenes": 10, "endings": 3, "words": 50, "images": "medium", "publish": true}
+
+]

@@ -1,0 +1,60 @@
+/* ==========================================================================
+   Report lightbox — click any content image to view it full size.
+   Shared by all pages. Pairs with lightbox.js.
+   ========================================================================== */
+
+.lb-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 30, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease;
+  cursor: zoom-out;
+}
+
+.lb-overlay.is-open { opacity: 1; visibility: visible; }
+
+.lb-overlay img {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 6px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+.lb-caption {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #eaeaea;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95em;
+  padding: 0 32px;
+  pointer-events: none;
+}
+
+.lb-close {
+  position: absolute;
+  top: 16px;
+  right: 22px;
+  font-size: 2.2em;
+  line-height: 1;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.lb-close:hover { opacity: 1; }
+
+/* images that opt OUT of the lightbox */
+img.no-lightbox { cursor: auto; }

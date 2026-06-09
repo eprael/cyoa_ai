@@ -1,0 +1,529 @@
+{
+    "_about": "Curated, mood-tagged Google Fonts allow-list (Phase 41). Every family/weight is verified to load (see cli/validate_play_fonts.php). Read via fonts.php (play_fonts()). role = body-safe vs heading/display-only.",
+    "defaults": {
+        "body": "Lora",
+        "heading": "Playfair Display"
+    },
+    "fonts": [
+        {
+            "family": "Lora",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "neutral",
+                "literary",
+                "romance"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Merriweather",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "neutral",
+                "literary"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "EB Garamond",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "elegant",
+                "historical",
+                "literary"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "PT Serif",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "neutral",
+                "literary"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Bitter",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "neutral",
+                "literary"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Crimson Text",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "elegant",
+                "literary",
+                "historical"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Cormorant Garamond",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "elegant",
+                "romance",
+                "literary"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Spectral",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "literary",
+                "elegant",
+                "neutral"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Vollkorn",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "literary",
+                "neutral"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Roboto Slab",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "neutral",
+                "modern"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Inter",
+            "category": "sans-serif",
+            "weights": "400;700",
+            "moods": [
+                "neutral",
+                "modern",
+                "scifi"
+            ],
+            "role": "body",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "Source Sans 3",
+            "category": "sans-serif",
+            "weights": "400;700",
+            "moods": [
+                "neutral",
+                "modern"
+            ],
+            "role": "body",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "Nunito",
+            "category": "sans-serif",
+            "weights": "400;700",
+            "moods": [
+                "playful",
+                "friendly",
+                "neutral"
+            ],
+            "role": "body",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "IM Fell English",
+            "category": "serif",
+            "weights": "400",
+            "moods": [
+                "historical",
+                "vintage",
+                "literary"
+            ],
+            "role": "body",
+            "fallback": "serif"
+        },
+        {
+            "family": "Special Elite",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "mystery",
+                "noir",
+                "retro",
+                "historical"
+            ],
+            "role": "body",
+            "fallback": "monospace"
+        },
+        {
+            "family": "Cinzel",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "fantasy",
+                "elegant",
+                "historical"
+            ],
+            "role": "heading",
+            "fallback": "serif"
+        },
+        {
+            "family": "Cinzel Decorative",
+            "category": "display",
+            "weights": "400;700",
+            "moods": [
+                "fantasy",
+                "elegant"
+            ],
+            "role": "heading",
+            "fallback": "serif"
+        },
+        {
+            "family": "Playfair Display",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "elegant",
+                "romance",
+                "literary"
+            ],
+            "role": "heading",
+            "fallback": "serif"
+        },
+        {
+            "family": "Abril Fatface",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "elegant",
+                "romance",
+                "retro"
+            ],
+            "role": "heading",
+            "fallback": "serif"
+        },
+        {
+            "family": "MedievalSharp",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "fantasy",
+                "medieval",
+                "historical"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Uncial Antiqua",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "fantasy",
+                "medieval",
+                "historical"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Pirata One",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "gothic",
+                "horror",
+                "medieval"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "UnifrakturCook",
+            "category": "display",
+            "weights": "700",
+            "moods": [
+                "gothic",
+                "medieval",
+                "fantasy"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Almendra",
+            "category": "serif",
+            "weights": "400;700",
+            "moods": [
+                "fantasy",
+                "historical"
+            ],
+            "role": "heading",
+            "fallback": "serif"
+        },
+        {
+            "family": "Creepster",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "horror"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Nosifer",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "horror",
+                "gore"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Eater",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "horror"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Metal Mania",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "horror",
+                "metal"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Orbitron",
+            "category": "sans-serif",
+            "weights": "400;700",
+            "moods": [
+                "scifi",
+                "futuristic"
+            ],
+            "role": "heading",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "Audiowide",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "scifi",
+                "futuristic",
+                "retro"
+            ],
+            "role": "heading",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "Black Ops One",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "scifi",
+                "military",
+                "adventure"
+            ],
+            "role": "heading",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "Major Mono Display",
+            "category": "monospace",
+            "weights": "400",
+            "moods": [
+                "scifi",
+                "techno"
+            ],
+            "role": "heading",
+            "fallback": "monospace"
+        },
+        {
+            "family": "Press Start 2P",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "retro",
+                "games"
+            ],
+            "role": "heading",
+            "fallback": "monospace"
+        },
+        {
+            "family": "VT323",
+            "category": "monospace",
+            "weights": "400",
+            "moods": [
+                "retro",
+                "scifi",
+                "terminal"
+            ],
+            "role": "heading",
+            "fallback": "monospace"
+        },
+        {
+            "family": "Bungee",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "playful",
+                "urban",
+                "retro"
+            ],
+            "role": "heading",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "Righteous",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "retro",
+                "playful"
+            ],
+            "role": "heading",
+            "fallback": "sans-serif"
+        },
+        {
+            "family": "Lobster",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "playful",
+                "retro",
+                "comedy"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Pacifico",
+            "category": "handwriting",
+            "weights": "400",
+            "moods": [
+                "playful",
+                "romance",
+                "retro"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Dancing Script",
+            "category": "handwriting",
+            "weights": "400;700",
+            "moods": [
+                "romance",
+                "elegant",
+                "handwritten"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Great Vibes",
+            "category": "handwriting",
+            "weights": "400",
+            "moods": [
+                "romance",
+                "elegant"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Caveat",
+            "category": "handwriting",
+            "weights": "400;700",
+            "moods": [
+                "handwritten",
+                "playful"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Permanent Marker",
+            "category": "handwriting",
+            "weights": "400",
+            "moods": [
+                "playful",
+                "bold",
+                "comedy"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Bangers",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "comedy",
+                "comic",
+                "adventure"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Luckiest Guy",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "playful",
+                "comic"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        },
+        {
+            "family": "Rye",
+            "category": "display",
+            "weights": "400",
+            "moods": [
+                "retro",
+                "western",
+                "adventure"
+            ],
+            "role": "heading",
+            "fallback": "cursive"
+        }
+    ]
+}

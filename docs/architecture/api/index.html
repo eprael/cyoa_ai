@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="main.css">
+    <meta charset="UTF-8">
+    <title>CYOA Maker — Internal API</title>
+                                                         </head>
+<body>
+<div class="container">
+    <h1>CYOA Maker — Internal API</h1>
+    <p class="sw-info">
+        
+        Version: <span class="sw-info-version">1.0.0</span>
+    </p>
+    <p><p>Internal AJAX / JSON endpoints used by the CYOA Maker web app. These are <strong>not</strong> a public REST API: each endpoint is a single PHP file that dispatches on an <code>action</code> query/body parameter, authentication is the PHP session cookie, and request bodies are <code>application/x-www-form-urlencoded</code> (browser form posts), not JSON.</p>
+    <p>Because of the action-dispatch design, one path serves several logical operations — the per-action request fields and response shapes are documented via descriptions and response <code>examples</code>. Mutations use POST; reads use GET.</p>
+    <p>Generated from the code (api_jobs.php, api_create_story_ai.php, api_social.php, api_tree.php, api_content.php). See also docs/architecture/api-endpoints.md.</p>
+    </p>
+    
+    
+    <div id="sw-schemes" class="sw-default-value">
+        <span class="sw-default-value-header">Schemes:</span>
+        
+    </div>
+    
+        
+        <h2 id="swagger--summary-tags">Summary</h2>
+            <h3 id="tag-Jobs" class="swagger-summary-tag">Tag: Jobs</h3>
+            <p>AI job queue — polling, history, and actions (api_jobs.php)</p>
+        
+            <p class="sw-tag-external-doc">
+            </p>
+            <table class="table table-bordered table-condensed swagger--summary">
+                <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="#operation--api_jobs.php-get">GET /api_jobs.php</a></td>
+                        <td><p>Job queue reads (unseen_count, status, list, detail)</p>
+        </td>
+                    </tr>
+                    <tr>
+                        <td><a href="#operation--api_jobs.php-post">POST /api_jobs.php</a></td>
+                        <td><p>Job queue actions (create, cancel, retry, apply)</p>
+        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3 id="tag-Story-creation" class="swagger-summary-tag">Tag: Story creation</h3>
+            <p>Full-story AI creation (api_create_story_ai.php)</p>
+        
+            <p class="sw-tag-external-doc">
+            </p>
+            <table class="table table-bordered table-condensed swagger--summary">
+                <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="#operation--api_create_story_ai.php-post">POST /api_create_story_ai.php</a></td>
+                        <td><p>Create a full story with AI</p>
+        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3 id="tag-Social" class="swagger-summary-tag">Tag: Social</h3>
+            <p>Ratings, favourites, comments (api_social.php)</p>
+        
+            <p class="sw-tag-external-doc">
+            </p>
+            <table class="table table-bordered table-condensed swagger--summary">
+                <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="#operation--api_social.php-post">POST /api_social.php</a></td>
+                        <td><p>Ratings, favourites, comments</p>
+        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3 id="tag-Editor" class="swagger-summary-tag">Tag: Editor</h3>
+            <p>Editor data feeds (api_tree.php)</p>
+        
+            <p class="sw-tag-external-doc">
+            </p>
+            <table class="table table-bordered table-condensed swagger--summary">
+                <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="#operation--api_tree.php-get">GET /api_tree.php</a></td>
+                        <td><p>Story scene-graph data (Tree View)</p>
+        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3 id="tag-Admin" class="swagger-summary-tag">Tag: Admin</h3>
+            <p>Admin-only content settings (api_content.php)</p>
+        
+            <p class="sw-tag-external-doc">
+            </p>
+            <table class="table table-bordered table-condensed swagger--summary">
+                <thead>
+                <tr>
+                    <th>Operation</th>
+                    <th>Description</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="#operation--api_content.php-post">POST /api_content.php</a></td>
+                        <td><p>Update a content setting (admin only)</p>
+        </td>
+                    </tr>
+                </tbody>
+            </table>
+        
+    
+    
+    
+    <h2>Paths</h2>
+    
+        
+        <span id="path--api_content.php"></span>
+            <div id="operation--api_content.php-post" class="swagger--panel-operation-post panel">
+                <div class="panel-heading">
+                    <div class="operation-summary">Update a content setting (admin only)</div>
+                    <h3 class="panel-title"><span class="operation-name">POST</span> <strong>/api_content.php</strong></h3>
+                        Tags:
+                            <a href="#tag-Admin">Admin</a>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>Immediate persistence for the content-settings chip editors and guardrails toggle. Admin only, POST only. Writes to the <code>cyoa_ai_settings</code> table.</p>
+            
+                    </section>
+            
+                    
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Saved.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-400">
+                                        400 Bad Request
+                                    
+                                    </dt>
+                                    <dd class="sw-response-400">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Invalid field/value.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-403">
+                                        403 Forbidden
+                                    
+                                    </dt>
+                                    <dd class="sw-response-403">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Admin only.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-405">
+                                        405 Method Not Allowed
+                                    
+                                    </dt>
+                                    <dd class="sw-response-405">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>POST required.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>
+        
+        <span id="path--api_create_story_ai.php"></span>
+            <div id="operation--api_create_story_ai.php-post" class="swagger--panel-operation-post panel">
+                <div class="panel-heading">
+                    <div class="operation-summary">Create a full story with AI</div>
+                    <h3 class="panel-title"><span class="operation-name">POST</span> <strong>/api_create_story_ai.php</strong></h3>
+                        Tags:
+                            <a href="#tag-Story-creation">Story creation</a>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>Resolves &quot;Any&quot; genre/tone/audience to concrete random values, fills a blank premise from a seed, creates a draft story, and queues a <code>story</code> job. Returns immediately (the browser polls the job queue). Note this endpoint uses <strong><code>ok</code></strong> as its result key, not <code>success</code>. Requires login and <code>ai_enabled</code>.</p>
+            
+                    </section>
+            
+                    
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Job queued — or a handled error (rate limit / validation) with <code>ok:false</code>.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-401">
+                                        401 Unauthorized
+                                    
+                                    </dt>
+                                    <dd class="sw-response-401">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Not logged in.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-403">
+                                        403 Forbidden
+                                    
+                                    </dt>
+                                    <dd class="sw-response-403">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>AI features disabled.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-405">
+                                        405 Method Not Allowed
+                                    
+                                    </dt>
+                                    <dd class="sw-response-405">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>POST required.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>
+        
+        <span id="path--api_jobs.php"></span>
+            <div id="operation--api_jobs.php-get" class="swagger--panel-operation-get panel">
+                <div class="panel-heading">
+                    <div class="operation-summary">Job queue reads (unseen_count, status, list, detail)</div>
+                    <h3 class="panel-title"><span class="operation-name">GET</span> <strong>/api_jobs.php</strong></h3>
+                        Tags:
+                            <a href="#tag-Jobs">Jobs</a>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>Dispatches on <code>action</code>. <code>unseen_count</code> is the only action that does not require login (guests receive <code>{ &quot;count&quot;: 0 }</code>); all others require a session and that the caller owns the job (or is an admin).</p>
+            
+                    </section>
+            
+                    
+                        <section class="sw-request-params">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="sw-param-name"></th>
+                                    <th class="sw-param-description"></th>
+                                    <th class="sw-param-type"></th>
+                                    <th class="sw-param-data-type"></th>
+                                    <th class="sw-param-annotation"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                        <tr>
+                                            <td>
+                                                action
+                                            </td>
+                                            <td><p>Which read to perform.</p>
+                                        </td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                                    <span class="json-property-required"></span>
+                                                    <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/parameters/GetAction">#/components/parameters/GetAction</a></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                job_id
+                                            </td>
+                                            <td><p>Required for <code>status</code> and <code>detail</code>.</p>
+                                        </td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                status
+                                            </td>
+                                            <td><p>Optional filter for <code>list</code>.</p>
+                                        </td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                story_id
+                                            </td>
+                                            <td><p>Optional filter for <code>list</code>.</p>
+                                        </td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                limit
+                                            </td>
+                                            <td><p>Max rows for <code>list</code>.</p>
+                                        </td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Action result (shape depends on <code>action</code>).</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-400">
+                                        400 Bad Request
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/BadRequest">#/components/responses/BadRequest</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-400">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Missing or invalid parameters.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-401">
+                                        401 Unauthorized
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/Unauthorized">#/components/responses/Unauthorized</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-401">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Not logged in.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-403">
+                                        403 Forbidden
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/Forbidden">#/components/responses/Forbidden</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-403">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Not the owner / not an admin.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-404">
+                                        404 Not Found
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/NotFound">#/components/responses/NotFound</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-404">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Resource not found.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>
+            <div id="operation--api_jobs.php-post" class="swagger--panel-operation-post panel">
+                <div class="panel-heading">
+                    <div class="operation-summary">Job queue actions (create, cancel, retry, apply)</div>
+                    <h3 class="panel-title"><span class="operation-name">POST</span> <strong>/api_jobs.php</strong></h3>
+                        Tags:
+                            <a href="#tag-Jobs">Jobs</a>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>Dispatches on <code>action</code>. <code>create</code> submits an <code>image</code> or <code>scene</code> job from the editor (for <code>scene</code> jobs the server augments <code>input_json</code> with story context + the backward path walk). <code>cancel</code> works only while the job is still <code>pending</code>. <code>retry</code> resets a <code>failed</code> job to <code>pending</code>. <code>apply</code> re-applies a completed job&#39;s stored result.</p>
+            
+                    </section>
+            
+                    
+                        <section class="sw-request-params">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="sw-param-name"></th>
+                                    <th class="sw-param-description"></th>
+                                    <th class="sw-param-type"></th>
+                                    <th class="sw-param-data-type"></th>
+                                    <th class="sw-param-annotation"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                        <tr>
+                                            <td>
+                                                action
+                                            </td>
+                                            <td></td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                                    <span class="json-property-required"></span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                job_id
+                                            </td>
+                                            <td><p>Target job for <code>cancel</code> / <code>retry</code> / <code>apply</code> (may also be sent in the body).</p>
+                                        </td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Result of the action.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-400">
+                                        400 Bad Request
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/BadRequest">#/components/responses/BadRequest</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-400">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Missing or invalid parameters.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-401">
+                                        401 Unauthorized
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/Unauthorized">#/components/responses/Unauthorized</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-401">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Not logged in.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-403">
+                                        403 Forbidden
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/Forbidden">#/components/responses/Forbidden</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-403">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Not the owner / not an admin.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-404">
+                                        404 Not Found
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/NotFound">#/components/responses/NotFound</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-404">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Resource not found.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-429">
+                                        429 Too Many Requests
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/RateLimited">#/components/responses/RateLimited</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-429">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Too many active jobs for this user (ai_max_pending_per_user).</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-503">
+                                        503 Service Unavailable
+                                    
+                                    </dt>
+                                    <dd class="sw-response-503">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>AI features are disabled (<code>ai_enabled</code> is off).</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>
+        
+        <span id="path--api_social.php"></span>
+            <div id="operation--api_social.php-post" class="swagger--panel-operation-post panel">
+                <div class="panel-heading">
+                    <div class="operation-summary">Ratings, favourites, comments</div>
+                    <h3 class="panel-title"><span class="operation-name">POST</span> <strong>/api_social.php</strong></h3>
+                        Tags:
+                            <a href="#tag-Social">Social</a>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>POST only. Dispatches on <code>action</code>. The caller must be allowed to interact with the story (published = anyone; draft = owner/admin). Errors return <code>{ &quot;error&quot;: &quot;...&quot; }</code>. Note request fields use <strong><code>storyID</code></strong> (camelCase).</p>
+            
+                    </section>
+            
+                    
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Action result (shape depends on <code>action</code>).</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-400">
+                                        400 Bad Request
+                                    
+                                    </dt>
+                                    <dd class="sw-response-400">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Invalid/missing params.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-401">
+                                        401 Unauthorized
+                                    
+                                    </dt>
+                                    <dd class="sw-response-401">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Login required.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-404">
+                                        404 Not Found
+                                    
+                                    </dt>
+                                    <dd class="sw-response-404">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Story not found / not interactable.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-405">
+                                        405 Method Not Allowed
+                                    
+                                    </dt>
+                                    <dd class="sw-response-405">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>POST required.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>
+        
+        <span id="path--api_tree.php"></span>
+            <div id="operation--api_tree.php-get" class="swagger--panel-operation-get panel">
+                <div class="panel-heading">
+                    <div class="operation-summary">Story scene-graph data (Tree View)</div>
+                    <h3 class="panel-title"><span class="operation-name">GET</span> <strong>/api_tree.php</strong></h3>
+                        Tags:
+                            <a href="#tag-Editor">Editor</a>
+                </div>
+                <div class="panel-body">
+                    <section class="sw-operation-description">
+                        <p>Returns the scene/choice graph for the editor Tree View. The requester must own the story or be an admin. The first scene by sceneID is flagged <code>is_start</code>.</p>
+            
+                    </section>
+            
+                    
+                        <section class="sw-request-params">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th class="sw-param-name"></th>
+                                    <th class="sw-param-description"></th>
+                                    <th class="sw-param-type"></th>
+                                    <th class="sw-param-data-type"></th>
+                                    <th class="sw-param-annotation"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                        <tr>
+                                            <td>
+                                                storyID
+                                            </td>
+                                            <td></td>
+                                            <td>query</td>
+                                            <td>
+                                        <span class="json-property-type">object</span>
+                                        <span class="json-property-range" title="Value limits"></span>
+                                        
+                                            </td>
+                                            <td>
+                                                    <span class="json-property-required"></span>
+                                            </td>
+                                        </tr>
+                                </tbody>
+                            </table>
+                        </section>
+                    
+                        <section class="sw-responses">
+                    
+                            <dl>
+                                    <dt class="sw-response-200">
+                                        200 OK
+                                    
+                                    </dt>
+                                    <dd class="sw-response-200">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Scenes + choices.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-401">
+                                        401 Unauthorized
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/Unauthorized">#/components/responses/Unauthorized</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-401">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Not logged in.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-403">
+                                        403 Forbidden
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/Forbidden">#/components/responses/Forbidden</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-403">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Not the owner / not an admin.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                                    <dt class="sw-response-404">
+                                        404 Not Found
+                                            <span class="swagger--global"></span> <span class="json-schema--reference"><a href="#/components/responses/NotFound">#/components/responses/NotFound</a></span>
+                                    
+                                    </dt>
+                                    <dd class="sw-response-404">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <p>Resource not found.</p>
+                                            
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                
+                                                <div class="col-md-6 sw-response-model">
+                                            </div>
+                                            
+                                            </div>                </dd>
+                            </dl>
+                        </section>
+                </div>
+            </div>
+    
+     
+    
+                       
+    
+</div>
+
+</body>
+</html>

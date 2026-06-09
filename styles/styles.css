@@ -1,0 +1,761 @@
+/* ==========================================
+   CYOA Maker - Main Application Styles
+   ========================================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap');
+
+/* CSS Custom Properties — Light theme (default) */
+:root {
+    --primary: #3d72ef;
+    --primary-dark: #2557d6;
+    --primary-light: #6fa8ff;
+    --accent: #d4882c;
+    --accent-light: #f0a04b;
+    --bg: #f0f2f5;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --text-light: #64748b;
+    --text-white: #ffffff;
+    --border: #e2e8f0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.14);
+    --radius: 8px;
+    --radius-lg: 12px;
+    --transition: all 0.2s ease;
+    --max-width: 1200px;
+    /* Nav */
+    --nav-bg: linear-gradient(135deg, #2557d6, #3d72ef);
+    --nav-text: #ffffff;
+    --nav-text-muted: rgba(255,255,255,0.72);
+    --nav-hover-bg: rgba(255,255,255,0.12);
+    --nav-active-bg: rgba(255,255,255,0.2);
+    /* Inputs / dropdowns */
+    --input-bg: #ffffff;
+    --dropdown-bg: #ffffff;
+    --dropdown-border: #e2e8f0;
+}
+
+/* ── Dark ── */
+[data-theme="dark"] {
+    --primary: #60a5fa;
+    --primary-dark: #3b82f6;
+    --primary-light: #93c5fd;
+    --accent: #fb923c;
+    --accent-light: #fdba74;
+    --bg: #0f172a;
+    --card-bg: #1e293b;
+    --text: #e2e8f0;
+    --text-light: #94a3b8;
+    --border: #334155;
+    --shadow: 0 2px 8px rgba(0,0,0,0.35);
+    --shadow-hover: 0 4px 16px rgba(0,0,0,0.5);
+    --nav-bg: #1e293b;
+    --nav-text: #f1f5f9;
+    --nav-text-muted: #94a3b8;
+    --nav-hover-bg: rgba(255,255,255,0.07);
+    --nav-active-bg: rgba(255,255,255,0.12);
+    --input-bg: #0f172a;
+    --dropdown-bg: #1e293b;
+    --dropdown-border: #334155;
+}
+
+/* ── Ocean ── */
+[data-theme="ocean"] {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --primary-light: #38bdf8;
+    --accent: #0d9488;
+    --accent-light: #14b8a6;
+    --bg: #f0f9ff;
+    --card-bg: #ffffff;
+    --text: #0c4a6e;
+    --text-light: #0369a1;
+    --border: #bae6fd;
+    --nav-bg: linear-gradient(135deg, #0369a1, #0284c7);
+    --nav-text: #ffffff;
+    --nav-text-muted: rgba(255,255,255,0.72);
+    --nav-hover-bg: rgba(255,255,255,0.12);
+    --nav-active-bg: rgba(255,255,255,0.2);
+    --input-bg: #ffffff;
+    --dropdown-bg: #ffffff;
+    --dropdown-border: #bae6fd;
+}
+
+/* ── Forest ── */
+[data-theme="forest"] {
+    --primary: #16a34a;
+    --primary-dark: #15803d;
+    --primary-light: #4ade80;
+    --accent: #ca8a04;
+    --accent-light: #eab308;
+    --bg: #f0fdf4;
+    --card-bg: #ffffff;
+    --text: #14532d;
+    --text-light: #166534;
+    --border: #bbf7d0;
+    --nav-bg: linear-gradient(135deg, #15803d, #16a34a);
+    --nav-text: #ffffff;
+    --nav-text-muted: rgba(255,255,255,0.72);
+    --nav-hover-bg: rgba(255,255,255,0.12);
+    --nav-active-bg: rgba(255,255,255,0.2);
+    --input-bg: #ffffff;
+    --dropdown-bg: #ffffff;
+    --dropdown-border: #bbf7d0;
+}
+
+/* ── Ember ── */
+[data-theme="ember"] {
+    --primary: #ea580c;
+    --primary-dark: #c2410c;
+    --primary-light: #fb923c;
+    --accent: #9333ea;
+    --accent-light: #a855f7;
+    --bg: #fff7ed;
+    --card-bg: #ffffff;
+    --text: #431407;
+    --text-light: #7c2d12;
+    --border: #fed7aa;
+    --nav-bg: linear-gradient(135deg, #c2410c, #ea580c);
+    --nav-text: #ffffff;
+    --nav-text-muted: rgba(255,255,255,0.72);
+    --nav-hover-bg: rgba(255,255,255,0.12);
+    --nav-active-bg: rgba(255,255,255,0.2);
+    --input-bg: #ffffff;
+    --dropdown-bg: #ffffff;
+    --dropdown-border: #fed7aa;
+}
+
+/* Reset */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { color: var(--primary-dark); }
+
+/* ==========================================
+   Navbar
+   ========================================== */
+.navbar {
+    background: var(--nav-bg);
+    height: 112px;
+    padding: 0 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+
+/* Brand */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    flex-shrink: 1;
+    min-width: 0;
+    /* Cap the brand so the (wrapping) title never reaches the absolutely-centred
+       search box. The search input's left edge is ~50vw - 192px; this keeps a
+       constant ~18px gap. max() floors it so the logo never collapses on narrow
+       viewports (where the title is hidden anyway). */
+    max-width: max(140px, calc(50vw - 250px));
+}
+
+.nav-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: rgba(255,255,255,0.15);
+    padding: 3px;
+    flex-shrink: 0;
+}
+
+.nav-brand-text {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--nav-text);
+    letter-spacing: 0.01em;
+    white-space: normal;       /* allow the title to wrap instead of colliding with search */
+    line-height: 1.2;
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+/* Center links — absolutely centered across the full navbar width */
+.nav-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 480px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+.nav-center > * { pointer-events: auto; }
+
+.nav-link {
+    padding: 0.4rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--nav-text-muted);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background: var(--nav-hover-bg);
+    color: var(--nav-text);
+}
+
+.nav-link.active {
+    background: var(--nav-active-bg);
+    color: var(--nav-text);
+    font-weight: 600;
+}
+
+/* Right actions */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-shrink: 0;
+}
+
+/* Icon buttons (bell, admin cog) */
+.nav-icon-btn {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: var(--nav-hover-bg);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text);
+    text-decoration: none;
+    transition: background 0.15s;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.nav-icon-btn:hover { background: var(--nav-active-bg); color: var(--nav-text); }
+
+.nav-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    background: #e53e3e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    pointer-events: none;
+}
+.nav-badge[hidden] { display: none; }
+
+/* Avatar button */
+.nav-avatar-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.18);
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text);
+    font-size: 1rem;
+    transition: border-color 0.15s;
+    flex-shrink: 0;
+}
+
+.nav-avatar-btn:hover { border-color: rgba(255,255,255,0.8); }
+.nav-avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* User trigger — avatar icon + username stacked vertically */
+.nav-user-trigger {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.35rem 0.5rem;
+    border-radius: 8px;
+    transition: background 0.15s;
+    flex-shrink: 0;
+    color: var(--nav-text);
+}
+.nav-user-trigger:hover { background: var(--nav-hover-bg); }
+
+.nav-avatar-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.18);
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text);
+    flex-shrink: 0;
+}
+.nav-avatar-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.nav-username {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--nav-text-muted);
+    white-space: nowrap;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+}
+
+/* Search bar in header */
+.nav-search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding-left: 3rem;
+    max-width: 480px;
+}
+
+.nav-search-input {
+    flex: 1;
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.18);
+    color: var(--nav-text);
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: background 0.15s, border-color 0.15s;
+    min-width: 0;
+}
+.nav-search-input::placeholder { color: var(--nav-text-muted); }
+.nav-search-input:focus {
+    background: rgba(255,255,255,0.28);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.nav-search-btn {
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--nav-text);
+    cursor: pointer;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.nav-search-btn:hover { background: rgba(255,255,255,0.32); }
+
+/* Dropdowns */
+.nav-dropdown { position: relative; }
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: var(--dropdown-bg);
+    border: 1px solid var(--dropdown-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    min-width: 200px;
+    padding: 0.4rem 0;
+    z-index: 300;
+    display: none;
+}
+
+.nav-dropdown-menu.open { display: block; }
+
+.nav-dropdown-header {
+    padding: 0.5rem 1rem 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    text-decoration: none;
+    transition: background 0.1s;
+}
+
+.nav-dropdown-menu a:hover { background: var(--bg); }
+.nav-dropdown-danger { color: #dc2626 !important; }
+
+.nav-dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0.35rem 0;
+}
+
+/* Theme swatches */
+.theme-swatches-label {
+    padding: 0.3rem 1rem 0.15rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+}
+
+.theme-swatches {
+    display: flex;
+    gap: 0.45rem;
+    padding: 0.2rem 1rem 0.5rem;
+    align-items: center;
+}
+
+.swatch {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2.5px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    padding: 0;
+    outline: none;
+}
+
+.swatch:hover { transform: scale(1.2); }
+.swatch.active { border-color: var(--text) !important; }
+
+.swatch[data-theme="light"]  { background: #3d72ef; }
+.swatch[data-theme="dark"]   { background: #334155; border-color: #60a5fa; }
+.swatch[data-theme="ocean"]  { background: #0284c7; }
+.swatch[data-theme="forest"] { background: #16a34a; }
+.swatch[data-theme="ember"]  { background: #ea580c; }
+
+/* Breadcrumb */
+.sub-nav,
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.sub-nav a,
+.breadcrumb a {
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.sub-nav a:hover,
+.breadcrumb a:hover { text-decoration: underline; }
+
+.breadcrumb span { color: var(--text-light); }
+
+.breadcrumb a::after {
+    content: '\203A';
+    margin-left: 0.5rem;
+    color: var(--text-light);
+    font-weight: 400;
+}
+
+/* ==========================================
+   Buttons
+   ========================================== */
+.btn {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-light); color: #fff; }
+
+.btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.7); color: #fff; }
+.btn-outline:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+.btn-play { background: var(--primary); color: #fff; }
+.btn-play:hover { background: var(--primary-light); color: #fff; }
+
+.btn-edit { background: var(--accent); color: #fff; }
+.btn-edit:hover { background: var(--accent-light); color: #fff; }
+
+.btn-danger { background: #dc3545; color: #fff; }
+.btn-danger:hover { background: #c82333; color: #fff; }
+
+.btn-secondary { background: #6c757d; color: #fff; }
+.btn-secondary:hover { background: #5a6268; color: #fff; }
+
+.btn-sm { padding: 0.4rem 1rem; font-size: 0.85rem; }
+.btn-lg { padding: 0.75rem 2rem; font-size: 1.1rem; }
+
+/* ==========================================
+   Layout
+   ========================================== */
+.container { max-width: var(--max-width); margin: 0 auto; padding: 2rem; }
+
+/* ==========================================
+   Hero Section
+   ========================================== */
+.hero {
+    text-align: center;
+    padding: 2rem 0 1.5rem;
+}
+
+.hero h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 2.5rem;
+    color: var(--primary-dark);
+    margin-bottom: 0.5rem;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin: 0 auto;
+}
+
+/* ==========================================
+   Filter Bar
+   ========================================== */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-sort-label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    white-space: nowrap;
+}
+
+.filter-select {
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.filter-btn {
+    padding: 0.4rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-light);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+.filter-btn.active,
+.filter-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* ==========================================
+   Story Gallery → see cards.css
+   Auth/Forms   → see forms.css
+   Editor       → see editor.css
+   Account      → see account.css
+   ========================================== */
+
+/* ==========================================
+   Alerts
+   ========================================== */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+}
+
+.alert-success {
+    background: #d1e7dd;
+    color: #0f5132;
+    border: 1px solid #badbcc;
+}
+
+/* ==========================================
+   Modal
+   ========================================== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* ==========================================
+   Story status pill (Published / Draft)
+   Shared by the Summary and Story Editor pages so they stay in sync.
+   Page-specific layout (flex alignment) lives in summary.css / editor.css.
+   ========================================== */
+.status-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+}
+.status-published { background: #86f8ae; color: #166534; }
+.status-draft     { background: #ffbfbf; color: #991b1b; }
+
+.modal-content {
+    background: #fff;
+    border-radius: var(--radius);
+    width: 95%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.modal-header h3 { margin: 0; font-size: 1.2rem; }
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+    line-height: 1;
+}
+.modal-close:hover { color: var(--text); }
+
+/* Spinner */
+.spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==========================================
+   Footer
+   ========================================== */
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-top: 2rem;
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+/* In the cramped mid-range, shrink the title font and logo a touch so the brand
+   has room to wrap on whole words (rather than breaking "Adventure!"). */
+@media (max-width: 992px) {
+    .nav-brand-text { font-size: 1rem; }
+    .nav-logo { width: 52px; height: 52px; }
+}
+
+@media (max-width: 768px) {
+    .navbar { padding: 0.75rem 1rem; height: 88px; }
+    .nav-logo { width: 44px; height: 44px; }
+    .nav-brand-text { font-size: 1rem; }
+    .nav-search-form { max-width: 200px; }
+    .container { padding: 1rem; }
+    .hero h1 { font-size: 1.8rem; }
+}
+
+@media (max-width: 480px) {
+    .navbar { height: 80px; }
+    .nav-brand-text { display: none; }
+    .nav-username { display: none; }
+    .nav-search-form { max-width: 150px; }
+}

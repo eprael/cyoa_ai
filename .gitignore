@@ -1,0 +1,21 @@
+# ── Secrets / local config (NEVER commit) ────────────────────────────────────
+config.php
+.claude/settings.local.json
+
+# ── Generated runtime data ───────────────────────────────────────────────────
+cron/logs/
+images/stories/
+images/profiles/
+# keep the folders themselves (with a .gitkeep) but ignore their contents:
+!images/stories/.gitkeep
+!images/profiles/.gitkeep
+
+# ── Archive scratch — keep the archive, but never commit its .txt notes ──────
+# (they are unmaintained scratch and have held loose API keys / secrets)
+_archive/*.txt
+_archive/**/*.txt
+
+# ── OS / editor cruft ────────────────────────────────────────────────────────
+Thumbs.db
+.DS_Store
+*.bkp

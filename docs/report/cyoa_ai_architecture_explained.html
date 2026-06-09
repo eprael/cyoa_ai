@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYOA AI — Architecture Explained</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --ink-soft: #3d3d5c;
+    --ink-muted: #7a7a9a;
+    --page: #faf9f6;
+    --page-warm: #f5f2ec;
+    --rule: #e0ddd6;
+    --orange: #c95f2a;
+    --blue: #2a6bc9;
+    --teal: #1a8a7a;
+    --purple: #6b3fa0;
+    --sky: #1a7aaa;
+    --green: #2a8a4a;
+    --red: #c92a2a;
+    --accent: #c95f2a;
+    --shadow: 0 2px 16px rgba(26,26,46,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: var(--page);
+    color: var(--ink);
+    font-size: 1.15rem;
+    line-height: 1.75;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--ink);
+    color: white;
+    padding: 52px 48px 44px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(201,95,42,0.12);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 40%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(42,107,201,0.1);
+  }
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--orange);
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 300;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  header h1 strong { font-weight: 600; }
+  header p {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.65);
+    max-width: 600px;
+    font-style: italic;
+  }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 32px 80px;
+  }
+
+  /* ── Intro block ── */
+  .intro {
+    background: var(--page-warm);
+    border-left: 3px solid var(--orange);
+    padding: 24px 28px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 52px;
+    font-size: 1.1rem;
+    color: var(--ink-soft);
+  }
+  .intro strong { color: var(--ink); }
+
+  /* ── Section headings ── */
+  h2 {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--ink-muted);
+    margin-bottom: 36px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  h2::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* ── Panel cards ── */
+  .panels { display: flex; flex-direction: column; gap: 2px; margin-bottom: 52px; }
+
+  .panel-card {
+    border-radius: 12px;
+    padding: 28px 32px;
+    border: 1px solid var(--rule);
+    background: white;
+    position: relative;
+    transition: box-shadow 0.2s;
+  }
+  .panel-card:hover { box-shadow: var(--shadow); }
+
+  .panel-card + .panel-card { margin-top: 16px; }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .panel-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .panel-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .panel-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+  .panel-card p { color: var(--ink-soft); margin-bottom: 10px; }
+  .panel-card p:last-child { margin-bottom: 0; }
+  .panel-card ul {
+    list-style: none;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .panel-card li {
+    padding-left: 20px;
+    position: relative;
+    color: var(--ink-soft);
+  }
+  .panel-card li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--ink-muted);
+    font-size: 0.85rem;
+  }
+  .panel-card strong { color: var(--ink); }
+
+  /* Panel colour themes */
+  .theme-orange .panel-dot { background: #c95f2a; }
+  .theme-orange .panel-label { background: #fff0e8; color: #c95f2a; }
+  .theme-orange { border-left: 3px solid #c95f2a; }
+
+  .theme-blue .panel-dot { background: #2a6bc9; }
+  .theme-blue .panel-label { background: #e8f0ff; color: #2a6bc9; }
+  .theme-blue { border-left: 3px solid #2a6bc9; }
+
+  .theme-teal .panel-dot { background: #1a8a7a; }
+  .theme-teal .panel-label { background: #e6f5f3; color: #1a8a7a; }
+  .theme-teal { border-left: 3px solid #1a8a7a; }
+
+  .theme-purple .panel-dot { background: #6b3fa0; }
+  .theme-purple .panel-label { background: #f0eaf8; color: #6b3fa0; }
+  .theme-purple { border-left: 3px solid #6b3fa0; }
+
+  .theme-sky .panel-dot { background: #1a7aaa; }
+  .theme-sky .panel-label { background: #e6f3fa; color: #1a7aaa; }
+  .theme-sky { border-left: 3px solid #1a7aaa; }
+
+  /* ── Status table ── */
+  .status-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.95rem;
+  }
+  .status-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-muted);
+    text-align: left;
+    padding: 8px 14px;
+    border-bottom: 1.5px solid var(--rule);
+  }
+  .status-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+  .status-table tr:last-child td { border-bottom: none; }
+  .status-table td:first-child {
+    font-size: 1.1rem;
+    white-space: nowrap;
+  }
+  .status-table td:nth-child(2) {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  /* ── Flow section ── */
+  .flow {
+    background: var(--ink);
+    color: white;
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 52px;
+  }
+  .flow-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--orange);
+    margin-bottom: 24px;
+  }
+  .flow-steps { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    padding: 10px 0;
+    position: relative;
+  }
+  .flow-step + .flow-step { border-top: 1px solid rgba(255,255,255,0.06); }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--orange);
+    font-weight: 600;
+    min-width: 24px;
+    padding-top: 2px;
+  }
+  .step-text { color: rgba(255,255,255,0.8); line-height: 1.6; }
+  .step-text strong { color: white; }
+  .step-aside {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    margin-left: auto;
+    padding-top: 3px;
+    white-space: nowrap;
+  }
+
+  /* ── Why section ── */
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .why-card {
+    background: white;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .why-card .why-icon { font-size: 1.4rem; margin-bottom: 8px; }
+  .why-card h4 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+  .why-card p { font-size: 0.9rem; color: var(--ink-muted); line-height: 1.55; }
+
+  /* ── Code/inline ── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8em;
+    background: #f0edf8;
+    color: #5a3a8a;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  /* ── Comparables ── */
+  .comparables {
+    background: var(--page-warm);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-top: 20px;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .comparables strong { color: var(--ink); }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    background: white;
+    border: 1px solid var(--rule);
+    color: var(--ink-soft);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-muted);
+    letter-spacing: 1px;
+    border-top: 1px solid var(--rule);
+  }
+
+  @media (max-width: 600px) {
+    .container { padding: 32px 20px 60px; }
+    header { padding: 36px 24px 32px; }
+    .why-grid { grid-template-columns: 1fr; }
+    .flow { padding: 24px 20px; }
+    .step-aside { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">Technical Reference</div>
+  <h1>CYOA AI — <strong>Architecture Explained</strong></h1>
+  <p>How user story requests flow from browser through a job queue to AI services and back.</p>
+</header>
+
+<div class="container">
+
+  <!-- Intro -->
+  <div class="intro">
+    This document explains the <strong>async job queue pattern</strong> used by the CYOA AI application. Rather than making users wait while AI APIs process requests, the app logs jobs immediately, processes them in the background, and polls for results — keeping the interface fast and the architecture clean.
+  </div>
+
+  <!-- Panels -->
+  <h2>The Five Panels</h2>
+
+  <div class="panels">
+
+    <div class="panel-card theme-orange">
+      <div class="panel-header">
+        <div class="panel-dot"></div>
+        <h3>🟠 Browser</h3>
+        <span class="panel-label">Client-side</span>
+      </div>
+      <p>This represents the <strong>user's web browser</strong>. Two distinct things happen here:</p>
+      <ul>
+        <li><strong>Generate Story button</strong> — the user clicks this to kick off the whole flow. It triggers a single HTTP request to the PHP server.</li>
+        <li><strong>Polling loop (every 4 seconds)</strong> — a JavaScript timer runs independently, silently calling the server to check if the job is done. When the result is ready, it displays it. The clock icon signals this is time-driven — it fires on a schedule, not in direct response to a user action.</li>
+      </ul>
+    </div>
+
+    <div class="panel-card theme-blue">
+      <div class="panel-header">
+        <div class="panel-dot"></div>
+        <h3>🔵 Web Application (PHP)</h3>
+        <span class="panel-label">Server-side</span>
+      </div>
+      <p>The <strong>PHP server</strong> the browser talks to directly. It handles two lightweight responsibilities:</p>
+      <ul>
+        <li><strong>Insert row / Set status to pending</strong> — when the button is clicked, PHP immediately writes a job record to the database and returns. It does <em>not</em> call the AI API here. It's just taking the order.</li>
+        <li><strong>Get job status</strong> — when the browser polls every 4 seconds, PHP performs a simple database read and returns the current status. This is intentionally lightweight.</li>
+      </ul>
+    </div>
+
+    <div class="panel-card theme-teal">
+      <div class="panel-header">
+        <div class="panel-dot"></div>
+        <h3>🟢 Job Queue Table (mySQL)</h3>
+        <span class="panel-label">Shared State</span>
+      </div>
+      <p>The <strong>heart of the async pattern</strong> — a MySQL table called <code>ai_jobs</code>. Every AI request gets a row here. The web app and the cron worker <em>never talk to each other directly</em>; they only read and write this table.</p>
+
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th>Icon</th>
+            <th>Status</th>
+            <th>Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>✅</td><td>completed</td><td>Result is ready for the browser to retrieve</td></tr>
+          <tr><td>⚡</td><td>running</td><td>A worker is actively processing it right now</td></tr>
+          <tr><td>❌</td><td>failed</td><td>Something went wrong during processing</td></tr>
+          <tr><td>🚫</td><td>canceled</td><td>Abandoned before completion</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel-card theme-purple">
+      <div class="panel-header">
+        <div class="panel-dot"></div>
+        <h3>🟣 Cron Worker</h3>
+        <span class="panel-label">Background</span>
+      </div>
+      <p>A <strong>background PHP script</strong> triggered by the server's cron scheduler every 30 seconds. Users never interact with it directly. It follows five steps:</p>
+      <ul>
+        <li><strong>Pick oldest pending job</strong> — queries for rows with <code>status = pending</code></li>
+        <li><strong>Mark as running</strong> — updates immediately so no other worker instance picks the same job</li>
+        <li><strong>Call AI API</strong> — sends the prompt to Claude or DALL-E depending on job type</li>
+        <li><strong>Store result</strong> — writes the AI response back to the database row</li>
+        <li><strong>Mark as completed</strong> — so the browser's next poll finds it</li>
+      </ul>
+    </div>
+
+    <div class="panel-card theme-sky">
+      <div class="panel-header">
+        <div class="panel-dot"></div>
+        <h3>🔵 Cloud (AI Services)</h3>
+        <span class="panel-label">External APIs</span>
+      </div>
+      <p>The <strong>external AI APIs</strong> the cron worker calls out to:</p>
+      <ul>
+        <li><strong>🧠 Claude</strong> — handles text-based requests: scenes, stories, dialogue</li>
+        <li><strong>🖼️ DALL-E</strong> — handles image generation requests</li>
+      </ul>
+      <p>The worker sends a JSON payload and receives a JSON response. These are third-party services with variable response times — the reason the async queue exists in the first place.</p>
+    </div>
+
+  </div>
+
+  <!-- Flow -->
+  <h2>End-to-End Request Flow</h2>
+
+  <div class="flow">
+    <div class="flow-title">Request lifecycle</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <span class="step-num">01</span>
+        <span class="step-text">User clicks <strong>Generate Story</strong> in the browser</span>
+        <span class="step-aside">Browser</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">02</span>
+        <span class="step-text">Browser sends HTTP request to the <strong>PHP web app</strong></span>
+        <span class="step-aside">Browser → PHP</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">03</span>
+        <span class="step-text">PHP inserts a row into <code style="color:#f0b070;background:rgba(255,255,255,0.1);">ai_jobs</code> with <strong>status = pending</strong> and returns immediately</span>
+        <span class="step-aside">PHP → DB</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">04</span>
+        <span class="step-text"><strong>Every 4 seconds</strong>, the browser polls PHP: "is my job done?"</span>
+        <span class="step-aside">Browser → PHP → DB</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">05</span>
+        <span class="step-text"><strong>Every 30 seconds</strong>, the cron worker wakes up and finds the pending job</span>
+        <span class="step-aside">Cron → DB</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">06</span>
+        <span class="step-text">Worker marks job <strong>running</strong>, calls the appropriate <strong>AI API</strong></span>
+        <span class="step-aside">Cron → Cloud</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">07</span>
+        <span class="step-text">AI API returns result; worker <strong>stores it</strong> and marks job <strong>completed</strong></span>
+        <span class="step-aside">Cloud → Cron → DB</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">08</span>
+        <span class="step-text">Browser's next poll finds <strong>status = completed</strong> and retrieves the result</span>
+        <span class="step-aside">Browser → PHP → DB</span>
+      </div>
+      <div class="flow-step">
+        <span class="step-num">09</span>
+        <span class="step-text">Browser <strong>displays the generated story or image</strong> to the user</span>
+        <span class="step-aside">Browser</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why -->
+  <h2>Why This Pattern?</h2>
+
+  <p style="color:var(--ink-soft);margin-bottom:20px;">AI APIs can take anywhere from a few seconds to over a minute to respond. Calling them synchronously during a user's HTTP request would cause the browser to hang — and most web servers time out after 30–60 seconds anyway. The job queue pattern solves this cleanly:</p>
+
+  <div class="why-grid">
+    <div class="why-card">
+      <div class="why-icon">⚡</div>
+      <h4>Fast web server</h4>
+      <p>PHP only does lightweight DB reads and writes — it never blocks waiting for an AI response.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🔄</div>
+      <h4>Decoupled processing</h4>
+      <p>The cron worker runs independently. A slow or failed AI call doesn't affect the web app at all.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🧾</div>
+      <h4>Durable record</h4>
+      <p>Every request is logged in the database — easy to inspect, retry, audit, or debug.</p>
+    </div>
+    <div class="why-card">
+      <div class="why-icon">🧑‍💻</div>
+      <h4>Smooth UX</h4>
+      <p>Users see a progress indicator rather than a frozen page or browser timeout error.</p>
+    </div>
+  </div>
+
+  <div class="comparables">
+    <strong>This is a well-established pattern</strong> in web development — sometimes called a background job queue or task queue. The same underlying concept is used by:
+    <div class="tag-list">
+      <span class="tag">Laravel Queues</span>
+      <span class="tag">Sidekiq (Ruby)</span>
+      <span class="tag">Celery (Python)</span>
+      <span class="tag">Bull (Node.js)</span>
+      <span class="tag">Resque</span>
+      <span class="tag">Amazon SQS</span>
+    </div>
+    <p style="margin-top:12px;font-size:0.9rem;">The CYOA implementation keeps it simple: a MySQL table and a cron job — no external queue infrastructure required.</p>
+  </div>
+
+</div>
+
+<footer>CYOA AI · Architecture Reference · Generated by Claude</footer>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "Choose Your Own Adventure Maker",
+  "short_name": "CYOA Maker",
+  "description": "Build, share, and play branching choose-your-own-adventure stories.",
+  "start_url": "index.php",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5efe2",
+  "theme_color": "#222831",
+  "icons": [
+    { "src": "images/app/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "images/app/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" }
+  ]
+}

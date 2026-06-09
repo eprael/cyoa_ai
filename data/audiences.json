@@ -1,0 +1,25 @@
+{
+    "_about": "Story audience reference data (Phase 39). Maps an audience key to a human label and the complexity instruction passed into the AI prompts. Read via story_audiences() (db_functions.php). Fallback for unknown keys: middle_grade.",
+    "audiences": {
+        "picture_book": {
+            "label": "Picture book",
+            "complexity": "Very simple words, 1-2 sentences per scene, concrete imagery only"
+        },
+        "early_readers": {
+            "label": "Early readers (6-9)",
+            "complexity": "Simple vocabulary, short sentences, relatable characters"
+        },
+        "middle_grade": {
+            "label": "Middle grade (9-12)",
+            "complexity": "Moderate complexity, relatable themes"
+        },
+        "young_adults": {
+            "label": "Young adults (13-18)",
+            "complexity": "Nuanced themes, more complex choices"
+        },
+        "adults": {
+            "label": "Adults",
+            "complexity": "Full complexity; mature themes acceptable"
+        }
+    }
+}

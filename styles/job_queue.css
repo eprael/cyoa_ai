@@ -1,0 +1,298 @@
+/* ==========================================
+   Job Queue + Job History (Phase 40)
+   Extracted from job_queue.php's inline <style>
+   so the queue and history pages share one sheet.
+   ========================================== */
+
+.queue-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+.queue-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+}
+.queue-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #888;
+}
+.queue-empty p {
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+}
+
+/* Table */
+.queue-table-wrap {
+    overflow-x: auto;
+}
+.queue-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.queue-table th,
+.queue-table td {
+    padding: 0.6rem 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: middle;
+}
+.queue-table th {
+    background: #f7fafc;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.queue-table tr:last-child td {
+    border-bottom: none;
+}
+.queue-table tr:hover td {
+    background: #f7fafc;
+}
+
+/* Job type cell */
+.job-type-cell {
+    white-space: nowrap;
+}
+.job-type-icon {
+    margin-right: 4px;
+}
+
+/* Story/scene names */
+.job-target {
+    font-size: 0.85rem;
+}
+.job-scene-name {
+    color: #555;
+    font-size: 0.8rem;
+}
+
+/* Timestamps */
+.job-time {
+    white-space: nowrap;
+    font-size: 0.82rem;
+    color: #666;
+}
+
+/* Error message preview */
+.job-error {
+    font-size: 0.8rem;
+    color: #c53030;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Actions cell */
+.job-actions {
+    white-space: nowrap;
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* A failed status cell carries the error message as a hover tooltip (title attr). */
+.job-status-cell[title] { cursor: help; }
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.badge-pending   { background: #fef3c7; color: #92400e; }
+.badge-running   { background: #dbeafe; color: #1e40af; }
+.badge-completed { background: #dcfce7; color: #166534; }
+.badge-failed    { background: #fee2e2; color: #991b1b; }
+.badge-cancelled { background: #f3f4f6; color: #6b7280; }
+.badge-warn      { background: #fef3c7; color: #92400e; }
+
+/* Buttons */
+.btn-xs {
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    line-height: 1.5;
+}
+.btn-cancel {
+    background: #fff;
+    border-color: #e53e3e;
+    color: #e53e3e;
+}
+.btn-cancel:hover { background: #fff5f5; }
+.btn-retry {
+    background: #fff;
+    border-color: #3182ce;
+    color: #3182ce;
+}
+.btn-retry:hover { background: #ebf8ff; }
+
+/* Spinner on running jobs */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #bfdbfe;
+    border-top-color: #1e40af;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+/* Child job rows */
+.job-row-child td {
+    background: #fafbfc;
+    border-bottom-color: #edf2f7;
+}
+.job-row-child:hover td {
+    background: #f0f4f8;
+}
+.job-child-indent {
+    padding-left: 2.2rem !important;
+    color: #888;
+    font-size: 0.8rem;
+}
+.job-child-marker {
+    margin-right: 4px;
+    color: #bbb;
+}
+
+/* Children toggle button */
+.btn-toggle-children {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: #888;
+    padding: 2px 4px;
+    border-radius: 3px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.btn-toggle-children:hover {
+    background: #edf2f7;
+    color: #555;
+}
+
+/* Chain cost label */
+.job-cost {
+    font-size: 0.78rem;
+    color: var(--text-light, #888);
+    font-family: monospace;
+    margin-left: 0.5rem;
+    white-space: nowrap;
+}
+
+/* ── Phase 32: stat cards ── */
+.job-stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+@media (max-width: 800px) { .job-stats { grid-template-columns: repeat(3, 1fr); } }
+.stat-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    background: #fff;
+}
+.stat-val { font-size: 1.5rem; font-weight: 700; line-height: 1.1; }
+.stat-label { font-size: 0.72rem; color: #718096; text-transform: uppercase; letter-spacing: 0.03em; margin-top: 0.25rem; }
+.stat-pending   .stat-val { color: #92400e; }
+.stat-running   .stat-val { color: #1e40af; }
+.stat-completed .stat-val { color: #166534; }
+.stat-failed    .stat-val { color: #991b1b; }
+.stat-total     .stat-val { color: #334155; }
+.stat-spent     .stat-val { color: #b45309; }
+
+/* ── Phase 32: filter toolbar ── */
+.queue-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.queue-filters { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.queue-filters .filter-search { padding: 0.4rem 0.6rem; border: 1px solid #cbd5e0; border-radius: 5px; min-width: 200px; }
+.queue-filters select { padding: 0.4rem 0.5rem; border: 1px solid #cbd5e0; border-radius: 5px; background: #fff; }
+.filter-clear-link { font-size: 0.82rem; color: #718096; }
+.btn-clear-completed {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+    background: #fff;
+    border: 1px solid #e53e3e;
+    color: #e53e3e;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.btn-clear-completed:hover { background: #fff5f5; }
+.btn-view { background: #fff; border-color: #718096; color: #4a5568; }
+.btn-view:hover { background: #f7fafc; }
+
+/* ── Phase 32: job detail modal ── */
+.job-detail-meta { margin-bottom: 0.75rem; }
+.job-detail-meta .jd-sub { color: #555; font-size: 0.85rem; margin-top: 0.25rem; }
+.job-detail-meta .jd-err { color: #c53030; font-size: 0.82rem; margin-top: 0.35rem; }
+.json-panels { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.json-panel { flex: 1 1 280px; min-width: 0; }
+.json-panel-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #718096; margin-bottom: 0.25rem; }
+pre.json {
+    background: #1e293b;
+    color: #e2e8f0;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    overflow: auto;
+    max-height: 320px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+.json-key  { color: #7dd3fc; }
+.json-str  { color: #86efac; }
+.json-num  { color: #fca5a5; }
+.json-bool { color: #fcd34d; }
+.json-null { color: #cbd5e0; }
+.job-detail-foot { margin-top: 0.85rem; font-size: 0.82rem; color: #666; }
+.modal-box:has(.job-detail) { max-width: 760px; }
+
+/* ── Phase 40: Past Jobs / Job History navigation ── */
+.queue-subnav {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0 0.5rem;
+    flex-wrap: wrap;
+}
+.btn-past-jobs {
+    display: inline-block;
+    background: none;
+    border: 1px solid var(--border, #ddd);
+    border-radius: var(--radius, 6px);
+    padding: 0.45rem 0.95rem;
+    font-size: 0.85rem;
+    color: var(--text-light, #666);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+.btn-past-jobs:hover { background: var(--bg, #f5f5f5); }

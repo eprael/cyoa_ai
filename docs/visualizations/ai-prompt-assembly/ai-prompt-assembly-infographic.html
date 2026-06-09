@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How an AI Prompt Comes Together — CYOA Maker</title>
+<style>
+  :root {
+    --ink:#1e293b; --muted:#64748b; --line:#e2e8f0; --bg:#f1f5f9; --card:#fff;
+    --user:#2563eb; --userbg:#eff6ff;       /* user inputs   */
+    --app:#7c3aed;  --appbg:#f5f3ff;        /* app sources   */
+    --claude:#c2410c; --claudebg:#fff7ed;   /* Claude calls  */
+    --openai:#0f766e; --openaibg:#f0fdfa;   /* OpenAI calls  */
+    --loop:#b45309; --loopbg:#fffbeb;       /* loops         */
+    --ok:#15803d; --okbg:#f0fdf4;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; line-height:1.45; }
+  .sheet { max-width:1040px; margin:24px auto; background:var(--card);
+           border-radius:16px; box-shadow:0 10px 40px rgba(15,23,42,.12); overflow:hidden; }
+
+  header { padding:28px 36px; color:#fff;
+           background:linear-gradient(120deg,#1e293b,#334155 60%,#475569); }
+  header h1 { margin:0; font-size:26px; letter-spacing:.2px; }
+  header p  { margin:6px 0 0; opacity:.85; font-size:14px; }
+  .legend { display:flex; flex-wrap:wrap; gap:14px; margin-top:16px; font-size:12px; }
+  .legend span { display:inline-flex; align-items:center; gap:6px; opacity:.95; }
+  .dot { width:11px; height:11px; border-radius:3px; display:inline-block; }
+
+  .body { padding:28px 36px 8px; }
+  .section-label { font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+                   color:var(--muted); margin:6px 0 12px; }
+
+  /* Source chips */
+  .sources { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:6px; }
+  .srcgroup { border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .srcgroup h3 { margin:0 0 10px; font-size:13px; }
+  .chips { display:flex; flex-wrap:wrap; gap:7px; }
+  .chip { font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid; font-weight:600; }
+  .chip.user { color:var(--user); background:var(--userbg); border-color:#bfdbfe; }
+  .chip.app  { color:var(--app);  background:var(--appbg);  border-color:#ddd6fe; }
+  .note { font-size:11.5px; color:var(--muted); margin-top:9px; }
+
+  .arrowdown { text-align:center; color:var(--muted); font-size:22px; line-height:1; margin:10px 0; }
+
+  /* Pipeline stages */
+  .stage { display:grid; grid-template-columns:46px 1fr; gap:14px; align-items:start;
+           border:1px solid var(--line); border-left-width:5px; border-radius:12px;
+           padding:14px 16px; margin:10px 0; background:#fff; }
+  .stage .num { width:46px; height:46px; border-radius:50%; display:flex; align-items:center;
+                justify-content:center; font-weight:800; font-size:18px; color:#fff; }
+  .stage h2 { margin:0 0 4px; font-size:16px; }
+  .stage .desc { font-size:13px; color:#334155; }
+  .badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px;
+           margin-left:8px; vertical-align:middle; }
+
+  .s-user  { border-left-color:var(--user); }   .s-user  .num{ background:var(--user); }
+  .s-app   { border-left-color:var(--app); }     .s-app   .num{ background:var(--app); }
+  .s-claude{ border-left-color:var(--claude); }  .s-claude .num{ background:var(--claude); }
+  .s-openai{ border-left-color:var(--openai); }  .s-openai .num{ background:var(--openai); }
+  .s-ok    { border-left-color:var(--ok); }      .s-ok    .num{ background:var(--ok); }
+  .badge.loop { color:var(--loop); background:var(--loopbg); border:1px solid #fde68a; }
+
+  /* Merge mini-diagram inside the Plan stage */
+  .merge { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:10px; font-size:12px; }
+  .pill { padding:5px 10px; border-radius:8px; border:1px dashed #cbd5e1; background:#f8fafc; font-weight:600; }
+  .pill.tpl{ border-color:#ddd6fe; background:var(--appbg); color:var(--app); }
+  .pill.usr{ border-color:#bfdbfe; background:var(--userbg); color:var(--user); }
+  .op { font-weight:800; color:var(--muted); }
+  .json { font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:11.5px;
+          background:#0f172a; color:#e2e8f0; border-radius:8px; padding:9px 12px; margin-top:10px;
+          white-space:pre-wrap; word-break:break-word; }
+  .json .k{ color:#7dd3fc; } .json .c{ color:#86efac; }
+  .svc { display:inline-flex; align-items:center; gap:6px; font-weight:700; padding:4px 10px;
+         border-radius:8px; }
+  .svc.claude{ color:var(--claude); background:var(--claudebg); border:1px solid #fed7aa; }
+  .svc.openai{ color:var(--openai); background:var(--openaibg); border:1px solid #99f6e4; }
+
+  /* Loop wrapper */
+  .loopwrap { border:2px dashed #fcd34d; border-radius:14px; padding:6px 12px 2px; margin:10px 0;
+              background:var(--loopbg); position:relative; }
+  .loopwrap > .looptag { position:absolute; top:-11px; left:14px; background:var(--loop); color:#fff;
+              font-size:11px; font-weight:700; padding:2px 10px; border-radius:999px; }
+  .loopwrap .stage { margin:14px 0 10px; background:#fff; }
+
+  footer { margin-top:14px; padding:20px 36px 30px; background:#f8fafc; border-top:1px solid var(--line); }
+  .mathrow { display:flex; flex-wrap:wrap; align-items:center; gap:10px; font-size:15px; font-weight:700; }
+  .mathrow .tok { padding:6px 12px; border-radius:8px; }
+  .t-plan{ background:var(--claudebg); color:var(--claude); }
+  .t-scene{ background:var(--claudebg); color:var(--claude); }
+  .t-img{ background:var(--openaibg); color:var(--openai); }
+  .t-eq{ background:#e2e8f0; color:var(--ink); }
+  .callout { margin-top:14px; font-size:13px; color:#334155; background:#fff; border:1px solid var(--line);
+             border-left:5px solid var(--app); border-radius:10px; padding:10px 14px; }
+  .src-final { font-size:11px; color:var(--muted); margin-top:14px; text-align:right; }
+
+  @media print {
+    body{ background:#fff; } .sheet{ box-shadow:none; margin:0; max-width:none; border-radius:0; }
+    .loopwrap{ break-inside:avoid; } .stage{ break-inside:avoid; }
+  }
+  @media (max-width:680px){ .sources{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <header>
+    <h1>How an AI Prompt Comes Together</h1>
+    <p>Creating a full story with AI in CYOA Maker — from UI inputs to the final JSON sent to the AI, and back.</p>
+    <div class="legend">
+      <span><i class="dot" style="background:#2563eb"></i> User input</span>
+      <span><i class="dot" style="background:#7c3aed"></i> App data &amp; settings</span>
+      <span><i class="dot" style="background:#c2410c"></i> Claude (text)</span>
+      <span><i class="dot" style="background:#0f766e"></i> OpenAI (images)</span>
+      <span><i class="dot" style="background:#b45309"></i> Repeats in a loop</span>
+    </div>
+  </header>
+
+  <div class="body">
+    <div class="section-label">① What gets collected</div>
+    <div class="sources">
+      <div class="srcgroup">
+        <h3 style="color:var(--user)">From the user · Web UI</h3>
+        <div class="chips">
+          <span class="chip user">premise</span><span class="chip user">genre</span>
+          <span class="chip user">tone</span><span class="chip user">audience</span>
+          <span class="chip user"># scenes</span><span class="chip user"># endings</span>
+          <span class="chip user">scene length</span><span class="chip user">image style</span>
+          <span class="chip user">image mood</span><span class="chip user">theme*</span>
+          <span class="chip user">publish?</span>
+        </div>
+        <div class="note">*Theme = colours + fonts only. It is stored but <b>never sent to the AI</b>.</div>
+      </div>
+      <div class="srcgroup">
+        <h3 style="color:var(--app)">From the app · data &amp; settings</h3>
+        <div class="chips">
+          <span class="chip app">premises.json (seed)</span>
+          <span class="chip app">audiences.json</span>
+          <span class="chip app">play_fonts.json</span>
+          <span class="chip app">guardrails (settings)</span>
+          <span class="chip app">AI model (settings)</span>
+          <span class="chip app">prompt templates</span>
+        </div>
+        <div class="note">Pulled in server-side as the prompt is assembled — the user never sees these.</div>
+      </div>
+    </div>
+
+    <div class="arrowdown">▼</div>
+
+    <div class="stage s-app">
+      <div class="num">0</div>
+      <div>
+        <h2>Resolve the inputs <span class="badge" style="background:var(--appbg);color:var(--app)">api_create_story_ai.php</span></h2>
+        <div class="desc">Turn every “Any” into a concrete random value; fill a blank premise from a
+          <b>premises.json</b> seed; pick one image style for the whole story. Save a draft story and
+          queue a <b>“story” job</b>.</div>
+      </div>
+    </div>
+
+    <div class="arrowdown">▼</div>
+
+    <div class="stage s-claude">
+      <div class="num">1</div>
+      <div>
+        <h2>Build the PLAN prompt → call Claude</h2>
+        <div class="desc">Several sources <b>merge into one template</b>, then go out as a single JSON request.</div>
+        <div class="merge">
+          <span class="pill tpl">story_plan_system.txt</span><span class="op">+</span>
+          <span class="pill tpl">audience</span><span class="op">+</span>
+          <span class="pill tpl">fonts</span><span class="op">+</span>
+          <span class="pill tpl">guardrails</span>
+          <span class="op">=&nbsp; system</span>
+        </div>
+        <div class="merge">
+          <span class="pill usr">premise · genre · tone · #scenes · #endings</span>
+          <span class="op">=&nbsp; user message</span>
+        </div>
+        <div class="json"><span class="k">POST</span> api.anthropic.com/v1/messages
+{ <span class="k">"model"</span>: settings, <span class="k">"max_tokens"</span>: <span class="c">4000</span>,
+  <span class="k">"system"</span>: "…template + guardrails…",
+  <span class="k">"messages"</span>: [ { role:"user", content:"premise/genre/tone…" } ] }</div>
+        <div class="merge" style="margin-top:10px">
+          <span class="svc claude">🤖 Claude</span>
+          <span class="op">→ returns</span>
+          <span class="pill">Plan JSON · title, scenes, branching choices, theme</span>
+        </div>
+        <div class="note">Response is JSON-validated (1 retry), guardrail-checked (<code>red_flag</code>), sanitized.</div>
+      </div>
+    </div>
+
+    <div class="arrowdown">▼</div>
+
+    <div class="loopwrap">
+      <span class="looptag">↻ LOOP — once per scene</span>
+      <div class="stage s-claude">
+        <div class="num">2</div>
+        <div>
+          <h2>Write each scene → call Claude <span class="badge loop">× number of scenes</span></h2>
+          <div class="desc">A second template (<b>story_scene_writer_system.txt</b> + tone + scene type +
+            audience + guardrails) merges with the full story map and the one scene to write.</div>
+          <div class="merge" style="margin-top:10px">
+            <span class="svc claude">🤖 Claude</span><span class="op">→ returns</span>
+            <span class="pill">Scene JSON · title, description, hint, <b>image_prompt</b></span>
+          </div>
+          <div class="note">max_tokens 1200 · temperature 0.8 · same request shape as stage 1.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrowdown">▼</div>
+
+    <div class="stage s-app">
+      <div class="num">3</div>
+      <div>
+        <h2>Save &amp; queue images <span class="badge" style="background:var(--appbg);color:var(--app)">ai_apply.php</span></h2>
+        <div class="desc">Write scene + choice rows (remap temp IDs). If images were included, queue
+          <b>one image job for the cover + one per scene</b> that produced an <code>image_prompt</code>.</div>
+      </div>
+    </div>
+
+    <div class="arrowdown">▼</div>
+
+    <div class="loopwrap">
+      <span class="looptag">↻ LOOP — once per image</span>
+      <div class="stage s-openai">
+        <div class="num">4</div>
+        <div>
+          <h2>Generate each image → call OpenAI <span class="badge loop">× number of images</span></h2>
+          <div class="desc">An image template merges with the scene's prompt + chosen style + mood
+            (<b>no theme</b>).</div>
+          <div class="merge" style="margin-top:6px">
+            <span class="pill tpl">image_system.txt</span><span class="op">+</span>
+            <span class="pill usr">image_prompt</span><span class="op">+</span>
+            <span class="pill usr">style</span><span class="op">+</span>
+            <span class="pill usr">mood</span>
+          </div>
+          <div class="merge" style="margin-top:8px">
+            <span class="svc openai">🎨 OpenAI</span><span class="op">→ returns</span>
+            <span class="pill">image → saved to images/stories/{id}/</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrowdown">▼</div>
+
+    <div class="stage s-ok">
+      <div class="num">5</div>
+      <div>
+        <h2>Finalize</h2>
+        <div class="desc">When the plan, <b>every</b> scene, and <b>every</b> image succeed — and the
+          publish box was ticked — the story <b>auto-publishes</b>. Any failure leaves it a draft.</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="section-label">The "why is it so many calls?" math</div>
+    <div class="mathrow">
+      <span class="tok t-plan">1 plan</span><span>+</span>
+      <span class="tok t-scene">S scene calls</span><span>+</span>
+      <span class="tok t-img">I image calls</span>
+      <span class="tok t-eq">= total AI calls</span>
+    </div>
+    <div class="callout">
+      <b>One request fans out into many.</b> The plan is a single call; scenes and images are loops.
+      A 12-scene story with images can be ~25+ AI calls — which is why generation runs as a background
+      job, not on the page.
+    </div>
+    <div class="src-final">CYOA Maker · full-story AI pipeline · see docs/architecture/ai-prompt-assembly.md</div>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,171 @@
+/* ===== Global Modal Component ===== */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s, visibility 0.15s;
+}
+
+.modal-overlay.modal-open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Keep the modal chrome on the app UI theme (light / dark / ocean / forest /
+   ember) regardless of any page-level theme — e.g. the per-story theme applied
+   to :root on play.php. These vars are declared on the overlay itself, so they
+   win for the modal subtree over the inherited :root values; data-theme on
+   <html> (the user's saved preference) selects the variant. Values mirror the
+   theme palettes in styles.css. */
+.modal-overlay {
+    --accent: #d4882c;
+    --bg: #f0f2f5;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --text-light: #64748b;
+    --border: #e2e8f0;
+}
+html[data-theme="dark"] .modal-overlay {
+    --accent: #fb923c; --bg: #0f172a; --card-bg: #1e293b;
+    --text: #e2e8f0; --text-light: #94a3b8; --border: #334155;
+}
+html[data-theme="ocean"] .modal-overlay {
+    --accent: #0d9488; --bg: #f0f9ff; --card-bg: #ffffff;
+    --text: #0c4a6e; --text-light: #0369a1; --border: #bae6fd;
+}
+html[data-theme="forest"] .modal-overlay {
+    --accent: #ca8a04; --bg: #f0fdf4; --card-bg: #ffffff;
+    --text: #14532d; --text-light: #166534; --border: #bbf7d0;
+}
+html[data-theme="ember"] .modal-overlay {
+    --accent: #9333ea; --bg: #fff7ed; --card-bg: #ffffff;
+    --text: #431407; --text-light: #7c2d12; --border: #fed7aa;
+}
+
+.modal-box {
+    background: var(--bg, #fff);
+    border: 1px solid var(--border, #ddd);
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-width: 480px;
+    width: calc(100% - 2rem);
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(-8px);
+    transition: transform 0.15s;
+    color: var(--text, #111);
+}
+
+.modal-overlay.modal-open .modal-box {
+    transform: translateY(0);
+}
+
+.modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+}
+
+.modal-body {
+    margin: 0 0 1.25rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* ===== Success variant (Modal.success) ===== */
+.modal-success { text-align: center; padding: 0.25rem 0 0; }
+.modal-success-icon { display: flex; justify-content: center; margin-bottom: 0.9rem; }
+.modal-success-icon svg {
+    display: block;
+    animation: ms-pop 0.32s cubic-bezier(0.18, 0.89, 0.32, 1.28) both;
+}
+.modal-success-icon .ms-circle {
+    fill: #16a34a;                     /* green-600 */
+}
+.modal-success-icon .ms-check {
+    stroke: #fff;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 34;
+    stroke-dashoffset: 34;
+    animation: ms-draw 0.3s 0.22s ease-out forwards;
+}
+@keyframes ms-pop  { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes ms-draw { to { stroke-dashoffset: 0; } }
+
+.modal-success-heading {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    color: var(--text, #111);
+}
+.modal-success-msg {
+    color: var(--text-light, #555);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+/* Job Queue hint row (Modal.success jobQueue option) */
+.modal-success-jobqueue {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--border, #e2e8f0);
+    font-size: 0.88rem;
+    color: var(--text-light, #555);
+}
+.modal-success-jobqueue svg {
+    flex-shrink: 0;
+    color: var(--accent, #d4882c);
+}
+.modal-success-jobqueue a {
+    color: var(--accent, #d4882c);
+    font-weight: 600;
+    text-decoration: none;
+}
+.modal-success-jobqueue a:hover { text-decoration: underline; }
+
+/* Danger variant (Modal.confirmDanger): red circle + animated "!" */
+.modal-danger .ms-circle { fill: #dc2626; }      /* red-600 */
+.modal-danger .ms-mark {
+    stroke: #fff;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 16;
+    stroke-dashoffset: 16;
+    animation: ms-draw 0.25s 0.2s ease-out forwards;
+}
+.modal-danger .ms-dot {
+    fill: #fff;
+    opacity: 0;
+    animation: ms-fade 0.2s 0.42s ease-out forwards;
+}
+@keyframes ms-fade { to { opacity: 1; } }
+
+/* Center the OK button under a success message */
+.modal-box:has(.modal-success) .modal-actions { justify-content: center; }
+
+@media (prefers-reduced-motion: reduce) {
+    .modal-success-icon svg,
+    .modal-success-icon .ms-check,
+    .modal-success-icon .ms-mark,
+    .modal-success-icon .ms-dot { animation: none; }
+    .modal-success-icon .ms-check,
+    .modal-success-icon .ms-mark { stroke-dashoffset: 0; }
+    .modal-success-icon .ms-dot { opacity: 1; }
+}

@@ -1,0 +1,1659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYOA - AI Job Queue</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&family=Outfit:wght@300;400;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-mid: #3b82f6;
+    --blue-dark: #1d4ed8;
+    --blue-bg: #fce7ed;
+    --teal-mid: #14b8a6;
+    --teal-dark: #0f766e;
+    --teal-bg: #e3f7f3;
+    --purple-mid: #8b5cf6;
+    --purple-dark: #6d28d9;
+    --purple-bg: #f8eeff;
+    --orange-mid: #f97316;
+    --orange-bg: #fff7ed;
+    --sky-mid: #0ea5e9;
+    --sky-bg: #dbeefe;
+    --orange: #f97316;
+    --green: #22c55e;
+    --red: #ef4444;
+    --bg: #f1f5f9;
+    --text: #1e293b;
+    --text-muted: #64748b;
+    --border: rgba(0,0,0,0.08);
+    --shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  body {
+    margin: 0;
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 24px;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(59,130,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(139,92,246,0.06) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(20,184,166,0.04) 0%, transparent 60%);
+  }
+
+  .page-header {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+    border-bottom: 2px solid #1e3a8a;
+    margin: 0;
+    padding: 0;
+    height: 120px;
+    overflow: visible;
+    position: relative;
+  }
+  .top-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 16px 12px;
+    align-items: start;
+  }
+  .instruction-wrap {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 22px 12px 20px;
+  }
+  .top-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  .top-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  h1.title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+    font-weight: 400;
+    letter-spacing: 0.2px;
+    color: #ffffff;
+    margin: 0;
+  }
+  .subtitle {
+    font-size: 0.925rem;
+    color: #bfdbfe;
+    margin: 0;
+  }
+  .byline {
+    font-size: 0.78rem;
+    color: #93c5fd;
+    margin: 0;
+    font-style: italic;
+  }
+  .instruction-line {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.0rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin: 0;
+  }
+
+  /* ════════════════════════════════════════════════
+     OUTER LAYOUT — 5 zones
+     [user-zone][left-conn][panels-grid][right-conn][ai-zone]
+  ════════════════════════════════════════════════ */
+  /* Wrapper gives SVG overlay its positioning context */
+  .diagram-wrapper {
+    position: relative;
+    max-width: 1600px;
+    margin: 0 auto 24px;
+    padding: 0 12px;
+  }
+
+  .outer-layout {
+    display: grid;
+    grid-template-columns: 1.5fr 1.5fr 4fr 1.5fr 1.5fr;
+    gap: 24px;
+  }
+
+  /* SVG overlay — outside the grid, anchored to wrapper */
+  #arrows-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    z-index: 10;
+  }
+
+  /* ── Zone 1: Browser panel ── */
+  .user-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 16px 10px 16px;
+    background: var(--orange-bg);
+    border: 1.5px solid rgba(249,115,22,0.25);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    height: 100%;
+  }
+  .user-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid rgba(59,130,246,0.3);
+    box-shadow: 0 2px 10px rgba(59,130,246,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+  }
+  .user-label {
+    font-size: 0.775rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    color: var(--text-muted);
+  }
+  .js-box {
+    width: 100%;
+    border: 1.5px dashed rgba(249,115,22,0.45);
+    border-radius: 12px;
+    background: #feecd8;
+    overflow: hidden;
+  }
+  .js-box-header {
+    background: rgba(249,115,22,0.15);
+    border-bottom: 1.5px dashed rgba(249,115,22,0.35);
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--orange-mid);
+    padding: 4px 0;
+  }
+  .js-box-body {
+    padding: 10px 8px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .gen-btn {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    color: white; border: none; border-radius: 10px;
+    padding: 10px 10px; font-size: 0.805rem; font-weight: 700;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    white-space: nowrap; text-align: center;
+    box-shadow: 0 3px 12px rgba(59,130,246,0.45);
+    animation: btnGlow 3s ease-in-out infinite;
+    transition: transform 0.1s;
+    position: relative; overflow: hidden;
+  }
+  .gen-btn::after {
+    content: '';
+    position: absolute;
+    top: -60%; left: -80%;
+    width: 55%; height: 220%;
+    background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
+    transform: skewX(-18deg);
+    animation: btnShimmer 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .gen-btn:hover  { transform: translateY(-1px); }
+  .gen-btn:active { transform: translateY(0); }
+  @keyframes btnGlow {
+    0%,33%,100% { box-shadow: 0 3px 12px rgba(59,130,246,0.4); }
+    16%         { box-shadow: 0 4px 26px rgba(59,130,246,0.9), 0 0 12px rgba(147,197,253,0.6); }
+  }
+  @keyframes btnShimmer {
+    0%    { left: -80%; opacity: 0; }
+    8%    { opacity: 1; }
+    28%   { left: 130%; opacity: 0; }
+    100%  { left: 130%; opacity: 0; }
+  }
+
+  /* ── Zone 4: hidden ── */
+  .right-connector { display: none; }
+
+  /* ── Zone 5: Cloud panel ── */
+  .ai-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 10px 16px;
+    background: var(--sky-bg);
+    border: 1.5px solid rgba(14,165,233,0.25);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+  }
+  .ai-zone-spacer {
+    height: 18px;
+  }
+  .ai-ext-card {
+    border-radius: 16px;
+    padding: 12px 8px 10px;
+    text-align: center; border: 2px solid;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    box-shadow: var(--shadow);
+  }
+  .ai-ext-card .ai-icon-lg { font-size: 1.5rem; }
+  .ai-ext-card .ai-name    { font-size: 0.865rem; font-weight: 700; }
+  .ai-ext-card .ai-sub     { font-size: 0.715rem; font-weight: 400; opacity: 0.65; }
+  .ai-ext-card.claude { background: #e8f5fe; border-color: rgba(14,165,233,0.35); color: #075985; }
+  .ai-ext-card.dalle  { background: #e8f5fe; border-color: rgba(14,165,233,0.35); color: #075985; }
+
+  /* ════════════════════════════════════════════════
+     PANELS shared styles
+  ════════════════════════════════════════════════ */
+  .panel {
+    border-radius: 20px;
+    padding: 18px 16px;
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    position: relative;
+    text-align: center;
+  }
+  .panel-blue   { background: var(--blue-bg);   border-color: rgba(59,130,246,0.2); }
+  .panel-teal   { background: var(--teal-bg);   border-color: rgba(20,184,166,0.2); min-width: 0; overflow: hidden; }
+  .panel-purple { background: var(--purple-bg); border-color: rgba(139,92,246,0.2); }
+
+  .panel-label {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.795rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    padding: 4px 10px; border-radius: 20px; margin-bottom: 14px;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .label-blue   { background: #d4607a;            color: #fff; }
+  .label-teal   { background: var(--teal-mid);   color: #fff; }
+  .label-purple { background: var(--purple-mid); color: #fff; }
+  .label-orange { background: var(--orange-mid); color: #fff; }
+  .label-sky    { background: var(--sky-mid);    color: #fff; }
+
+  /* ── Unified panel icon ── */
+  .panel-icon {
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    border: 2.5px solid #1e293b;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .panel-icon.icon-bg-orange { background: #fed7aa; }
+  #browser-user-icon { background: linear-gradient(to bottom, #e2e8f0, #94a3b8); }
+  .panel-icon.icon-bg-teal   { background: #99f6e4; }
+  .panel-icon.icon-bg-sky    { background: #bae6fd; }
+  .panel-icon .emoji-icon { font-size: 1.75rem; line-height: 1; }
+  .panel-icon .fa-icon    { font-size: 1.55rem; color: var(--teal-dark); }
+
+  .step {
+    background: white; border-radius: 11px;
+    padding: 8px 11px; font-size: 0.875rem; font-weight: 500;
+    color: var(--text); box-shadow: none;
+    border: 1px solid rgba(0,0,0,0.14); text-align: center;
+  }
+
+  /* "Call AI API" — dashed border, highlighted */
+  .call-api-step {
+    background: white; border-radius: 11px;
+    padding: 8px 11px; font-size: 0.885rem; font-weight: 700;
+    color: var(--purple-dark); text-align: center;
+    border: 1px solid rgba(0,0,0,0.14);
+    box-shadow: none;
+  }
+
+  .arrow-down {
+    text-align: center; font-size: 1.125rem;
+    color: var(--text-muted); line-height: 1; margin: 4px 0;
+  }
+  .cross-arrow {
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 0.745rem; font-weight: 600; color: var(--text-muted); padding: 5px 0;
+  }
+  .divider-label {
+    text-align: center; font-size: 0.735rem; color: var(--text-muted);
+    font-family: 'Space Mono', monospace; font-weight: 700; letter-spacing: 0.5px;
+    margin: 5px 0 8px; text-transform: uppercase;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .divider-label::before, .divider-label::after {
+    content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.3;
+  }
+
+  /* Poll loop */
+  .poll-loop {
+    background: transparent; border: none;
+    padding: 0; margin-top: 8px;
+  }
+
+  .rotating-arrow { display:inline-block; animation:spin 3s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .clock-icon { display:inline-block; }
+  @keyframes pulse {
+    0%,100% { transform:scale(1); opacity:1; }
+    50%      { transform:scale(1.12); opacity:0.8; }
+  }
+
+  /* DB table */
+  .db-table {
+    background: white; border-radius: 11px;
+    border: 1.5px solid rgba(20,184,166,0.25);
+    overflow: hidden; margin-top: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .db-table-header {
+    background: #8ae7dc;
+    color: #0f766e; font-family: 'DM Sans', sans-serif;
+    font-size: 0.745rem; font-weight: 700;
+    padding: 6px 9px; display: flex; align-items: center; gap: 5px;
+  }
+  .db-row {
+    display: grid;
+    grid-template-columns: 10% 30% 20% 20% 20%;
+    gap: 4px; padding: 10px 9px; align-items: center;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 0.845rem; font-weight: 500;
+    animation: none;
+  }
+  .db-row.db-header-row {
+    font-size: 0.745rem; font-weight: 700;
+    color: var(--text-muted); text-transform: uppercase;
+    letter-spacing: 0.4px; padding-bottom: 4px;
+    border-bottom: 1.5px solid rgba(0,0,0,0.1);
+  }
+  .db-row:last-child { border-bottom: none; }
+  .db-row.db-row-active {
+    background: #fffbeb;
+    border: 1.5px solid #fcd34d;
+    border-radius: 7px;
+    margin: 2px 0;
+    transition: background 0.4s, border-color 0.4s;
+  }
+  @keyframes fadeRow { from { opacity:0; background:rgba(20,184,166,0.08); } }
+  .db-row .id { font-family:'Space Mono',monospace; color:var(--text-muted); font-size:0.805rem; }
+  .db-row .prompt { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:left; }
+  .db-badge {
+    display: inline-flex; align-items: center; gap: 2px;
+    padding: 2px 6px; border-radius: 5px;
+    font-size: 0.765rem; font-weight: 700; white-space: nowrap;
+  }
+  .badge-canceled  { background:#f1f5f9; color:#475569; }
+  .badge-pending   { background:#fef3c7; color:#92400e; }
+  .badge-running   { background:#ffedd5; color:#9a3412; }
+  .badge-completed { background:#dcfce7; color:#14532d; }
+  .badge-failed    { background:#fee2e2; color:#7f1d1d; }
+
+  .job-card {
+    border-radius: 7px; padding: 4px 5px;
+    font-size: 0.695rem; font-weight: 700; text-align: center;
+    min-width: 42px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    flex-shrink: 0;
+  }
+  .job-card.pending   { background:#fef3c7; color:#92400e; border:1.5px solid #fbbf24; }
+  .job-card.running   { background:#ffedd5; color:#9a3412; border:1.5px solid #f97316; }
+  .job-card.completed { background:#dcfce7; color:#14532d; border:1.5px solid #22c55e; }
+  .job-card.failed    { background:#fee2e2; color:#7f1d1d; border:1.5px solid #ef4444; }
+
+  /* Legend */
+  .legend {
+    display: flex; flex-wrap: wrap;
+    justify-content: center; gap: 8px 18px;
+    background: white; padding: 11px 18px;
+    border-radius: 14px; box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .legend-title {
+    width: 100%; text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.735rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--text-muted); margin-bottom: 2px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.835rem; font-weight: 500; }
+  .legend-dot  { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+
+  /* Panel glow states */
+  .panel, .user-zone, .ai-zone { transition: box-shadow 0.25s ease; }
+  .glow-orange { box-shadow: 0 0 0 2px var(--orange-mid), 0 0 28px rgba(249,115,22,0.45) !important; }
+  .glow-blue   { box-shadow: 0 0 0 2px var(--blue-mid),   0 0 28px rgba(59,130,246,0.45)  !important; }
+  .glow-teal   { box-shadow: 0 0 0 2px var(--teal-mid),   0 0 28px rgba(20,184,166,0.45)  !important; }
+  .glow-purple { box-shadow: 0 0 0 2px var(--purple-mid), 0 0 28px rgba(139,92,246,0.45)  !important; }
+  .glow-sky    { box-shadow: 0 0 0 2px var(--sky-mid),    0 0 28px rgba(14,165,233,0.45)  !important; }
+
+  /* Badge pop on status change */
+  @keyframes badgePop {
+    0%   { transform: scale(1); }
+    45%  { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+  .badge-pop { animation: badgePop 0.35s cubic-bezier(.36,.07,.19,.97); }
+
+  /* Row 109 slide in */
+  @keyframes rowSlideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .row-anim { animation: rowSlideIn 0.4s ease-out forwards; }
+
+  @keyframes bellShake {
+    0%   { transform: rotate(0deg)   scale(1);    }
+    10%  { transform: rotate(-22deg) scale(1.25); }
+    25%  { transform: rotate(18deg)  scale(1.3);  }
+    40%  { transform: rotate(-14deg) scale(1.25); }
+    55%  { transform: rotate(10deg)  scale(1.2);  }
+    70%  { transform: rotate(-6deg)  scale(1.1);  }
+    85%  { transform: rotate(3deg)   scale(1.05); }
+    100% { transform: rotate(0deg)   scale(1);    }
+  }
+  .bell-ring { display: inline-block; animation: bellShake 0.6s ease-in-out infinite; }
+
+  /* Status bar */
+  .status-bar {
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 0.815rem;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.3px;
+    min-height: 36px;
+    transition: color 0.3s;
+  }
+
+  /* Console window */
+  .console-wrap {
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+  }
+  .console-window {
+    background: #002b36;
+    border: 1px solid #073642;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  }
+  .console-titlebar {
+    background: #4a5568;
+    border-bottom: 1px solid #586e75;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .console-btn-group { display: flex; align-items: center; gap: 4px; margin-left: auto; }
+  .console-close, .console-clear {
+    background: none; border: none; cursor: pointer;
+    color: #94a3b8; font-size: 1rem; line-height: 1;
+    padding: 0 2px;
+    transition: color 0.15s;
+  }
+  .console-close:hover { color: #dc322f; }
+  .console-clear:hover  { color: #2aa198; }
+  .view-console-btn {
+    display: inline-block;
+    position: absolute; top: 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 600;
+    color: #bfdbfe; text-decoration: none;
+    border: 1px solid rgba(191,219,254,0.35);
+    border-radius: 5px; padding: 3px 10px;
+    transition: background 0.15s, color 0.15s;
+    cursor: pointer; background: rgba(255,255,255,0.12);
+  }
+  .view-console-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
+  .console-title-text {
+    flex: 1; text-align: center;
+    font-size: 0.68rem; color: #cbd5e1; letter-spacing: 0.5px;
+    margin-right: 26px; /* offset for dots */
+  }
+  .console-body {
+    height: 130px;
+    overflow-y: auto;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    scroll-behavior: smooth;
+  }
+  .console-body::-webkit-scrollbar { width: 4px; }
+  .console-body::-webkit-scrollbar-track { background: transparent; }
+  .console-body::-webkit-scrollbar-thumb { background: #586e75; border-radius: 2px; }
+  .console-line {
+    display: flex; gap: 8px; align-items: baseline;
+    animation: consoleFadeIn 0.2s ease-out;
+    white-space: nowrap;
+  }
+  @keyframes consoleFadeIn { from { opacity: 0; transform: translateY(4px); } }
+  .con-time  { color: #586e75; flex-shrink: 0; }
+  .con-arrow { color: #586e75; flex-shrink: 0; }
+  /* token colours — Solarized Dark */
+  .con-ok     { color: #859900; }  /* green   — completed/success */
+  .con-err    { color: #dc322f; }  /* red     — failed/error */
+  .con-warn   { color: #b58900; }  /* yellow  — pending/waiting */
+  .con-info   { color: #268bd2; }  /* blue    — generate/insert */
+  .con-purple { color: #6c71c4; }  /* violet  — cron worker */
+  .con-orange { color: #cb4b16; }  /* orange  — poll */
+  .con-muted  { color: #839496; }  /* base0   — default text */
+  .con-num    { color: #2aa198; }  /* cyan    — IDs/numbers */
+  .con-str    { color: #93a1a1; }  /* base1   — string values */
+
+  /* Step-level glow (individual elements, not whole panels) */
+  .step, .call-api-step, .db-table, .ai-ext-card, .poll-loop {
+    transition: box-shadow 0.2s ease;
+  }
+  .step-glow-blue   { box-shadow: 0 0 0 2px #3b82f6, 0 0 14px rgba(59,130,246,0.6)  !important; }
+  .step-glow-orange { box-shadow: 0 0 0 2px #f97316, 0 0 14px rgba(249,115,22,0.6)  !important; }
+  .step-glow-teal   { box-shadow: 0 0 0 2px #14b8a6, 0 0 14px rgba(20,184,166,0.6)  !important; }
+  .step-glow-purple { box-shadow: 0 0 0 2px #7c3aed, 0 0 14px rgba(124,58,237,0.6)  !important; }
+  .step-glow-amber  { box-shadow: 0 0 0 2px #fbbf24, 0 0 14px rgba(251,191,36,0.6)  !important; }
+  .step-glow-violet { box-shadow: 0 0 0 2px #8b5cf6, 0 0 14px rgba(139,92,246,0.6)  !important; }
+  .step-glow-green  { box-shadow: 0 0 0 2px #22c55e, 0 0 14px rgba(34,197,94,0.6)   !important; }
+  .step-glow-sky    { box-shadow: 0 0 0 2px #0ea5e9, 0 0 14px rgba(14,165,233,0.6)  !important; }
+
+  /* Cron cycle slider */
+  .cron-slider-wrap {
+    margin-top: 14px; padding: 0 2px;
+  }
+  .slider-track-frame {
+    flex: 0 0 75%;
+    display: flex; align-items: center;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 10px;
+    padding: 10px 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .slider-track-frame input[type=range] { flex: 1; }
+  .cron-slider-wrap label {
+    display: flex; justify-content: space-between;
+    font-size: 0.72rem; font-weight: 600; color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .cron-slider-wrap input[type=range] {
+    width: 100%; accent-color: var(--purple-mid); cursor: pointer;
+  }
+  .slider-row {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .slider-row input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    height: 4px; border-radius: 4px; outline: none; cursor: pointer;
+  }
+  .slider-row input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--thumb-color, #475569); cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .slider-row input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%; border: none;
+    background: var(--thumb-color, #475569); cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .slider-row input[type=range]::-moz-range-track {
+    background: #cbd5e1; border-radius: 4px; height: 4px;
+  }
+  .slider-row input[type=range]::-moz-range-progress {
+    border-radius: 4px; height: 4px;
+  }
+  .pause-btn {
+    flex: 0 0 26px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7rem;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(to bottom, #cbd5e1, #94a3b8);
+    color: #1e293b;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.6);
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  .pause-btn span { position: relative; top: -1px; left: 0px; }
+  .pause-btn:hover {
+    background: linear-gradient(to bottom, #b6c2d0, #7f8fa4);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.5);
+  }
+  .pause-btn.paused { background: linear-gradient(to bottom, #cbd5e1, #94a3b8); color: #1e293b; }
+  .pause-btn.paused:hover { background: linear-gradient(to bottom, #b6c2d0, #7f8fa4); }
+
+  /* Animation speed slider */
+  .speed-control {
+    display: flex; align-items: center; gap: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 10px;
+    padding: 6px 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .speed-control input[type=range] {
+    -webkit-appearance: none; appearance: none;
+    width: 90px; height: 4px;
+    border-radius: 4px; outline: none; cursor: pointer;
+    background: linear-gradient(to right, #3b82f6 50%, #cbd5e1 50%);
+  }
+  .speed-control input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #3b82f6; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .speed-control input[type=range]::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%; border: none;
+    background: #3b82f6; cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .speed-end { font-size: 0.75rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="top-section">
+    <div class="top-left">
+      <h1 class="title">CYOA — Interactive AI Job Queue Visualization</h1>
+      <p class="subtitle">How user story requests flow from browser through a job queue to AI services and back.</p>
+      <p class="byline">By Evan Prael &amp; Claude, March 2026</p>
+    </div>
+    <div class="top-right">
+      <div class="console-wrap" id="console-wrap" style="display:none">
+        <div class="console-window" id="console-window">
+          <div class="console-titlebar">
+            <span class="console-title-text">job-queue.log</span>
+            <div class="console-btn-group">
+              <button class="console-clear" id="console-clear-btn" title="Clear console">&#x21BA;</button>
+              <button class="console-close" id="console-close-btn" title="Close console">&#x2715;</button>
+            </div>
+          </div>
+          <div class="console-body" id="console-body">
+            <div class="console-line"><span class="con-time">--:--:--</span><span class="con-arrow">›</span><span class="con-muted">Waiting for activity…</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="view-console-btn" id="view-console-btn">View Console</button>
+</div>
+
+<div class="instruction-wrap" style="display:flex;align-items:center;justify-content:space-between;">
+  <p class="instruction-line">Press the <span style="background:#dbeafe;color:#1d4ed8;padding:1px 7px;border-radius:5px;font-weight:700;">⚡ Generate</span> button below to submit an AI job request.</p>
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <span style="font-family:'DM Sans',sans-serif;font-size:1.0rem;font-weight:600;color:var(--text-muted);white-space:nowrap;">Animation Speed:</span>
+    <div class="speed-control">
+      <span class="speed-end">Slow</span>
+      <input type="range" id="anim-speed-slider" min="0.5" max="2" step="0.25" value="1.5">
+      <span class="speed-end">Fast</span>
+    </div>
+  </div>
+</div>
+
+<div class="diagram-wrapper" id="diagram-wrapper">
+<div class="outer-layout" id="outer-layout">
+
+  <!-- ════ ZONE 1: Browser panel ════ -->
+  <div class="user-zone" id="user-zone">
+    <div class="panel-label label-orange" style="margin-bottom:14px;">Browser (HTML,CSS,JS)</div>
+    <div class="panel-icon icon-bg-orange" id="browser-user-icon">
+      <img src="person.png" alt="User" style="width:58px;height:58px;object-fit:contain;display:block;margin-top:14px;">
+    </div>
+    <div id="user-zone-content" style="display:flex;flex-direction:column;align-items:center;gap:7px;width:100%;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:7px;margin-top:18px;">
+        <div class="user-label">User</div>
+        <button class="gen-btn" id="gen-btn" onclick="handleGenerate()">⚡ Generate</button>
+      </div>
+      <div style="width:100%;margin-top:36px;">
+        <div class="js-box">
+          <div class="js-box-header">JavaScript</div>
+          <div class="js-box-body">
+            <div style="display:flex;align-items:center;justify-content:center;gap:10px;">
+              <span style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;visibility:hidden;min-width:2.8ch;display:inline-block;">00s</span>
+              <span class="clock-icon" style="font-size:3rem;line-height:1;">🕐</span>
+              <span id="poll-countdown" style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;color:var(--orange-mid);min-width:2.8ch;display:inline-block;">—</span>
+            </div>
+            <div class="arrow-down" style="color:var(--orange-mid);">↓</div>
+            <div class="poll-loop" id="poll-loop" style="width:100%;">
+              <div class="step" id="poll-step-fetch">🔍 Check job status</div>
+              <div class="arrow-down" style="color:var(--orange-mid);">↓</div>
+              <div class="step" id="poll-step-display"><span id="bell-icon">🔔</span> <strong>Notify user</strong></div>
+              <div class="arrow-down" style="color:var(--orange-mid);">↓</div>
+              <div class="step" id="poll-step-done">✓ Done</div>
+              <div class="cron-slider-wrap" style="margin-top:18px;">
+                <label>
+                  <span>Poll interval: <span id="poll-slider-label">7s</span></span>
+                </label>
+                <div class="slider-row">
+                  <div class="slider-track-frame"><input type="range" id="poll-slider" min="4" max="10" value="7" step="1" style="accent-color:var(--orange-mid);"></div>
+                  <button class="pause-btn" id="poll-pause-btn" onclick="togglePollPause()"><span>⏹</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ ZONE 2: Web Application panel ════ -->
+  <!-- ════ ZONE 3: Three main panels ════ -->
+
+    <!-- ── LEFT: Web Application ── -->
+    <div class="panel panel-blue" id="web-app-panel">
+      <div class="panel-label label-blue">Web Application (PHP)</div>
+      <div style="text-align:center;margin-bottom:12px;font-size:3rem;">🌐</div>
+
+      <!-- Spacer pushes first step to align with gen-btn -->
+      <div id="web-spacer-top"></div>
+
+      <div style="text-align:center;font-size:0.75rem;font-weight:700;color:#1d4ed8;margin-bottom:3px;">queue_job.php</div>
+      <div class="step blue-step" id="web-step-insert">
+        insert new row<br>
+        set status = pending
+      </div>
+
+      <!-- Spacer pushes get-job-status to align with poll-loop -->
+      <div id="web-spacer-mid" style="min-height:0;"></div>
+
+      <div style="text-align:center;font-size:0.75rem;font-weight:700;color:#1d4ed8;margin-bottom:3px;">get_job_status.php</div>
+      <div class="step blue-step" id="web-step-status">
+        get latest job results
+      </div>
+    </div>
+
+    <!-- ── CENTER: DB Queue ── -->
+    <div class="panel panel-teal" id="db-panel">
+      <div class="panel-label label-teal">DATABASE (mySQL)</div>
+      <div class="panel-icon icon-bg-teal">
+        <i class="fa-solid fa-database fa-icon"></i>
+      </div>
+
+      <div class="db-table" id="db-table">
+        <div class="db-table-header"><i class="fa-solid fa-database" style="font-size:0.775rem;margin-right:4px;"></i> Table: ai_jobs</div>
+        <div id="db-rows-container"></div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT: Cron Worker ── -->
+    <div class="panel panel-purple" id="cron-panel">
+      <div class="panel-label label-purple">Cron Job (PHP-CLI)</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:4px;">
+        <span style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;visibility:hidden;min-width:2.8ch;display:inline-block;">00s</span>
+        <span class="clock-icon" style="font-size:3rem;">🕐</span>
+        <span id="cron-countdown" style="font-family:'Outfit',sans-serif;font-size:1.05rem;font-weight:600;color:var(--purple-mid);min-width:2.8ch;display:inline-block;">—</span>
+      </div>
+      <div style="font-size:1.2rem;color:var(--purple-mid);line-height:1;margin-top:6px;margin-bottom:6px;text-align:center;">↓</div>
+
+      <div class="step purple-step" id="cron-step-1">📋 Get all pending jobs</div>
+      <div class="arrow-down" style="color:var(--purple-mid);">↓</div>
+      <div class="step purple-step" id="cron-step-2">⚡ Mark as <strong>running</strong></div>
+      <div class="arrow-down" style="color:var(--purple-mid);">↓</div>
+
+      <!-- Highlighted step that connects outward to AI APIs -->
+      <div class="step purple-step" id="call-api-step">☁️ Call AI API<br><span style="font-size:0.78rem;font-weight:400;white-space:nowrap;">(calls multiple jobs in parallel)</span></div>
+      <div class="arrow-down" style="color:var(--purple-mid);">↓</div>
+
+      <div class="step purple-step" id="cron-step-4">💾 Store results & mark <strong>completed</strong> / <strong>failed</strong></div>
+      <div class="arrow-down" style="color:var(--purple-mid);">↓</div>
+      <div class="step purple-step" id="cron-step-done">✓ Done</div>
+
+      <div class="cron-slider-wrap" style="margin-top:18px;">
+        <label>
+          <span>Run job every <span id="cron-slider-label">10s</span></span>
+        </label>
+        <div class="slider-row">
+          <div class="slider-track-frame"><input type="range" id="cron-slider" min="4" max="30" value="10" step="1" style="accent-color:var(--green);"></div>
+          <button class="pause-btn" id="cron-pause-btn" onclick="toggleCronPause()"><span>⏹</span></button>
+        </div>
+      </div>
+    </div>
+
+  <!-- SVG overlay: angled arrows drawn by JS -->
+  <svg id="arrows-svg" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:10;"></svg>
+
+  <!-- ════ ZONE 5: Cloud panel ════ -->
+  <div class="ai-zone" id="ai-zone">
+    <div class="panel-label label-sky" style="margin-bottom:14px;">Cloud Services (API)</div>
+    <div class="panel-icon icon-bg-sky">
+      <span class="emoji-icon">☁️</span>
+    </div>
+    <div id="ai-zone-content" style="display:flex;flex-direction:column;align-items:center;gap:0;width:100%;margin-top:8px;">
+      <div class="ai-ext-card claude" id="card-claude" style="width:100%;">
+        <img src="logo_claude.png" alt="Claude" style="width:100px;object-fit:contain;">
+        <span class="ai-sub">Text / Code</span>
+      </div>
+      <div class="ai-zone-spacer"></div>
+      <div class="ai-ext-card dalle" id="card-dalle" style="width:100%;">
+        <img src="logo_dall-e.png" alt="DALL-E" style="width:100px;object-fit:contain;">
+        <span class="ai-sub">Images</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.outer-layout -->
+</div><!-- /.diagram-wrapper -->
+
+<script>
+// ── DB rows ──
+function randFinal() { return Math.random() < 0.25 ? 'failed' : 'completed'; }
+function finalBadge(s) { return s === 'failed' ? {badge:'badge-failed',icon:'❌'} : {badge:'badge-completed',icon:'✅'}; }
+const jobs = [104,105,106,107,108].map((id, i) => {
+  const prompts  = ['Write a scene where…','Create an image where…','Write the last scene where…','Write a complete story where…','Create an image where…'];
+  const types    = ['Scene','Image','Scene','Story','Image'];
+  const ages     = ['5s','25s','35s','5s','5s'];
+  const statuses = ['completed','completed','failed','completed','completed'];
+  const s = statuses[i];
+  const { badge, icon } = finalBadge(s);
+  return { id: String(id), prompt: prompts[i], type: types[i], status: s, badge, icon, age: ages[i] };
+});
+function renderRows(list) {
+  document.getElementById('db-rows-container').innerHTML =
+    `<div class="db-row db-header-row">
+      <span>ID</span>
+      <span>PROMPT</span>
+      <span>TYPE</span>
+      <span>STATUS</span>
+      <span>AGE</span>
+    </div>` +
+    list.map(j => `
+    <div class="db-row">
+      <span class="id">${j.id}</span>
+      <span class="prompt">${j.prompt}</span>
+      <span style="font-size:0.805rem;color:var(--text-muted);">${j.type}</span>
+      <span class="db-badge ${j.badge}">${j.icon} ${j.status}</span>
+      <span style="color:var(--text-muted);">${j.age}</span>
+    </div>
+  `).join('') +
+    `<div class="db-row" id="blank-row" style="min-height:28px;">&nbsp;</div>`;
+}
+renderRows(jobs);
+
+// ── Shared state and utilities ──
+const SVG_NS = 'http://www.w3.org/2000/svg';
+let arrowC  = {};
+let animSvg = null;
+let nextJobId = 109;
+let jobMap    = {};   // { [id]: { status, ageInterval } }
+let seenIds   = new Set();
+let pollBusy  = false;
+let cronBusy  = false;
+let timersStarted = false;
+const AUTO_START_TIMERS = false; // true = timers run on load, false = timers start paused
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let animSpeedMult = 1.0;                              // 0.5 = fast, 1.0 = normal, 2.0 = slow
+const sd = ms => Math.round(ms * animSpeedMult);      // speed-adjusted delay
+
+function setStatus(msg) {
+  consoleLog(msg);
+}
+
+function consoleLog(msg) {
+  const body = document.getElementById('console-body');
+  if (!body) return;
+
+  // Strip leading emoji + whitespace before logging
+  msg = msg.replace(/^[\p{Emoji_Presentation}\p{Extended_Pictographic}\u{FE0F}\u{200D}]+/u, '').trimStart();
+
+  const now = new Date();
+  const ts = now.toTimeString().slice(0,8);
+
+  // Syntax-highlight by content patterns
+  function highlight(text) {
+    // Replace job IDs (e.g. "job 42", "Job 3")
+    text = text.replace(/\b[Jj]ob[s]?\s+(\d+[\d, ]*)/g, (m, ids) =>
+      `<span class="con-muted">job </span><span class="con-num">${ids}</span>`);
+    // Numbers in brackets or standalone counts
+    text = text.replace(/\b(\d+)\s+(job)/g,
+      `<span class="con-num">$1</span> <span class="con-muted">$2</span>`);
+    // Statuses
+    text = text.replace(/\b(completed)\b/g, `<span class="con-ok">$1</span>`);
+    text = text.replace(/\b(failed)\b/g,    `<span class="con-err">$1</span>`);
+    text = text.replace(/\b(pending)\b/g,   `<span class="con-warn">$1</span>`);
+    text = text.replace(/\b(running)\b/g,   `<span class="con-purple">$1</span>`);
+    text = text.replace(/\b(canceled)\b/g,  `<span class="con-muted">$1</span>`);
+    return text;
+  }
+
+  // Pick arrow/prefix colour by message type
+  let arrowCls = 'con-muted';
+  const m = msg;
+  if (/📤|💾.*insert|PHP insert/i.test(m))           arrowCls = 'con-info';
+  else if (/🔍|Poll:|✅.*browser|❌.*browser/i.test(m)) arrowCls = 'con-orange';
+  else if (/⚙️|cron|⚡.*mark|📋|dispatching|🧠|🖼️|⏳.*generat|✅.*AI|writing/i.test(m)) arrowCls = 'con-purple';
+  else if (/✅/.test(m))  arrowCls = 'con-ok';
+  else if (/❌/.test(m))  arrowCls = 'con-err';
+  else if (/⏳/.test(m))  arrowCls = 'con-warn';
+
+  const line = document.createElement('div');
+  line.className = 'console-line';
+  line.innerHTML = `<span class="con-time">${ts}</span><span class="${arrowCls} con-arrow">›</span><span class="con-muted">${highlight(msg)}</span>`;
+  body.appendChild(line);
+
+  // Keep scrolled to bottom
+  body.scrollTop = body.scrollHeight;
+}
+
+
+function glow(id, cls)   { document.getElementById(id)?.classList.add(cls); }
+function unglow(id, cls) { document.getElementById(id)?.classList.remove(cls); }
+async function glowFor(id, cls, ms) { glow(id, cls); await sleep(ms); unglow(id, cls); }
+
+function setBadge(el, status) {
+  const map = {
+    pending:   ['badge-pending',   '🔵 pending'  ],
+    running:   ['badge-running',   '⚡ running'  ],
+    completed: ['badge-completed', '✅ completed'],
+    failed:    ['badge-failed',    '❌ failed'   ],
+  };
+  const [cls, txt] = map[status] || map.pending;
+  el.className = `db-badge ${cls} badge-pop`;
+  el.textContent = txt;
+  el.addEventListener('animationend', () => el.classList.remove('badge-pop'), { once: true });
+}
+
+function insertNewJob() {
+  const id = nextJobId++;
+  const blank = document.getElementById('blank-row');
+  if (!blank) return id;
+  const r = Math.random();
+  const [prompt, type] = r < 0.33
+    ? ['Generate a complete st…', 'Story']
+    : r < 0.66
+    ? ['Create an image where…', 'Image']
+    : ['Write a scene where…',   'Scene'];
+  const row = document.createElement('div');
+  row.id = `row-${id}`;
+  row.className = 'db-row db-row-active row-anim';
+  row.innerHTML = `
+    <span class="id">${id}</span>
+    <span class="prompt" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${prompt}</span>
+    <span style="font-size:0.805rem;color:var(--text-muted);">${type}</span>
+    <span class="db-badge badge-pending" id="badge-${id}">🔵 pending</span>
+    <span style="color:var(--text-muted);" id="age-${id}">0s</span>`;
+  blank.before(row);
+  let age = 0;
+  const interval = setInterval(() => {
+    const el = document.getElementById(`age-${id}`);
+    if (el) el.textContent = ++age + 's';
+  }, 1000);
+  jobMap[id] = { status: 'pending', type, ageInterval: interval };
+  return id;
+}
+
+function updateJobStatus(id, status) {
+  const job = jobMap[id];
+  if (!job) return;
+  job.status = status;
+  const badge = document.getElementById(`badge-${id}`);
+  if (badge) setBadge(badge, status);
+  const terminal = status === 'completed' || status === 'failed' || status === 'canceled';
+  if (terminal) {
+    if (job.ageInterval) { clearInterval(job.ageInterval); job.ageInterval = null; }
+    const row = document.getElementById(`row-${id}`);
+    if (row) row.classList.remove('db-row-active');
+  }
+}
+
+function getOldestPending() {
+  return Object.keys(jobMap)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .find(id => jobMap[id].status === 'pending') ?? null;
+}
+
+function getAllPending() {
+  return Object.keys(jobMap)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .filter(id => jobMap[id].status === 'pending');
+}
+
+// ── Animation engine — flashing arrow ──
+const arrowLines = {};
+
+function flashArrow(key, ms) {
+  return new Promise(resolve => {
+    const line = arrowLines[key];
+    if (!line) { resolve(); return; }
+    const origColor = line.getAttribute('stroke');
+    line.setAttribute('stroke-width', '3.5');
+    line.style.filter = `drop-shadow(0 0 7px ${origColor})`;
+    line.style.opacity = '1';
+    setTimeout(() => {
+      line.setAttribute('stroke-width', '1.8');
+      line.style.filter = '';
+      setTimeout(resolve, 120);
+    }, ms);
+  });
+}
+
+async function animateArrow(key, color, ms) {
+  await sleep(ms);
+  lightArrow(key);
+  await sleep(ms);
+}
+
+// Keep arrow glowing persistently (call after animateArrow to hold the lit state)
+function lightArrow(key) {
+  const line = arrowLines[key];
+  if (!line) return;
+  const origColor = line.getAttribute('stroke');
+  line.setAttribute('stroke-width', '3.5');
+  line.style.filter = `drop-shadow(0 0 7px ${origColor})`;
+  line.style.opacity = '1';
+}
+
+// Restore arrow to resting state
+function dimArrow(key) {
+  const line = arrowLines[key];
+  if (!line) return;
+  line.setAttribute('stroke-width', '1.8');
+  line.style.filter = '';
+}
+
+// ── Flow orchestration ──
+async function pollFlow() {
+  if (pollBusy) return;
+  pollBusy = true;
+  try {
+    // Light up chain: fetch → arrow → PHP → arrow → DB (each stays lit)
+    glow('poll-step-fetch', 'step-glow-orange');
+    await animateArrow('pollToStatus', '#f97316', sd(480));
+    glow('web-step-status', 'step-glow-orange');
+    await animateArrow('phpSelToDb', '#f97316', sd(380));
+    glow('db-table', 'step-glow-orange');
+
+    // Find any newly-finished jobs the browser hasn't seen yet
+    const terminal = s => s === 'completed' || s === 'failed';
+    const newlyDone = Object.keys(jobMap)
+      .map(Number)
+      .filter(id => terminal(jobMap[id].status) && !seenIds.has(id));
+
+    let foundId = null;
+    if (newlyDone.length > 0) {
+      foundId = newlyDone[0];
+      seenIds.add(foundId);
+      const isDone = jobMap[foundId].status === 'completed';
+      const msg = isDone ? `✅ Browser detected job ${foundId} complete — result displayed!`
+                         : `❌ Browser detected job ${foundId} failed.`;
+      setStatus(msg);
+    } else {
+      const activeJobs = Object.entries(jobMap).filter(([, j]) => j.status !== 'completed');
+      if (activeJobs.length === 0 && Object.keys(jobMap).length === 0) {
+        setStatus('🔄 Poll: no active jobs.');
+      } else if (activeJobs.some(([, j]) => j.status === 'running')) {
+        setStatus('⚙️ Poll: job(s) still running…');
+      } else if (activeJobs.some(([, j]) => j.status === 'pending')) {
+        setStatus('⏳ Poll: job(s) still pending…');
+      } else {
+        setStatus('🔄 Poll: no active jobs.');
+      }
+    }
+    await sleep(sd(1500));
+
+    // Unwind all at once
+    dimArrow('phpSelToDb');
+    unglow('web-step-status', 'step-glow-orange');
+    dimArrow('pollToStatus');
+    unglow('poll-step-fetch', 'step-glow-orange');
+    unglow('db-table', 'step-glow-orange');
+
+    // Notify step only fires when a job was found
+    if (foundId !== null) {
+      glow('poll-step-display', 'step-glow-orange');
+      // Ring the bell — re-trigger animation by removing/re-adding class
+      const bell = document.getElementById('bell-icon');
+      bell.classList.remove('bell-ring');
+      void bell.offsetWidth; // force reflow
+      bell.classList.add('bell-ring');
+      await sleep(sd(2700));
+      bell.classList.remove('bell-ring');
+      await sleep(sd(300));
+      unglow('poll-step-display', 'step-glow-orange');
+    }
+    await glowFor('poll-step-done', 'step-glow-orange', sd(1400));
+  } finally {
+    pollBusy = false;
+  }
+}
+
+async function generateFlow() {
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  setStatus('📤 Sending Generate request to PHP…');
+  await sleep(sd(350));
+
+  // Light up chain: arrow → PHP step stays lit → arrow → DB
+  await animateArrow('genToInsert', '#0ea5e9', sd(580));
+  glow('web-step-insert', 'step-glow-sky');
+  setStatus('💾 PHP inserting new job into ai_jobs…');
+  await sleep(sd(350));
+  await animateArrow('phpInsToDb', '#0ea5e9', sd(400));
+  glow('db-table', 'step-glow-sky');
+  await sleep(sd(350));
+  const id = insertNewJob();
+  await sleep(sd(1000));
+  unglow('db-table', 'step-glow-sky');
+
+  // Unwind in reverse
+  dimArrow('phpInsToDb');
+  unglow('web-step-insert', 'step-glow-sky');
+  dimArrow('genToInsert');
+
+  setStatus(`⏳ Job ${id} queued as pending — waiting for cron worker…`);
+  btn.disabled = false;
+  btn.style.opacity = '1';
+}
+
+async function cronFlow() {
+  if (cronBusy) return;
+  cronBusy = true;
+  glow('cron-step-1', 'step-glow-purple');
+  setStatus('⚙️ Cron worker woke up — scanning for pending jobs…');
+  await sleep(sd(350));
+
+  // Step 1: step stays lit → arrow stays lit → DB → unwind
+  await animateArrow('cronReadDb', '#8b5cf6', sd(480));
+  await glowFor('db-table', 'step-glow-purple', sd(1500));
+  dimArrow('cronReadDb');
+  unglow('cron-step-1', 'step-glow-purple');
+
+  // If nothing is pending, skip to done
+  const ids = getAllPending();
+  if (ids.length === 0) {
+    setStatus('💤 Cron: no pending jobs found.');
+    await glowFor('cron-step-done', 'step-glow-purple', sd(1500));
+    cronBusy = false;
+    return;
+  }
+
+  // Step 2: mark all pending jobs as running
+  glow('cron-step-2', 'step-glow-purple');
+  setStatus(`⚡ ${ids.length} job${ids.length > 1 ? 's' : ''} marked running…`);
+  await sleep(sd(350));
+  await animateArrow('cronWriteDb1', '#8b5cf6', sd(480));
+  glow('db-table', 'step-glow-purple');
+  await sleep(sd(350));
+  ids.forEach(id => updateJobStatus(id, 'running'));
+  await sleep(sd(1000));
+  unglow('db-table', 'step-glow-purple');
+  await sleep(sd(350));
+  dimArrow('cronWriteDb1');
+  unglow('cron-step-2', 'step-glow-purple');
+
+  // Step 3: call-api stays lit → dispatch to Claude and/or DALL-E based on job types
+  const hasImage = ids.some(id => jobMap[id].type === 'Image');
+  const hasText  = ids.some(id => jobMap[id].type !== 'Image');
+  const apiLabel = hasImage && hasText ? 'Claude + DALL-E' : hasImage ? 'DALL-E' : 'Claude';
+  glow('call-api-step', 'step-glow-purple');
+  setStatus(`🧠 Dispatching ${ids.length} job${ids.length > 1 ? 's' : ''} to ${apiLabel}…`);
+  await sleep(sd(350));
+
+  // Light arrows and cards for whichever services are needed (in parallel)
+  const arrowPromises = [];
+  if (hasText)  arrowPromises.push(animateArrow('cronToClaude', '#8b5cf6', sd(600)));
+  if (hasImage) arrowPromises.push(animateArrow('cronToDalle',  '#8b5cf6', sd(600)));
+  await Promise.all(arrowPromises);
+
+  if (hasText)  glow('card-claude', 'step-glow-purple');
+  if (hasImage) glow('card-dalle',  'step-glow-purple');
+
+  const aiMs = 2000 + Math.random() * 3000;
+  setStatus(`⏳ ${apiLabel} generating for ${ids.length} job${ids.length > 1 ? 's' : ''}… (simulated ~${(aiMs/1000).toFixed(1)}s)`);
+  await sleep(aiMs);  // AI duration intentionally not scaled
+
+  if (hasImage) { unglow('card-dalle',  'step-glow-purple'); dimArrow('cronToDalle');  }
+  if (hasText)  { unglow('card-claude', 'step-glow-purple'); dimArrow('cronToClaude'); }
+  unglow('call-api-step', 'step-glow-purple');
+
+  // Step 4: store results & mark all jobs with final statuses
+  const finalStatuses = {};
+  ids.forEach(id => { finalStatuses[id] = Math.random() < 0.25 ? 'failed' : 'completed'; });
+  glow('cron-step-4', 'step-glow-purple');
+  setStatus(`✅ AI responded — writing results to DB…`);
+  await sleep(sd(350));
+  await animateArrow('cronWriteDb2', '#8b5cf6', sd(480));
+  glow('db-table', 'step-glow-purple');
+  await sleep(sd(350));
+  ids.forEach(id => updateJobStatus(id, finalStatuses[id]));
+  await sleep(sd(1000));
+  unglow('db-table', 'step-glow-purple');
+  await sleep(sd(350));
+  dimArrow('cronWriteDb2');
+  unglow('cron-step-4', 'step-glow-purple');
+
+  const completedCount = ids.filter(id => finalStatuses[id] === 'completed').length;
+  const failedCount    = ids.length - completedCount;
+  const summary = failedCount > 0
+    ? `✅ ${completedCount} completed, ❌ ${failedCount} failed`
+    : `✅ All ${ids.length} job${ids.length > 1 ? 's' : ''} completed`;
+  setStatus(`${summary} — browser will pick them up on next poll.`);
+  await glowFor('cron-step-done', 'step-glow-purple', sd(1500));
+  cronBusy = false;
+}
+
+function handleGenerate() {
+  generateFlow();
+}
+
+let cronIntervalMs = 10000;
+let pollIntervalMs = 7000;
+let pollPaused = !AUTO_START_TIMERS;
+let cronPaused = !AUTO_START_TIMERS;
+
+// Module-level timer handles so pause can cancel them immediately
+let pollTimeoutId    = null;
+let pollTickInterval = null;
+let pollCountVal     = 0;
+let cronTimeoutId    = null;
+let cronTickInterval = null;
+let cronCountVal     = 0;
+
+function updatePollCountdown(val) {
+  pollCountVal = val;
+  const el = document.getElementById('poll-countdown');
+  if (el) el.textContent = pollPaused ? '—' : val + 's';
+}
+function startPollCountdown() {
+  const secs = Math.round(pollIntervalMs / 1000);
+  updatePollCountdown(secs);
+  if (pollTickInterval) clearInterval(pollTickInterval);
+  pollTickInterval = setInterval(() => {
+    const next = pollCountVal - 1;
+    updatePollCountdown(Math.max(0, next));
+    if (next <= 0) clearInterval(pollTickInterval);
+  }, 1000);
+}
+function schedulePoll() {
+  const secs = Math.round(pollIntervalMs / 1000);
+  pollTimeoutId = setTimeout(() => {
+    pollFlow();
+    pollTimeoutId = setTimeout(() => { startPollCountdown(); schedulePoll(); }, 1000);
+  }, secs * 1000);
+}
+
+function updateCronCountdown(val) {
+  cronCountVal = val;
+  const el = document.getElementById('cron-countdown');
+  if (el) el.textContent = cronPaused ? '—' : val + 's';
+}
+function startCronCountdown() {
+  const secs = Math.round(cronIntervalMs / 1000);
+  updateCronCountdown(secs);
+  if (cronTickInterval) clearInterval(cronTickInterval);
+  cronTickInterval = setInterval(() => {
+    const next = cronCountVal - 1;
+    updateCronCountdown(Math.max(0, next));
+    if (next <= 0) clearInterval(cronTickInterval);
+  }, 1000);
+}
+function scheduleCron() {
+  const secs = Math.round(cronIntervalMs / 1000);
+  cronTimeoutId = setTimeout(() => {
+    cronFlow();
+    cronTimeoutId = setTimeout(() => { startCronCountdown(); scheduleCron(); }, 1000);
+  }, secs * 1000);
+}
+
+function togglePollPause() {
+  pollPaused = !pollPaused;
+  const btn = document.getElementById('poll-pause-btn');
+  if (btn) {
+    btn.innerHTML = pollPaused ? '<span>▶</span>' : '<span>⏹</span>';
+    btn.title = pollPaused ? 'Enable polling' : 'Disable polling';
+    btn.classList.toggle('paused', pollPaused);
+  }
+  if (pollPaused) {
+    // Cancel the pending cycle and stop the countdown tick immediately
+    if (pollTimeoutId)    { clearTimeout(pollTimeoutId);    pollTimeoutId = null; }
+    if (pollTickInterval) { clearInterval(pollTickInterval); pollTickInterval = null; }
+    const el = document.getElementById('poll-countdown');
+    if (el) el.textContent = '—';
+  } else {
+    // Resume: start a fresh cycle
+    startPollCountdown();
+    schedulePoll();
+  }
+}
+
+function toggleCronPause() {
+  cronPaused = !cronPaused;
+  const btn = document.getElementById('cron-pause-btn');
+  if (btn) {
+    btn.innerHTML = cronPaused ? '<span>▶</span>' : '<span>⏹</span>';
+    btn.title = cronPaused ? 'Enable Cron job' : 'Disable Cron job';
+    btn.classList.toggle('paused', cronPaused);
+  }
+  if (cronPaused) {
+    if (cronTimeoutId)    { clearTimeout(cronTimeoutId);    cronTimeoutId = null; }
+    if (cronTickInterval) { clearInterval(cronTickInterval); cronTickInterval = null; }
+    const el = document.getElementById('cron-countdown');
+    if (el) el.textContent = '—';
+  } else {
+    startCronCountdown();
+    scheduleCron();
+  }
+}
+
+function startTimers() {
+  if (timersStarted) return;
+  timersStarted = true;
+
+  // Sync button UI to initial pause state (driven by AUTO_START_TIMERS)
+  const pollBtn = document.getElementById('poll-pause-btn');
+  if (pollBtn) {
+    pollBtn.innerHTML = pollPaused ? '<span>▶</span>' : '<span>⏹</span>';
+    pollBtn.title = pollPaused ? 'Enable polling' : 'Disable polling';
+    pollBtn.classList.toggle('paused', pollPaused);
+  }
+  const cronBtn = document.getElementById('cron-pause-btn');
+  if (cronBtn) {
+    cronBtn.innerHTML = cronPaused ? '<span>▶</span>' : '<span>⏹</span>';
+    cronBtn.title = cronPaused ? 'Enable Cron job' : 'Disable Cron job';
+    cronBtn.classList.toggle('paused', cronPaused);
+  }
+
+  // Initial poll
+  if (!pollPaused) { startPollCountdown(); schedulePoll(); }
+
+  // Initial cron — slight stagger so poll and cron don't fire simultaneously
+  if (!cronPaused) { setTimeout(() => { startCronCountdown(); scheduleCron(); }, 2000); }
+
+  const cronSlider = document.getElementById('cron-slider');
+  const pollSlider = document.getElementById('poll-slider');
+
+  function setSliderFill(el, color) {
+    const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+    const pct = ((val - min) / (max - min)) * 100;
+    el.style.background = `linear-gradient(to right, ${color} ${pct}%, #cbd5e1 ${pct}%)`;
+    el.style.setProperty('--thumb-color', color);
+  }
+
+  cronSlider.addEventListener('input', function() {
+    const val = parseInt(this.value);
+    cronIntervalMs = val * 1000;
+    const label = document.getElementById('cron-slider-label');
+    if (label) label.textContent = val + 's';
+    setSliderFill(this, '#8b5cf6');
+  });
+
+  pollSlider.addEventListener('input', function() {
+    const val = parseInt(this.value);
+    pollIntervalMs = val * 1000;
+    const label = document.getElementById('poll-slider-label');
+    if (label) label.textContent = val + 's';
+    updatePollCountdown(val);
+    setSliderFill(this, 'var(--orange-mid)');
+  });
+
+  // Set initial fill on load
+  setSliderFill(cronSlider, '#8b5cf6');
+  setSliderFill(pollSlider, 'var(--orange-mid)');
+
+  // Animation speed slider
+  const speedSlider = document.getElementById('anim-speed-slider');
+  if (speedSlider) {
+    function updateSpeedFill() {
+      const min = parseFloat(speedSlider.min), max = parseFloat(speedSlider.max), val = parseFloat(speedSlider.value);
+      const pct = ((val - min) / (max - min)) * 100;
+      speedSlider.style.background = `linear-gradient(to right, #3b82f6 ${pct}%, #cbd5e1 ${pct}%)`;
+    }
+    speedSlider.addEventListener('input', function() {
+      animSpeedMult = 2.5 - parseFloat(this.value);  // inverted: right=fast=low mult
+      updateSpeedFill();
+    });
+    updateSpeedFill();
+  }
+}
+
+// ── Align zones + draw SVG arrows ──
+function alignZones() {
+  const outerLayout = document.getElementById('outer-layout');
+  const callApiStep = document.getElementById('call-api-step');
+  const aiZone      = document.getElementById('ai-zone');
+  const cardClaude  = document.getElementById('card-claude');
+  const cardDalle   = document.getElementById('card-dalle');
+  const svg         = document.getElementById('arrows-svg');
+
+  if (!outerLayout || !callApiStep) return;
+
+  const outerRect = document.getElementById('diagram-wrapper').getBoundingClientRect();
+  const outerTop  = outerRect.top  + window.scrollY;
+  const outerLeft = outerRect.left + window.scrollX;
+
+  // ── Web app panel: align steps with browser panel neighbours ──
+  const webPanel      = document.getElementById('web-app-panel');
+  const genBtn        = document.getElementById('gen-btn');
+  const pollLoop      = document.querySelector('.poll-loop');
+  const pollStepFetch = document.getElementById('poll-step-fetch');
+  const webSpacerTop  = document.getElementById('web-spacer-top');
+  const webSpacerMid  = document.getElementById('web-spacer-mid');
+  const webStepInsert = document.getElementById('web-step-insert');
+  const webStepStatus = document.getElementById('web-step-status');
+  const dbPanel       = document.getElementById('db-panel');
+  const cronPanel     = document.getElementById('cron-panel');
+  const cronStep1     = document.getElementById('cron-step-1');
+  const cronStep2     = document.getElementById('cron-step-2');
+  const cronStep4     = document.getElementById('cron-step-4');
+
+  // Pass 1: set top spacer (align insert with gen-btn)
+  if (webPanel && genBtn && webSpacerTop && webStepInsert) {
+    const genBtnMidY  = genBtn.getBoundingClientRect().top + window.scrollY + genBtn.offsetHeight / 2;
+    const insertMidY  = webStepInsert.getBoundingClientRect().top + window.scrollY + webStepInsert.offsetHeight / 2;
+    const topAdjust   = genBtnMidY - insertMidY;
+    webSpacerTop.style.height = Math.max(0, webSpacerTop.offsetHeight + topAdjust) + 'px';
+  }
+
+  // ── Right: set ai-zone-spacer so midpoint between cards = callApiStep center ──
+  const apiRect    = callApiStep.getBoundingClientRect();
+  const apiCenterY = apiRect.top + window.scrollY + apiRect.height / 2 - outerTop;
+
+  requestAnimationFrame(() => {
+    // Pass 2: set mid spacer (align get-job-status with poll-loop)
+    if (pollStepFetch && webSpacerMid && webStepStatus) {
+      const pollMidY   = pollStepFetch.getBoundingClientRect().top + window.scrollY + pollStepFetch.offsetHeight / 2;
+      const statusMidY = webStepStatus.getBoundingClientRect().top + window.scrollY + webStepStatus.offsetHeight / 2;
+      const midAdjust  = pollMidY - statusMidY;
+      webSpacerMid.style.height = Math.max(0, webSpacerMid.offsetHeight + midAdjust) + 'px';
+    }
+
+    // AI positioning: keep a fixed gap between cards, then shift the whole group
+    // so its vertical centre aligns with the callApiStep centre.
+    const claudeRect  = cardClaude.getBoundingClientRect();
+    const dalleRect   = cardDalle.getBoundingClientRect();
+    const spacer      = aiZone.querySelector('.ai-zone-spacer');
+    const fixedSpacer = 18;
+    if (spacer) spacer.style.height = fixedSpacer + 'px';
+
+    const groupH      = claudeRect.height + fixedSpacer + dalleRect.height;
+    const aiContentEl = document.getElementById('ai-zone-content');
+    if (aiContentEl) {
+      const aiContentTop  = aiContentEl.getBoundingClientRect().top + window.scrollY - outerTop;
+      const currentCenter = aiContentTop + groupH / 2;
+      const curMT         = parseFloat(aiContentEl.style.marginTop) || 0;
+      aiContentEl.style.marginTop = Math.max(0, curMT + (apiCenterY - currentCenter)) + 'px';
+    }
+
+    // Pass 3: draw all SVG arrows after everything has settled
+    requestAnimationFrame(() => {
+      svg.innerHTML = `
+        <defs>
+          <marker id="arr-blue" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#3b82f6"/>
+          </marker>
+          <marker id="arr-orange" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#f97316"/>
+          </marker>
+          <marker id="arr-green" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#22c55e"/>
+          </marker>
+          <marker id="arr-purple" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#8b5cf6"/>
+          </marker>
+          <marker id="arr-sky" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 7 3, 0 6" fill="#0ea5e9"/>
+          </marker>
+        </defs>`;
+
+      function rc(el) {
+        const r = el.getBoundingClientRect();
+        return { x: r.right - outerLeft, y: r.top + r.height / 2 - outerTop };
+      }
+      function lc(el) {
+        const r = el.getBoundingClientRect();
+        return { x: r.left - outerLeft, y: r.top + r.height / 2 - outerTop };
+      }
+
+      function drawLine(x1, y1, x2, y2, color, markerId, key) {
+        const line = document.createElementNS(SVG_NS, 'line');
+        line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+        line.setAttribute('stroke', color);
+        line.setAttribute('stroke-width', '1.8');
+        line.setAttribute('stroke-linecap', 'round');
+        line.setAttribute('marker-end', `url(#${markerId})`);
+        svg.appendChild(line);
+        if (key) arrowLines[key] = line;
+      }
+
+      // Arrow 1: gen-btn → insert step (blue, angled)
+      if (genBtn && webStepInsert) {
+        const a = rc(genBtn), b = lc(webStepInsert);
+        drawLine(a.x, a.y, b.x, b.y, '#0ea5e9', 'arr-sky', 'genToInsert');
+      }
+
+      // Arrow 2: poll-step-fetch → get-job-status (orange, horizontal)
+      if (pollStepFetch && webStepStatus) {
+        const p = rc(pollStepFetch);
+        const s = lc(webStepStatus);
+        drawLine(p.x, p.y, s.x, p.y, '#f97316', 'arr-orange', 'pollToStatus');
+      }
+
+      // Arrows 3 & 4: call-api-step → Claude / DALL-E (green, angled)
+      const from = rc(callApiStep);
+      const toCl = lc(cardClaude);
+      const toDa = lc(cardDalle);
+      drawLine(from.x, from.y, toCl.x, toCl.y, '#8b5cf6', 'arr-purple', 'cronToClaude');
+      drawLine(from.x, from.y, toDa.x, toDa.y, '#8b5cf6', 'arr-purple', 'cronToDalle');
+
+      // Arrow 5: PHP insert step → MySQL panel (blue — generate flow)
+      if (webStepInsert && dbPanel) {
+        const a = rc(webStepInsert);
+        drawLine(a.x, a.y, lc(dbPanel).x, a.y, '#0ea5e9', 'arr-sky', 'phpInsToDb');
+      }
+
+      // Arrow 6: PHP get-status step → MySQL panel (orange — poll flow)
+      if (webStepStatus && dbPanel) {
+        const a = rc(webStepStatus);
+        drawLine(a.x, a.y, lc(dbPanel).x, a.y, '#f97316', 'arr-orange', 'phpSelToDb');
+      }
+
+      // Arrows 7, 8, 9: cron steps → MySQL panel (green — cron flow)
+      if (cronPanel && dbPanel && cronStep1 && cronStep2 && cronStep4) {
+        const drx = rc(dbPanel).x;
+        drawLine(lc(cronStep1).x, lc(cronStep1).y, drx, lc(cronStep1).y, '#8b5cf6', 'arr-purple', 'cronReadDb');
+        drawLine(lc(cronStep2).x, lc(cronStep2).y, drx, lc(cronStep2).y, '#8b5cf6', 'arr-purple', 'cronWriteDb1');
+        drawLine(lc(cronStep4).x, lc(cronStep4).y, drx, lc(cronStep4).y, '#8b5cf6', 'arr-purple', 'cronWriteDb2');
+      }
+
+      // Store coordinates for animation
+      arrowC = {
+        genToInsert:   { x1: rc(genBtn).x,        y1: rc(genBtn).y,        x2: lc(webStepInsert).x, y2: lc(webStepInsert).y },
+        pollToStatus:  { x1: rc(pollStepFetch).x,  y1: rc(pollStepFetch).y, x2: lc(webStepStatus).x, y2: rc(pollStepFetch).y },
+        phpInsToDb:    { x1: rc(webStepInsert).x,  y1: rc(webStepInsert).y, x2: lc(dbPanel).x,       y2: rc(webStepInsert).y },
+        phpSelToDb:    { x1: rc(webStepStatus).x,  y1: rc(webStepStatus).y, x2: lc(dbPanel).x,       y2: rc(webStepStatus).y },
+        cronReadDb:    { x1: lc(cronStep1).x, y1: lc(cronStep1).y, x2: rc(dbPanel).x, y2: lc(cronStep1).y },
+        cronWriteDb1:  { x1: lc(cronStep2).x, y1: lc(cronStep2).y, x2: rc(dbPanel).x, y2: lc(cronStep2).y },
+        cronWriteDb2:  { x1: lc(cronStep4).x, y1: lc(cronStep4).y, x2: rc(dbPanel).x, y2: lc(cronStep4).y },
+        cronToClaude:  { x1: rc(cronPanel).x,      y1: lc(cardClaude).y,    x2: lc(cardClaude).x,    y2: lc(cardClaude).y    },
+        cronToDalle:   { x1: rc(cronPanel).x,      y1: lc(cardDalle).y,     x2: lc(cardDalle).x,     y2: lc(cardDalle).y     },
+      };
+      animSvg = svg;
+      startTimers();
+    });
+  });
+
+  // Align console: 60% of top-right column width, right edge flush with ai-zone right edge
+  const topRight    = document.querySelector('.top-right');
+  const consoleWrap = document.getElementById('console-wrap');
+  const viewBtn     = document.getElementById('view-console-btn');
+  if (topRight && consoleWrap && aiZone) {
+    const topRightRect = topRight.getBoundingClientRect();
+    const aiZoneRect   = aiZone.getBoundingClientRect();
+    const consoleWidth = topRightRect.width * 0.6 + 130;
+    const rightGap     = topRightRect.right - aiZoneRect.right;
+    consoleWrap.style.width       = consoleWidth + 'px';
+    consoleWrap.style.marginRight = Math.max(0, rightGap) + 'px';
+    // Align "View Console" button right edge with cloud panel right edge
+    if (viewBtn) {
+      const headerRight = document.querySelector('.page-header').getBoundingClientRect().right;
+      viewBtn.style.right = (headerRight - aiZoneRect.right) + 'px';
+    }
+  }
+}
+
+document.fonts.ready.then(() => { requestAnimationFrame(alignZones); });
+window.addEventListener('resize', () => { requestAnimationFrame(alignZones); });
+
+document.getElementById('console-clear-btn').addEventListener('click', () => {
+  const body = document.getElementById('console-body');
+  body.innerHTML = '<div class="console-line"><span class="con-time">--:--:--</span><span class="con-arrow con-muted">›</span><span class="con-muted">Console cleared.</span></div>';
+});
+document.getElementById('console-close-btn').addEventListener('click', () => {
+  document.getElementById('console-wrap').style.display = 'none';
+  document.getElementById('view-console-btn').style.display = 'inline-block';
+});
+document.getElementById('view-console-btn').addEventListener('click', () => {
+  document.getElementById('console-wrap').style.display = '';
+  document.getElementById('view-console-btn').style.display = 'none';
+  requestAnimationFrame(alignZones);
+});
+
+const iconSvgs = {
+  A: `<img src="person.png" alt="User" style="width:58px;height:58px;object-fit:contain;display:block;margin-top:14px;">`,
+  B: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>`,
+  C: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="3 2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="9" r="3" stroke-dasharray="none"/><path d="M6.2 19.4a6 6 0 0 1 11.6 0" stroke-dasharray="none"/></svg>`,
+  D: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+};
+let activeIconOpt = 'A';
+function setUserIcon(opt) {
+  const target = document.getElementById('browser-user-icon');
+  if (target) target.innerHTML = iconSvgs[opt];
+  // Update selected highlight in picker
+  ['A','B','C','D'].forEach(k => {
+    const el = document.getElementById('icon-opt-' + k);
+    if (el) el.style.outline = k === opt ? '2px solid #c2410c' : '';
+  });
+  activeIconOpt = opt;
+}
+// Mark A as selected on load
+document.addEventListener('DOMContentLoaded', () => setUserIcon('A'));
+</script>
+</body>
+</html>

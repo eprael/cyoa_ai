@@ -1,0 +1,383 @@
+/* ==========================================================================
+   CYOA Maker With AI — Report theme
+   White-on-blue. Inter font (matches docs/proposal/proposal.html).
+   Shared by hand-written pages and pandoc-built appendices.
+   ========================================================================== */
+
+:root {
+  --blue:       #1d5a8a;   /* header bar */
+  --blue-dark:  #14405f;
+  --accent:     #2f8f99;   /* teal link accent (from logo) */
+  --accent-dk:  #216a72;
+  --ink:        #1a1a2e;   /* body text */
+  --heading:    #14405f;   /* headings */
+  --muted:      #5a5a66;
+  --bg:         #fafaf8;
+  --panel:      #eef3f7;   /* light blue panel */
+  --border:     #d8dee4;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.75;
+}
+
+/* ---- Header bar (injected by header.js) ---------------------------------- */
+
+#report-header { min-height: 104px; }   /* reserve space, avoid layout flash */
+
+.report-header {
+  background: var(--blue);
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+  color: #fff;
+  border-bottom: 4px solid var(--accent);
+}
+
+.report-header__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 20px 6px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.report-header__logo {
+  width: 98px;
+  height: 98px;
+  flex: 0 0 auto;
+  border-radius: 12px;
+  background: #fff;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.report-header__text { display: flex; flex-direction: column; line-height: 1.3; }
+
+.report-header__title {
+  font-size: 1.9em;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.report-header__sub {
+  font-size: 0.90em;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.report-header__sub--name {
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* The header is a clickable link back to the index */
+a.report-header__home { text-decoration: none; display: block; }
+a.report-header__home:hover .report-header__title { text-decoration: underline; }
+
+/* ---- Page body ----------------------------------------------------------- */
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 50px 40px 80px;
+}
+
+h1, h2, h3, h4 { color: var(--heading); line-height: 1.25; }
+
+h1 {
+  font-size: 2.3em;
+  letter-spacing: -0.5px;
+  margin-bottom: 0.4rem;
+}
+
+.lead {
+  font-size: 1.12em;
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+/* "back to report index" link at the top of a page */
+.toplink { margin-bottom: 16px; font-weight: 500; }
+
+h2 {
+  font-size: 1.6em;
+  border-bottom: 2px solid var(--blue);
+  padding-bottom: 8px;
+  margin: 40px 0 18px;
+}
+
+h3 { font-size: 1.22em; margin: 28px 0 10px; }
+h4 { font-size: 1.05em; margin: 20px 0 8px; }
+
+p  { margin-bottom: 14px; }
+ul, ol { margin: 0 0 16px 26px; }
+li { margin-bottom: 6px; }
+
+a { color: #2a7ec4; text-decoration: underline; }
+a:hover { color: var(--blue); }
+
+strong { color: var(--heading); }
+
+hr { border: none; border-top: 2px solid var(--border); margin: 2rem 0; }
+
+/* ---- Cards / nav / panels ------------------------------------------------ */
+
+.toc-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.toc-card {
+  display: block;
+  position: relative;          /* anchor for the stretched card link */
+  background: #fff;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  padding: 16px 18px;
+  text-decoration: none;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+
+/* A card whose body holds its own link(s): the primary link is "stretched" to
+   cover the whole card, while any link inside .desc sits above it and stays
+   independently clickable. */
+.toc-card .card-link { text-decoration: none; }
+.toc-card .card-link::after { content: ""; position: absolute; inset: 0; z-index: 0; }
+.toc-card .desc a {
+  position: relative;
+  z-index: 1;
+  color: var(--accent-dk);
+  text-decoration: underline;
+}
+
+.toc-card:hover {
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(20, 64, 95, 0.12);
+  transform: translateY(-2px);
+}
+
+.toc-card .num {
+  font-size: 0.78em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-dk);
+  font-weight: 600;
+}
+
+.toc-card .name { display: block; font-weight: 600; color: var(--heading); margin-top: 2px; }
+.toc-card .desc { display: block; font-size: 0.9em; color: var(--muted); margin-top: 4px; }
+
+.panel {
+  background: var(--panel);
+  border-left: 4px solid var(--blue);
+  border-radius: 0 6px 6px 0;
+  padding: 18px 22px;
+  margin: 22px 0;
+}
+
+.panel h3 { margin-top: 0; }
+
+/* ---- Table of contents -----------------------------------------------------
+   One shared look across the walkthrough (.localtoc) and the pandoc-built
+   appendices (nav#TOC). Mirrors the TOC card on summary/index.html. */
+.localtoc,
+nav#TOC,
+nav.toc {
+  background: #f0f0ea;
+  border-left: 4px solid #2c3e50;
+  border-radius: 0 4px 4px 0;
+  padding: 28px 32px;
+  margin: 0 0 44px;
+  scroll-margin-top: 40px;   /* land a little above the TOC when jumped to */
+}
+
+/* heading: the walkthrough supplies a <strong>; pandoc TOCs get a generated one */
+.localtoc strong,
+nav#TOC::before {
+  display: block;
+  font-size: 1.1em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #2c3e50;
+  margin: 0 0 16px;
+}
+nav#TOC::before { content: "Contents"; }
+
+/* lists: bold the top level, slightly smaller + lighter nested entries */
+.localtoc ul,
+nav#TOC ul, nav.toc ul { list-style: none; margin: 0 0 0 20px; padding: 0; }
+.localtoc > ul,
+nav#TOC > ul, nav.toc > ul { margin-left: 0; }
+.localtoc ul ul,
+nav#TOC ul ul, nav.toc ul ul { margin: 2px 0 6px 22px; }
+.localtoc li,
+nav#TOC li, nav.toc li { margin: 3px 0; }
+.localtoc > ul > li,
+nav#TOC > ul > li, nav.toc > ul > li { font-weight: 600; }
+.localtoc ul ul li,
+nav#TOC ul ul li, nav.toc ul ul li { font-weight: 400; font-size: 0.94em; }
+
+.localtoc a,
+nav#TOC a, nav.toc a { color: #2c3e50; text-decoration: none; }
+.localtoc a:hover,
+nav#TOC a:hover, nav.toc a:hover { text-decoration: underline; }
+
+/* ---- Figures & images ---------------------------------------------------- */
+
+img { max-width: 100%; height: auto; }
+
+figure { margin: 26px 0; text-align: center; }
+
+figure img {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(20, 64, 95, 0.12);
+  cursor: zoom-in;
+}
+
+figcaption {
+  font-size: 0.92em;
+  color: var(--muted);
+  margin-top: 10px;
+  font-style: italic;
+}
+
+/* diagrams (svg) shouldn't get the heavy photo border */
+figure.diagram img { box-shadow: none; border: none; background: #fff; padding: 8px; }
+
+/* a text column that can contain a floated figure (clearfix) */
+.textcol::after { content: ""; display: block; clear: both; }
+
+/* a figure that floats to the right with text wrapping around it */
+figure.figure-right {
+  float: right;
+  width: 300px;
+  max-width: 42%;
+  margin: 6px 0 18px 28px;
+}
+figure.figure-right figcaption { text-align: center; }
+
+@media (max-width: 600px) {
+  figure.figure-right { float: none; width: auto; max-width: 100%; margin: 22px 0; }
+}
+
+video {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 3px 12px rgba(20, 64, 95, 0.18);
+  background: #000;
+}
+
+/* Prominent centre play button overlaid on a video (added by lightbox.js) */
+.video-wrap { position: relative; line-height: 0; }
+.video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 88px;
+  height: 88px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  background: rgba(236, 54, 22, 0.88);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, background 0.15s ease, opacity 0.2s ease;
+}
+.video-play::before {              /* the play triangle */
+  content: "";
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 17px 0 17px 30px;
+  border-color: transparent transparent transparent #fff;
+  margin-left: 7px;                /* optical centring */
+}
+.video-play:hover { background: var(--blue); transform: translate(-50%, -50%) scale(1.08); }
+.video-wrap.playing .video-play { opacity: 0; pointer-events: none; }
+
+/* ---- Tables -------------------------------------------------------------- */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 18px 0;
+  font-size: 0.95em;
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th { background: var(--panel); color: var(--heading); font-weight: 600; }
+tr:nth-child(even) td { background: #fbfcfd; }
+
+/* ---- Code (appendices) --------------------------------------------------- */
+
+code, pre {
+  font-family: ui-monospace, "Cascadia Code", Consolas, "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+code { background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+
+pre {
+  background: #1b2733;
+  color: #e6edf3;
+  padding: 16px 18px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+pre code { background: none; padding: 0; color: inherit; }
+
+blockquote {
+  border-left: 4px solid var(--accent);
+  background: var(--panel);
+  padding: 12px 18px;
+  margin: 18px 0;
+  border-radius: 0 6px 6px 0;
+  color: var(--muted);
+}
+
+/* ---- Back link ----------------------------------------------------------- */
+
+.back-link {
+  margin-top: 50px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  font-weight: 500;
+}
+
+/* ---- Responsive ---------------------------------------------------------- */
+
+@media (max-width: 600px) {
+  .report-header__inner { padding: 14px 20px; gap: 14px; }
+  .report-header__logo { width: 52px; height: 52px; }
+  .report-header__title { font-size: 1.45em; }
+  .page { padding: 32px 22px 60px; }
+}

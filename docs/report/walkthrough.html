@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Application Walkthrough — CYOA Maker With AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="report.css" />
+  <link rel="stylesheet" href="lightbox.css" />
+  <style>
+    /* TOC (.localtoc) and .toplink styling is shared in report.css */
+    h2 .totop {
+      float: right;
+      font-size: 0.62em;
+      font-weight: 600;
+      color: var(--accent-dk);
+      text-decoration: none;
+      line-height: 2.1;
+    }
+    h2 .totop:hover { color: var(--blue); }
+  </style>
+</head>
+<body>
+  <div id="report-header"></div>
+  <main class="page">
+
+    <p class="toplink"><a href="index.html">&larr; Report Index</a></p>
+
+    <h1 id="toc">Application Walkthrough</h1>
+    <p class="lead">A tour of the app, screen by screen — from browsing stories to
+      creating them with AI. Click any image to see it full size.</p>
+
+    <nav class="localtoc" aria-label="On this page">
+      <strong>On This Page</strong>
+      <ul>
+        <li><a href="#browsing">1 &nbsp;Browsing and Reading</a>
+          <ul>
+            <li><a href="#story-gallery">1.1 &nbsp;The Story Gallery</a></li>
+            <li><a href="#summary-page">1.2 &nbsp;The Story Summary Page</a></li>
+            <li><a href="#playing">1.3 &nbsp;Playing a Story</a></li>
+          </ul>
+        </li>
+        <li><a href="#editing">2 &nbsp;Editing a Story</a>
+          <ul>
+            <li><a href="#scene-editor">2.1 &nbsp;The Scene Editor</a></li>
+            <li><a href="#tree-view">2.2 &nbsp;Tree View</a></li>
+            <li><a href="#gallery-view">2.3 &nbsp;Gallery View</a></li>
+          </ul>
+        </li>
+        <li><a href="#creating">3 &nbsp;Creating Stories</a>
+          <ul>
+            <li><a href="#by-hand">3.1 &nbsp;Starting a New Story by Hand</a></li>
+            <li><a href="#with-ai">3.2 &nbsp;Creating with AI</a></li>
+            <li><a href="#job-queue-page">3.3 &nbsp;The Job Queue</a></li>
+          </ul>
+        </li>
+        <li><a href="#admin">4 &nbsp;Site Administration</a>
+          <ul>
+            <li><a href="#site-settings">4.1 &nbsp;Site Settings</a></li>
+            <li><a href="#ai-settings">4.2 &nbsp;AI Settings</a></li>
+            <li><a href="#user-management">4.3 &nbsp;User Management</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+
+    <h2 id="browsing">1 &nbsp;Browsing and Reading<a href="#toc" class="totop" title="Back to contents" aria-label="Back to contents">&uarr;</a></h2>
+
+    <h3 id="story-gallery">1.1 &nbsp;The Story Gallery</h3>
+    <p>The home page is a gallery of published stories. Each card shows a cover image,
+      the title and author, and quick stats: likes, average star rating, and views.</p>
+    <figure>
+      <img src="screenshots/story gallery 0o5.png" alt="The story gallery showing a grid of story cards with cover images and stats">
+      <figcaption>The public story gallery.</figcaption>
+    </figure>
+
+    <h3 id="summary-page">1.2 &nbsp;The Story Summary Page</h3>
+    <p>Clicking a story opens its summary page first. This is new in the upgrade. It
+      shows the cover, the description, the stats, and the comments — so a reader can
+      preview a story before playing. There are Play and (for the author) Edit buttons.</p>
+    <figure>
+      <img src="screenshots/story - summary screen.png" alt="A story summary page showing cover image, stats, description, and comments">
+      <figcaption>The story summary page, with stats and comments.</figcaption>
+    </figure>
+
+    <h3 id="playing">1.3 &nbsp;Playing a Story</h3>
+    <p>The reader sees one scene at a time. After reading the scene, the reader clicks a
+      choice to jump to the next one. Different choices lead to different endings.</p>
+    <figure>
+      <img src="screenshots/story - play screen.png" alt="The story player showing a scene with its image and a set of choice buttons">
+      <figcaption>Playing through a story, one choice at a time.</figcaption>
+    </figure>
+
+    <h2 id="editing">2 &nbsp;Editing a Story<a href="#toc" class="totop" title="Back to contents" aria-label="Back to contents">&uarr;</a></h2>
+
+    <h3 id="scene-editor">2.1 &nbsp;The Scene Editor</h3>
+    <p>Authors build stories in the editor. Each scene has a title, its text, an image,
+      and a list of choices. Every choice links to another scene.</p>
+    <figure>
+      <img src="screenshots/story - scene editor.png" alt="The scene editor showing fields for scene text, image, and choices">
+      <figcaption>Editing a single scene and its choices. Notice the "Use AI" options by the scene title and the scene image.</figcaption>
+    </figure>
+
+    <h3 id="tree-view">2.2 &nbsp;Tree View</h3>
+    <p>Sometimes it's helpful to know which scene connects to which other scene. Tree View maps
+      every scene and the choices that connect them, so the author can spot dead ends
+      and missing links.</p>
+    <figure>
+      <img src="screenshots/story - tree view.png" alt="Tree View showing the branching map of scenes connected by choices">
+      <figcaption>Tree View — the whole branching story as a map.</figcaption>
+    </figure>
+
+    <h3 id="gallery-view">2.3 &nbsp;Gallery View</h3>
+    <p>Gallery View shows all the story's images in one place — the cover first,
+      then every scene that has artwork. Clicking an image opens a larger view.</p>
+    <figure>
+      <img src="screenshots/story - image gallery.png" alt="Gallery View showing a grid of all the images in a story">
+      <figcaption>Gallery View — every image in a story.</figcaption>
+    </figure>
+
+    <h2 id="creating">3 &nbsp;Creating Stories<a href="#toc" class="totop" title="Back to contents" aria-label="Back to contents">&uarr;</a></h2>
+
+    <h3 id="by-hand">3.1 &nbsp;Starting a New Story by Hand</h3>
+    <p>Authors can build everything by hand, or with AI assistance. The "create by hand" path starts
+      with a blank story and lets the author add scenes one at a time.</p>
+    <figure>
+      <img src="screenshots/create new story - by hand.png" alt="The form for creating a new story by hand">
+      <figcaption>Creating a new story by hand.</figcaption>
+    </figure>
+
+    <h3 id="with-ai">3.2 &nbsp;Creating with AI</h3>
+    <p>The AI path is where the upgrade shines. From one screen the author can ask the
+      AI for an image, a single scene, or an entire branching story. They set a few
+      options — like genre, tone, and length — and the AI does the writing and drawing.</p>
+    <figure>
+      <img src="screenshots/create new story - with ai.png" alt="The 'create with AI' form with options for genre, tone, and length">
+      <figcaption>Creating a story with AI — the author sets a few options and the
+        AI takes over.</figcaption>
+    </figure>
+
+    <h3 id="job-queue-page">3.3 &nbsp;The Job Queue</h3>
+    <p>AI work can take a while, so it runs in the background as "jobs". The job queue
+      page lists every job and its status — pending, running, completed, or failed —
+      so the author can watch the progress and retry anything that fails.</p>
+    <figure>
+      <img src="screenshots/job queue - job summary.png" alt="The job queue page listing AI jobs and their statuses">
+      <figcaption>The job queue, showing each AI job and its status.</figcaption>
+    </figure>
+    <p>Each job can be opened to see exactly what was sent to the AI and what came
+      back. This was a huge help when fixing problems.</p>
+    <figure>
+      <img src="screenshots/job queue - input output json.png" alt="A job detail view showing the input and output JSON for an AI job">
+      <figcaption>A job's details — the exact input and output.</figcaption>
+    </figure>
+
+    <h2 id="admin">4 &nbsp;Site Administration<a href="#toc" class="totop" title="Back to contents" aria-label="Back to contents">&uarr;</a></h2>
+    <p>Admins have extra screens for running the site. They fall into three groups:
+      site settings, AI settings, and user management.</p>
+
+    <h3 id="site-settings">4.1 &nbsp;Site Settings</h3>
+    <p>The site settings cover general, site-wide options — things like gallery sizes
+      and timeouts.</p>
+    <figure>
+      <img src="screenshots/admin - site settings 1o2.png" alt="Admin site settings page, part 1">
+      <img src="screenshots/admin - site settings 2o2.png" alt="Admin site settings page, part 2">
+    </figure>
+
+    <h3 id="ai-settings">4.2 &nbsp;AI Settings</h3>
+    <p>The AI settings control which AI models are used, the image quality, and the
+      limits on how many jobs can run at once.</p>
+    <figure>
+      <img src="screenshots/admin - ai settings 1o2.png" alt="Admin AI settings page, part 1">
+      <img src="screenshots/admin - ai settings 2o2.png" alt="Admin AI settings page, part 2">
+      <figcaption>AI settings.</figcaption>
+    </figure>
+
+    <h3 id="user-management">4.3 &nbsp;User Management</h3>
+    <p>Admins can view and manage every user account from one place.</p>
+    <figure>
+      <img src="screenshots/admin - users.png" alt="Admin user management page listing users">
+      <figcaption>Managing users.</figcaption>
+    </figure>
+    <p>Users can also bring their own AI keys — called "BYOK", short for "bring your own
+      key". On their profile page, a user can paste in their own AI service key so their
+      AI usage is billed to them instead of the site. This lets heavy users keep creating
+      without using up the site's shared limits.</p>
+    <figure>
+      <img src="screenshots/admin - users - byok.png" alt="A user's profile edit screen with fields for their own API keys">
+      <figcaption>A user's profile page, where they can add their own API keys.</figcaption>
+    </figure>
+
+    <p class="back-link">
+      <a href="index.html">&larr; Report index</a> &nbsp;|&nbsp;
+      <a href="summary/index.html#s2-4">Next: The AI Process &rarr;</a>
+    </p>
+
+  </main>
+  <script src="header.js"></script>
+  <script src="lightbox.js"></script>
+</body>
+</html>

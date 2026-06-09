@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>installation</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="..\theme.css" />
+</head>
+<body>
+<h1 id="cyoa-maker-installation-guide">CYOA Maker — Installation
+Guide</h1>
+<p>How to stand up the app from scratch on a fresh server (local XAMPP
+or shared hosting).</p>
+<hr />
+<h2 id="requirements">1. Requirements</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Need</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PHP 8.x</strong> (8.3 recommended)</td>
+<td>Extensions: <code>mysqli</code>, <code>curl</code>,
+<code>mbstring</code>, <code>json</code>, <code>openssl</code> (for SMTP
+TLS). No GD needed — images are saved, not processed.</td>
+</tr>
+<tr>
+<td><strong>MySQL / MariaDB</strong></td>
+<td>Any recent version. You’ll create one database for the app.</td>
+</tr>
+<tr>
+<td><strong>Web server</strong></td>
+<td>Apache (XAMPP locally) or your host’s stack, serving the project
+folder.</td>
+</tr>
+<tr>
+<td><strong>Cron / Task Scheduler</strong></td>
+<td>Required for AI jobs — a scheduled task runs the dispatcher (Step
+8).</td>
+</tr>
+<tr>
+<td><strong>SMTP account</strong></td>
+<td>For password-reset email (e.g. a Gmail account with an App
+Password).</td>
+</tr>
+<tr>
+<td><strong>AI API keys</strong> <em>(optional)</em></td>
+<td>Anthropic (text) + OpenAI (images), if you want AI generation. Set
+later in the admin UI.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="get-the-files-in-place">2. Get the files in place</h2>
+<p>Put the project folder under your web root so it’s served, e.g.
+<code>…/public_html/projects/cyoa_ai</code>. Confirm you can browse to
+it (you’ll see a login/redirect before configuration — that’s
+expected).</p>
+<hr />
+<h2 id="create-the-database-import-the-schema">3. Create the database +
+import the schema</h2>
+<ol type="1">
+<li><p>Create an empty database (any name; you’ll put it in
+<code>config.php</code>):</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode sql"><code class="sourceCode sql"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">CREATE</span> <span class="kw">DATABASE</span> cyoa_ai <span class="dt">CHARACTER</span> <span class="kw">SET</span> utf8mb4 COLLATE utf8mb4_general_ci;</span></code></pre></div></li>
+<li><p>Import the table structure. The canonical schema lives at
+<strong><code>docs/architecture/cyoa_ai_db_schema.sql</code></strong>
+(structure only — 12 <code>cyoa_ai_*</code> tables, indexes, foreign
+keys). Import it via phpMyAdmin (Import tab) or the CLI:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">mysql</span> <span class="at">-u</span> <span class="op">&lt;</span>user<span class="op">&gt;</span> -p <span class="op">&lt;</span>dbname<span class="op">&gt;</span> <span class="op">&lt;</span> docs/architecture/cyoa_ai_db_schema.sql</span></code></pre></div></li>
+</ol>
+<blockquote>
+<p>No seed data is required: runtime settings fall back to sensible
+defaults (<code>SETTING_DEFAULTS</code> in <code>settings.php</code>),
+so the <code>cyoa_ai_settings</code> table can start empty — it fills in
+as you save settings in the admin UI. The only thing a fresh DB lacks is
+a <strong>user</strong> (Step 7).</p>
+</blockquote>
+<hr />
+<h2 id="configure-config.php">4. Configure <code>config.php</code></h2>
+<p>Copy the template and fill in your values:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cp</span> config.sample.php config.php</span></code></pre></div>
+<p>Edit <code>config.php</code>: - <strong>Database:</strong>
+<code>DB_HOST</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>,
+<code>DB_NAME</code> (leave <code>DB_PREFIX</code> as
+<code>cyoa_ai_</code>). - <strong>APP_URL:</strong> the public base URL,
+no trailing slash (e.g. <code>https://yoursite.com/cyoa_ai</code>). -
+<strong>SMTP:</strong> <code>MAIL_*</code> (for Gmail, enable 2FA and
+use an <strong>App Password</strong>, not your normal password). -
+<strong>MAIN_ADMIN:</strong> an email BCC’d on system mail / used as the
+CLI-import default owner. <em>(This does not grant admin rights — see
+Step 7.)</em> - <strong>APP_TIMEZONE:</strong> your timezone (affects
+log timestamps).</p>
+<blockquote>
+<p>🔒 <code>config.php</code> holds secrets — keep it <strong>out of
+version control</strong>. The included <code>.gitignore</code> already
+excludes it; commit <code>config.sample.php</code> instead.</p>
+</blockquote>
+<hr />
+<h2 id="make-the-uploadlog-folders-writable">5. Make the upload/log
+folders writable</h2>
+<p>These directories must be writable by the web server (and by the cron
+user):</p>
+<pre><code>images/stories/     images/profiles/     cron/logs/</code></pre>
+<p>On Linux hosting: <code>chmod 755</code> (or as your host requires)
+and ensure correct ownership. On XAMPP (Windows) this is usually fine by
+default. The app creates per-story subfolders under
+<code>images/stories/</code> automatically.</p>
+<hr />
+<h2 id="configure-email-optional-but-recommended">6. Configure email
+(optional but recommended)</h2>
+<p>PHPMailer is bundled (<code>phpmailer/</code>) — no Composer needed.
+Password resets and notifications use the <code>MAIL_*</code> values
+from Step 4. Test by using “Forgot password” after you have an
+account.</p>
+<hr />
+<h2 id="create-your-first-admin">7. Create your first admin</h2>
+<p>A fresh database has <strong>no users</strong>, and
+<code>MAIN_ADMIN</code> does <strong>not</strong> grant admin rights
+(admin is the <code>users.isAdmin</code> column). Use the bootstrap
+script:</p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a new admin account:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">php</span> cli/create_admin.php <span class="at">--email</span><span class="op">=</span>you@example.com <span class="at">--password</span><span class="op">=</span><span class="st">&quot;ChangeMe123!&quot;</span> <span class="at">--first</span><span class="op">=</span>Admin <span class="at">--last</span><span class="op">=</span>User</span></code></pre></div>
+<p>Or, if you already registered an account through the web UI
+(<code>register.php</code>), promote it:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">php</span> cli/create_admin.php <span class="at">--promote</span> <span class="at">--email</span><span class="op">=</span>you@example.com</span></code></pre></div>
+<p>Then log in at <code>APP_URL/login.php</code> and <strong>change the
+password</strong> from your account page.</p>
+<hr />
+<h2 id="schedule-the-ai-dispatcher-cron">8. Schedule the AI dispatcher
+(cron)</h2>
+<p>AI generation runs as background jobs. A scheduler must run
+<strong><code>cron/ai_dispatcher.php</code></strong> on an interval. It
+self-throttles (multiple passes per run) and exits quickly, so once a
+minute is ideal.</p>
+<p><strong>Linux (crontab):</strong></p>
+<pre class="cron"><code>* * * * * /usr/bin/php /full/path/to/cyoa_ai/cron/ai_dispatcher.php &gt;&gt; /full/path/to/cyoa_ai/cron/logs/dispatcher.log 2&gt;&amp;1</code></pre>
+<p>(Use your host’s PHP CLI path — <code>which php</code>. On
+Virtualmin/cPanel, add it as a Cron Job.)</p>
+<p><strong>Windows (Task Scheduler, for XAMPP):</strong> create a task
+that runs every minute: - Program: <code>C:\xampp\php\php.exe</code> -
+Arguments: <code>"C:\…\cyoa_ai\cron\ai_dispatcher.php"</code></p>
+<blockquote>
+<p>If jobs sit at <strong>pending</strong> forever, the dispatcher isn’t
+running — this is the #1 setup issue. Check
+<code>cron/logs/dispatcher.log</code> for activity.</p>
+</blockquote>
+<hr />
+<h2 id="turn-on-ai-enter-api-keys-admin-ui">9. Turn on AI + enter API
+keys (admin UI)</h2>
+<p>Log in as your admin and open <strong>Site Settings</strong>: - Enter
+the <strong>Anthropic</strong> and <strong>OpenAI</strong> API keys
+(stored in <code>cyoa_ai_settings</code>, server-side only). - Confirm
+<strong>AI enabled</strong> is on, pick the text/image models, set
+limits as desired.</p>
+<p><em>(Users can optionally bring their own keys — BYOK — on their
+account page.)</em></p>
+<hr />
+<h2 id="verify-the-install">10. Verify the install</h2>
+<ol type="1">
+<li>Register a normal user (or use your admin) and create a story
+manually — confirms DB + uploads.</li>
+<li>Create a story <strong>with AI</strong> and watch the <strong>Job
+Queue</strong> badge; the job should move pending → running → completed.
+Check <code>cron/logs/job_&lt;id&gt;.log</code> if it fails.</li>
+<li>Test “Forgot password” to confirm SMTP.</li>
+</ol>
+<hr />
+<h2 id="security-housekeeping">11. Security &amp; housekeeping</h2>
+<ul>
+<li><strong>Never commit <code>config.php</code></strong> — it contains
+DB + SMTP secrets. (Covered by <code>.gitignore</code>.)</li>
+<li>If a real secret has ever been committed or shared (e.g. a Gmail App
+Password), <strong>rotate it</strong>.</li>
+<li><code>docs/</code> and <code>_archive/</code> sit inside the web
+root, so they’re URL-reachable if deployed. They’re not needed at
+runtime — exclude them from host uploads, or block them at the
+web-server level.</li>
+<li>Keep <code>.claude/settings.local.json</code> out of version control
+(also in <code>.gitignore</code>).</li>
+</ul>
+<hr />
+<h2 id="quick-reference-setup-file-map">Quick reference — setup file
+map</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>File</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config.sample.php</code> → <code>config.php</code></td>
+<td>Site config (DB, SMTP, URLs); copy + fill in</td>
+</tr>
+<tr>
+<td><code>docs/architecture/cyoa_ai_db_schema.sql</code></td>
+<td>Table structure to import</td>
+</tr>
+<tr>
+<td><code>cli/create_admin.php</code></td>
+<td>Create/promote the first admin</td>
+</tr>
+<tr>
+<td><code>cron/ai_dispatcher.php</code></td>
+<td>The script your scheduler runs</td>
+</tr>
+<tr>
+<td><code>settings.php</code> (<code>SETTING_DEFAULTS</code>)</td>
+<td>Defaults so the settings table can start empty</td>
+</tr>
+<tr>
+<td><code>.gitignore</code></td>
+<td>Keeps secrets/runtime data out of version control</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause / fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>White page / “DB connection failed”</td>
+<td>Wrong <code>DB_*</code> in <code>config.php</code>, or DB not
+created / schema not imported.</td>
+</tr>
+<tr>
+<td>Login works but no admin panel</td>
+<td>Account isn’t admin — run
+<code>cli/create_admin.php --promote --email=…</code>.</td>
+</tr>
+<tr>
+<td>AI jobs stuck <strong>pending</strong></td>
+<td>Dispatcher not scheduled / not running — see Step 8 and
+<code>cron/logs/dispatcher.log</code>.</td>
+</tr>
+<tr>
+<td>AI job <strong>failed</strong> immediately</td>
+<td>Missing/invalid API key, or AI disabled — check Site Settings +
+<code>cron/logs/job_&lt;id&gt;.log</code>.</td>
+</tr>
+<tr>
+<td>Images don’t save</td>
+<td><code>images/stories/</code> not writable by the web/cron user.</td>
+</tr>
+<tr>
+<td>No reset emails</td>
+<td>SMTP creds wrong, or host blocks port 587/465 — verify
+<code>MAIL_*</code>.</td>
+</tr>
+<tr>
+<td>Settings page shows blanks</td>
+<td>Normal on a fresh DB — values come from defaults until you save
+them.</td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

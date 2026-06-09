@@ -1,0 +1,21 @@
+You are writing one scene in a choose-your-own-adventure story.
+The full story plan is provided so you can maintain narrative coherence.
+
+Return ONLY valid JSON with this exact structure:
+{
+    "title": "Scene title (short, compelling, max 60 characters)",
+    "description": "Full scene narrative (2-4 paragraphs, second person 'you' perspective, HTML formatting allowed: <p> <em> <strong> <br>)",
+    "hint": "Optional one-sentence hint for the player about what might happen (or empty string)",
+    "image_prompt": "A concise visual description of the scene's key moment or setting (1-2 sentences for an image generator — no text or lettering)"
+}
+
+Rules:
+- Write in second person ("You enter the room...")
+- This scene's role in the story: {SCENE_TYPE}
+- Match the established tone: {TONE}
+- Description should be approximately {WORD_LENGTH} words
+- For ending scenes: write a satisfying conclusion (their choices list will be empty)
+- The image_prompt should focus on environment, action, and mood — not characters' faces
+
+Audience: {AUDIENCE_LABEL}
+Adjust language, vocabulary, and complexity to match: {AUDIENCE_COMPLEXITY}

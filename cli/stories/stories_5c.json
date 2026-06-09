@@ -1,0 +1,24 @@
+[
+  {"image-style": "Anime / Manga", "audience": "early_readers", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Caricature", "audience": "picture_book", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Children's book illustration", "audience": "adults", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Charcoal", "audience": "early_readers", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Oil painting", "audience": "adults", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Gouache", "audience": "adults", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Art Deco", "audience": "early_readers", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Pop Art (Warhol-style)", "audience": "young_adults", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Fantasy illustration", "audience": "middle_grade", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Dark fantasy / Gothic", "audience": "early_readers", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true},
+
+  {"image-style": "Graffiti / Street art", "audience": "middle_grade", "scenes": 8, "endings": 2, "words": 50, "images": "low", "publish": true}
+
+]

@@ -1,0 +1,262 @@
+/* ==========================================
+   Story Cards & Gallery
+   ========================================== */
+.story-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.story-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+
+.story-card:hover {
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+}
+
+.story-card-image {
+    display: block;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #e9ecef;
+    text-decoration: none;
+    color: inherit;
+}
+
+.story-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.placeholder-image {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: linear-gradient(135deg, var(--primary-light), var(--primary));
+    color: rgba(255,255,255,0.5);
+}
+
+.story-card-content {
+    padding: 1rem 1.25rem;
+    flex: 1;
+}
+
+.story-card-content h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.story-card-content p {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    line-height: 1.5;
+}
+
+/* Author — directly under the title, smaller muted font */
+.story-card-author {
+    font-size: 0.78rem;
+    color: var(--text-light);
+    margin-bottom: 0.5rem;
+}
+
+.card-genre-chip {
+    background: var(--primary-light, rgba(99,102,241,0.1));
+    color: var(--primary);
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.story-card-actions {
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border);
+}
+
+.story-card-actions-left {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+/* ==========================================
+   Draft badge & draft card state
+   ========================================== */
+.story-card {
+    position: relative;
+}
+
+.story-card-draft {
+    border: 2px dashed var(--border);
+    opacity: 0.9;
+}
+
+.draft-badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: #f59e0b;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.story-actions-right {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* ==========================================
+   Card Stats Row (views, rating, favourites)
+   ========================================== */
+.story-card-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0 1.25rem 0.6rem;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    align-items: center;
+}
+
+/* Social strip (left) — views, comments, likes, rating */
+.card-social-strip {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Genre chips (right) */
+.card-genre-wrap {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.card-stat {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+/* Rating count — slightly muted next to the average */
+.stat-rating-count {
+    opacity: 0.7;
+}
+
+/* Eye icon — 2× the stats row font-size */
+.stat-eye-icon {
+    font-size: 2em;
+    line-height: 1;
+}
+
+/* Heart favourite button */
+.card-fav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    line-height: 1;
+    transition: color 0.15s;
+    white-space: nowrap;
+}
+.card-fav-btn:hover { color: #e53e3e; }
+.card-fav-btn:disabled { opacity: 0.6; cursor: default; }
+
+.card-fav-btn .heart-svg {
+    fill: none;
+    flex-shrink: 0;
+    transition: fill 0.15s, stroke 0.15s;
+}
+
+.card-fav-btn.is-faved {
+    color: #e53e3e;
+}
+.card-fav-btn.is-faved .heart-svg {
+    fill: #e53e3e;
+    stroke: #e53e3e;
+}
+
+/* ==========================================
+   Gallery search bar
+   ========================================== */
+.gallery-search-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.gallery-search-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    font-family: inherit;
+    background: var(--input-bg, #fff);
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.gallery-search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(61,114,239,0.15);
+}
+
+.search-results-label {
+    font-size: 0.88rem;
+    color: var(--text-light);
+    margin-bottom: 0.75rem;
+}
+
+/* ==========================================
+   Responsive
+   ========================================== */
+@media (max-width: 768px) {
+    .story-gallery { grid-template-columns: 1fr; }
+}

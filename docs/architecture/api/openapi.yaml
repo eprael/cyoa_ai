@@ -1,0 +1,447 @@
+openapi: 3.0.3
+info:
+  title: CYOA Maker — Internal API
+  version: "1.0.0"
+  description: >
+    Internal AJAX / JSON endpoints used by the CYOA Maker web app. These are **not** a
+    public REST API: each endpoint is a single PHP file that dispatches on an `action`
+    query/body parameter, authentication is the PHP session cookie, and request bodies are
+    `application/x-www-form-urlencoded` (browser form posts), not JSON.
+
+
+    Because of the action-dispatch design, one path serves several logical operations —
+    the per-action request fields and response shapes are documented via descriptions and
+    response `examples`. Mutations use POST; reads use GET.
+
+
+    Generated from the code (api_jobs.php, api_create_story_ai.php, api_social.php,
+    api_tree.php, api_content.php). See also docs/architecture/api-endpoints.md.
+  contact:
+    name: CYOA Maker
+
+servers:
+  - url: "{appUrl}"
+    description: Base URL — APP_URL from config.php (no trailing slash)
+    variables:
+      appUrl:
+        default: http://localhost/projects/cyoa_ai
+
+tags:
+  - name: Jobs
+    description: AI job queue — polling, history, and actions (api_jobs.php)
+  - name: Story creation
+    description: Full-story AI creation (api_create_story_ai.php)
+  - name: Social
+    description: Ratings, favourites, comments (api_social.php)
+  - name: Editor
+    description: Editor data feeds (api_tree.php)
+  - name: Admin
+    description: Admin-only content settings (api_content.php)
+
+security:
+  - cookieAuth: []
+
+paths:
+  # ===========================================================================
+  /api_jobs.php:
+    get:
+      tags: [Jobs]
+      summary: Job queue reads (unseen_count, status, list, detail)
+      description: >
+        Dispatches on `action`. `unseen_count` is the only action that does not require
+        login (guests receive `{ "count": 0 }`); all others require a session and that the
+        caller owns the job (or is an admin).
+      parameters:
+        - $ref: '#/components/parameters/GetAction'
+        - name: job_id
+          in: query
+          schema: { type: integer }
+          description: Required for `status` and `detail`.
+        - name: status
+          in: query
+          schema: { type: string, enum: [pending, running, completed, completed_with_errors, failed, cancelled] }
+          description: Optional filter for `list`.
+        - name: story_id
+          in: query
+          schema: { type: integer }
+          description: Optional filter for `list`.
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
+          description: Max rows for `list`.
+      responses:
+        '200':
+          description: Action result (shape depends on `action`).
+          content:
+            application/json:
+              examples:
+                unseen_count:
+                  summary: action=unseen_count
+                  value: { count: 3 }
+                status_running:
+                  summary: action=status (pending/running)
+                  value: { job_id: 42, status: running, job_type: scene, created_at: "2026-05-15 10:30:00" }
+                status_completed:
+                  summary: action=status (completed)
+                  value: { job_id: 42, status: completed, job_type: scene, created_at: "2026-05-15 10:30:00", result: { title: "A dark corridor" } }
+                status_failed:
+                  summary: action=status (failed)
+                  value: { job_id: 42, status: failed, job_type: image, created_at: "2026-05-15 10:30:00", error: "OpenAI rate limit" }
+                list:
+                  summary: action=list
+                  value:
+                    jobs:
+                      - { job_id: 42, job_type: scene, status: completed, story_id: 15, created_at: "..." }
+                      - { job_id: 41, job_type: image, status: failed, story_id: 15, created_at: "..." }
+                detail:
+                  summary: action=detail
+                  value:
+                    job_id: 91
+                    job_type: story
+                    status: completed
+                    user_name: Alice
+                    story_title: The Cave
+                    scene_title: null
+                    created_at: "..."
+                    started_at: "..."
+                    updated_at: "..."
+                    cost_usd: 0.1421
+                    error_message: null
+                    input_json: { premise: "..." }
+                    result_json: { story: {}, scenes: [] }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Jobs]
+      summary: Job queue actions (create, cancel, retry, apply)
+      description: >
+        Dispatches on `action`. `create` submits an `image` or `scene` job from the editor
+        (for `scene` jobs the server augments `input_json` with story context + the backward
+        path walk). `cancel` works only while the job is still `pending`. `retry` resets a
+        `failed` job to `pending`. `apply` re-applies a completed job's stored result.
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema: { type: string, enum: [create, cancel, retry, apply] }
+        - name: job_id
+          in: query
+          schema: { type: integer }
+          description: Target job for `cancel` / `retry` / `apply` (may also be sent in the body).
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                action: { type: string, enum: [create, cancel, retry, apply] }
+                job_id: { type: integer, description: For cancel/retry/apply. }
+                job_type: { type: string, enum: [image, scene], description: For create. }
+                story_id: { type: integer, description: For create (image/scene jobs). }
+                scene_id: { type: integer, description: For create (scene + scene-image jobs). }
+                input_json:
+                  type: string
+                  description: >
+                    For create. A JSON string (≤ 65535 bytes). A cover-image job sends
+                    `{"target":"story_cover"}` and only `story_id`.
+      responses:
+        '200':
+          description: Result of the action.
+          content:
+            application/json:
+              examples:
+                create:
+                  summary: action=create
+                  value: { success: true, job_id: 91 }
+                cancel_retry:
+                  summary: action=cancel / action=retry
+                  value: { success: true }
+                apply:
+                  summary: action=apply
+                  value: { success: true, story_id: 15, scene_id: 88 }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '503':
+          description: AI features are disabled (`ai_enabled` is off).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  # ===========================================================================
+  /api_create_story_ai.php:
+    post:
+      tags: [Story creation]
+      summary: Create a full story with AI
+      description: >
+        Resolves "Any" genre/tone/audience to concrete random values, fills a blank premise
+        from a seed, creates a draft story, and queues a `story` job. Returns immediately
+        (the browser polls the job queue). Note this endpoint uses **`ok`** as its result key,
+        not `success`. Requires login and `ai_enabled`.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                premise: { type: string, description: Blank → filled from a premises.json seed. }
+                genre: { type: string, description: "Empty = Any (random in code)." }
+                tone: { type: string }
+                ai-audience: { type: string, description: "Empty = Any (random)." }
+                target_scenes: { type: integer, default: 12 }
+                num_endings: { type: integer, default: 2 }
+                word_length: { type: integer, default: 150 }
+                ai-include-images: { type: string, description: "'1' to generate images." }
+                ai-image-style: { type: string, description: "Blank → one random style for the whole story." }
+                ai-image-mood: { type: string }
+                image_quality: { type: string, enum: [none, low, medium, high] }
+                gen_title: { type: string, description: "1/0 — let AI write the title." }
+                gen_description: { type: string }
+                gen_theme: { type: string }
+                gen_genres: { type: string }
+                genres: { type: string, description: JSON array of genre chips. }
+                theme: { type: string, description: Theme preset slug. }
+                theme_font: { type: string }
+                theme_font_heading: { type: string }
+                theme_bg: { type: string }
+                theme_text: { type: string }
+                theme_accent: { type: string }
+                layout: { type: string, enum: [image_left, image_right, image_top] }
+                publish: { type: string, description: "Auto-publish when all jobs succeed (images required)." }
+      responses:
+        '200':
+          description: Job queued — or a handled error (rate limit / validation) with `ok:false`.
+          content:
+            application/json:
+              examples:
+                ok:
+                  value: { ok: true, storyID: 144, jobID: 91 }
+                error:
+                  value: { ok: false, error: "You already have 5 active jobs." }
+        '401':
+          description: Not logged in.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '403':
+          description: AI features disabled.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '405':
+          description: POST required.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  # ===========================================================================
+  /api_social.php:
+    post:
+      tags: [Social]
+      summary: Ratings, favourites, comments
+      description: >
+        POST only. Dispatches on `action`. The caller must be allowed to interact with the
+        story (published = anyone; draft = owner/admin). Errors return `{ "error": "..." }`.
+        Note request fields use **`storyID`** (camelCase).
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [action]
+              properties:
+                action: { type: string, enum: [rate, toggle_favorite, add_comment, delete_comment] }
+                storyID: { type: integer, description: For rate / toggle_favorite / add_comment. }
+                rating: { type: integer, minimum: 1, maximum: 5, description: For rate. }
+                comment: { type: string, maxLength: 1000, description: For add_comment. }
+                reply_to_comment_id: { type: integer, description: For add_comment (optional, a comment to reply to). }
+                comment_id: { type: integer, description: For delete_comment. }
+      responses:
+        '200':
+          description: Action result (shape depends on `action`).
+          content:
+            application/json:
+              examples:
+                rate:
+                  summary: action=rate
+                  value: { success: true, your_rating: 4, average: 4.2, count: 15 }
+                toggle_favorite:
+                  summary: action=toggle_favorite
+                  value: { success: true, is_favorited: true, count: 8 }
+                add_comment:
+                  summary: action=add_comment
+                  value:
+                    success: true
+                    comment_id: 77
+                    comment: "Loved this!"
+                    reply_to_comment_id: null
+                    user_id: 3
+                    author: "Bob Lee"
+                    profile_image: "profile_abc.jpg"
+                    created_at: "2026-05-15 14:30:00"
+                    is_owner: true
+                    is_admin: false
+                delete_comment:
+                  summary: action=delete_comment
+                  value: { success: true }
+        '400':
+          description: Invalid/missing params.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '401':
+          description: Login required.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '404':
+          description: Story not found / not interactable.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '405':
+          description: POST required.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  # ===========================================================================
+  /api_tree.php:
+    get:
+      tags: [Editor]
+      summary: Story scene-graph data (Tree View)
+      description: >
+        Returns the scene/choice graph for the editor Tree View. The requester must own the
+        story or be an admin. The first scene by sceneID is flagged `is_start`.
+      parameters:
+        - name: storyID
+          in: query
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Scenes + choices.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scenes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        title: { type: string }
+                        thumbnail: { type: string, nullable: true }
+                        is_start: { type: boolean }
+                  choices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        from_scene_id: { type: integer }
+                        to_scene_id: { type: integer }
+                        label: { type: string }
+              example:
+                scenes:
+                  - { id: 88, title: "Cave Entrance", thumbnail: "ai_1.png", is_start: true }
+                  - { id: 89, title: "Giant Cave", thumbnail: null, is_start: false }
+                choices:
+                  - { from_scene_id: 88, to_scene_id: 89, label: "Go left" }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ===========================================================================
+  /api_content.php:
+    post:
+      tags: [Admin]
+      summary: Update a content setting (admin only)
+      description: >
+        Immediate persistence for the content-settings chip editors and guardrails toggle.
+        Admin only, POST only. Writes to the `cyoa_ai_settings` table.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [field, value]
+              properties:
+                field:
+                  type: string
+                  enum: [genres, moods, styles, guardrails_enabled]
+                  description: Which setting to write (→ story_genres / image_moods / image_styles / guardrails_enabled).
+                value:
+                  type: string
+                  description: >
+                    JSON array of strings (genres, moods), JSON object {category:[styles]} (styles),
+                    or "1"/"0" (guardrails_enabled).
+      responses:
+        '200':
+          description: Saved.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Success' }
+        '400':
+          description: Invalid field/value.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '403':
+          description: Admin only.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+        '405':
+          description: POST required.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: PHPSESSID
+      description: PHP session cookie set after login. Most endpoints require it.
+
+  parameters:
+    GetAction:
+      name: action
+      in: query
+      required: true
+      schema: { type: string, enum: [unseen_count, status, list, detail] }
+      description: Which read to perform.
+
+  responses:
+    BadRequest:
+      description: Missing or invalid parameters.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unauthorized:
+      description: Not logged in.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Forbidden:
+      description: Not the owner / not an admin.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    NotFound:
+      description: Resource not found.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    RateLimited:
+      description: Too many active jobs for this user (ai_max_pending_per_user).
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+
+  schemas:
+    Error:
+      type: object
+      description: >
+        Error payload. api_jobs / api_create_story_ai include `success:false` (or `ok:false`);
+        api_social returns just `error`.
+      properties:
+        success: { type: boolean, example: false }
+        ok: { type: boolean, example: false }
+        error: { type: string, example: "Human-readable message" }
+      required: [error]
+    Success:
+      type: object
+      properties:
+        success: { type: boolean, example: true }
+      required: [success]
+    Job:
+      type: object
+      description: A job row as returned by action=list.
+      properties:
+        job_id: { type: integer }
+        job_type: { type: string, enum: [image, scene, story] }
+        status: { type: string, enum: [pending, running, completed, completed_with_errors, failed, cancelled] }
+        story_id: { type: integer, nullable: true }
+        created_at: { type: string }

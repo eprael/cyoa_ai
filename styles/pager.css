@@ -1,0 +1,59 @@
+/* ==========================================
+   Numbered pagination (Phase 40)
+   Theme-variable driven; shared by the gallery
+   and the Job History page.
+   ========================================== */
+
+.pager {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    margin: 1.5rem 0;
+}
+
+.pager-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: var(--radius, 6px);
+    background: var(--card-bg, #fff);
+    color: var(--text, #1e293b);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.pager-btn:hover {
+    background: var(--bg, #f4f6f9);
+    border-color: var(--accent, #f59e0b);
+}
+
+.pager-btn.is-current {
+    background: var(--accent, #f59e0b);
+    border-color: var(--accent, #f59e0b);
+    color: #fff;
+    cursor: default;
+}
+
+.pager-btn.is-disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+}
+
+.pager-step {
+    font-weight: 600;
+}
+
+.pager-ellipsis {
+    padding: 0 0.25rem;
+    color: var(--text-light, #94a3b8);
+    user-select: none;
+}

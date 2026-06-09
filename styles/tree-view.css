@@ -1,0 +1,134 @@
+/* ===== Story Tree View (Phase 31) ===== */
+
+/* Fixed-width tree canvas — the modal stays a stable size (it no longer
+   grows/shrinks as the tree is scrolled). Overrides the base .modal-box
+   width:calc(100% - 2rem). */
+.modal-box:has(.tree-container) {
+    width: min(1000px, 92vw);
+    max-width: 92vw;
+}
+
+.tree-container {
+    overflow: auto;
+    max-height: 72vh;
+    width: 100%;
+    cursor: grab;
+    user-select: none;
+    /* --bg-secondary isn't a themed variable; use --bg so the canvas follows
+       the active theme (was hardcoded light via the fallback). */
+    background: var(--bg, #f4f6f9);
+    border: 1px solid var(--border, #ddd);
+    border-radius: 6px;
+}
+.tree-container:active { cursor: grabbing; }
+
+/* Center the tree when it fits; when it's wider than the canvas the auto
+   margins collapse to 0 so it stays scrollable from the left edge. */
+.tree-container > svg {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Tree modal footer: tile-size slider centered, Close pinned to the right. */
+.modal-actions:has(.tree-zoom) {
+    position: relative;
+    justify-content: center;
+    min-height: 2.25rem;
+}
+.modal-actions:has(.tree-zoom) > .btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.tree-zoom {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-light, #6b7280);
+}
+/* Understated slider: thin gray line + a small round thumb (no filled/coloured
+   side like a progress bar). */
+.tree-zoom input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 200px;
+    background: transparent;   /* track is drawn by the pseudo-elements below */
+    cursor: pointer;
+    outline: none;
+}
+/* WebKit / Blink */
+.tree-zoom input[type="range"]::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 2px;
+    background: var(--border, #cbd5e1);
+}
+.tree-zoom input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -6px;          /* centre the 14px thumb on the 2px track */
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--text-light, #6b7280);
+}
+/* Firefox */
+.tree-zoom input[type="range"]::-moz-range-track {
+    height: 2px;
+    border-radius: 2px;
+    background: var(--border, #cbd5e1);
+}
+.tree-zoom input[type="range"]::-moz-range-progress {
+    height: 2px;
+    background: var(--border, #cbd5e1);   /* no coloured fill on the left */
+}
+.tree-zoom input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: var(--text-light, #6b7280);
+}
+
+/* Nodes */
+.tree-node { cursor: pointer; }
+.tree-node-box {
+    fill: var(--card-bg, #fff);
+    stroke: var(--border, #ccc);
+    stroke-width: 1.5;
+    transition: filter 0.15s, stroke 0.15s;
+}
+.tree-node:hover .tree-node-box,
+.tree-node:focus .tree-node-box {
+    filter: drop-shadow(0 0 6px var(--accent, #4a6fa5));
+    stroke: var(--accent, #4a6fa5);
+}
+.tree-node-title {
+    font: 12px system-ui, sans-serif;
+    fill: var(--text, #111);
+    text-anchor: middle;
+}
+.tree-node-num {
+    font: bold 24px system-ui, sans-serif;
+    fill: #fff;
+    text-anchor: middle;
+}
+.tree-node-fallback { stroke: rgba(0, 0, 0, 0.1); stroke-width: 1; }
+.tree-node-start { fill: #2e9e5b; stroke: #fff; stroke-width: 2; }
+
+/* The scene currently open in the player gets a bold coloured border. */
+.tree-node-current .tree-node-box {
+    stroke: #f59e0b;
+    stroke-width: 3.5;
+}
+
+/* Edges — all solid, directed (arrowhead shows which way the choice flows) */
+.tree-edge {
+    stroke: var(--text-light, #9aa3ad);
+    stroke-width: 1.5;
+    fill: none;
+}
+.tree-arrow {
+    fill: var(--text-light, #9aa3ad);
+}

@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYOA Maker With AI - Project Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Report header (injected by ../header.js; shared with report pages) ── */
+    #report-header { min-height: 104px; }   /* reserve space, avoid layout flash */
+    .report-header {
+      background: #1d5a8a;
+      background: linear-gradient(135deg, #1d5a8a 0%, #14405f 100%);
+      color: #fff;
+      border-bottom: 4px solid #2f8f99;
+    }
+    .report-header__inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 18px 20px 6px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .report-header__logo {
+      width: 98px;
+      height: 98px;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      background: #fff;
+      padding: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    }
+    .report-header__text { display: flex; flex-direction: column; line-height: 1.3; }
+    .report-header__title {
+      font-size: 1.9em;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+      color: #fff;
+    }
+    .report-header__sub {
+      font-size: 0.90em;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+    }
+    .report-header__sub--name {
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    a.report-header__home { text-decoration: none; display: block; }
+    a.report-header__home:hover .report-header__title { text-decoration: underline; }
+    @media (max-width: 600px) {
+      .report-header__inner { padding: 14px 20px; gap: 14px; }
+      .report-header__logo { width: 52px; height: 52px; }
+      .report-header__title { font-size: 1.45em; }
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 16px;
+      line-height: 1.75;
+      color: #1a1a2e;
+      background: #fafaf8;
+    }
+
+    /* ── Page layout ── */
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    /* ── Page title & "Report Index" link ── */
+    .toplink {
+      margin-bottom: 16px;
+      font-weight: 500;
+    }
+    .toplink a {
+      color: #216a72;
+      text-decoration: none;
+    }
+    .toplink a:hover { text-decoration: underline; }
+    .page-title {
+      font-size: 2.6em;
+      color: #2c3e50;
+      letter-spacing: -0.5px;
+      margin-bottom: 32px;
+    }
+
+    /* ── Table of Contents ── */
+    .toc {
+      background: #f0f0ea;
+      border-left: 4px solid #2c3e50;
+      padding: 28px 32px;
+      margin-bottom: 60px;
+      border-radius: 0 4px 4px 0;
+      scroll-margin-top: 40px;   /* land a little above the TOC when jumped to */
+    }
+    .toc h2 {
+      font-size: 1.1em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #2c3e50;
+      margin-bottom: 16px;
+    }
+    .toc ol {
+      padding-left: 20px;
+    }
+    .toc > ol > li {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+    .toc ol ol {
+      font-weight: normal;
+      font-size: 0.92em;
+      padding-left: 20px;
+      margin-top: 4px;
+    }
+    .toc a {
+      color: #2c3e50;
+      text-decoration: none;
+    }
+    .toc a:hover {
+      text-decoration: underline;
+    }
+    /* ── "New" / "Updated" badges in the TOC ── */
+    .toc .badge {
+      display: inline-block;
+      font-size: 0.62em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 1px 7px;
+      border-radius: 10px;
+      margin-left: 8px;
+      vertical-align: middle;
+      position: relative;
+      top: -1px;
+    }
+    .toc .badge-new {
+      background: #3ad874;
+      color: #009608;
+      box-shadow: 0 1px 3px rgba(22, 163, 74, 0.4);
+    }
+    .toc .badge-updated { background: #fde9c8; color: #9a5b00; }
+
+    /* ── Sections ── */
+    .section {
+      margin-bottom: 60px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid #ddd;
+    }
+    .section:last-child {
+      border-bottom: none;
+    }
+
+    h2.section-title {
+      font-size: 1.8em;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #2c3e50;
+    }
+    h3 {
+      font-size: 1.25em;
+      color: #2c3e50;
+      margin: 28px 0 10px;
+    }
+    h4 {
+      font-size: 1.05em;
+      color: #444;
+      margin: 20px 0 8px;
+    }
+
+    p {
+      margin-bottom: 14px;
+    }
+
+    ul, ol {
+      margin: 0 0 14px 24px;
+    }
+    li {
+      margin-bottom: 5px;
+    }
+
+    /* ── Screenshot ── */
+    .screenshot {
+      margin: 24px 0;
+      padding: 12px;
+      text-align: center;
+    }
+    .screenshot img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border-radius: 6px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.18);
+    }
+
+    /* ── Video (responsive 16:9 YouTube embed) ── */
+    .video-embed {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 24px 0;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 12px rgba(20, 64, 95, 0.18);
+      background: #000;
+    }
+    .video-embed iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* ── Image placeholder (loud - replace these) ── */
+    .placeholder {
+      margin: 24px 0;
+      padding: 38px 22px;
+      text-align: center;
+      background: repeating-linear-gradient(45deg, #fff3b0, #fff3b0 14px, #ffd6e7 14px, #ffd6e7 28px);
+      border: 4px dashed #e0007a;
+      border-radius: 6px;
+      color: #b3005c;
+      font-weight: 700;
+      font-size: 1.02em;
+      line-height: 1.5;
+    }
+    .placeholder .ph-tag {
+      display: block;
+      font-size: 0.72em;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #e0007a;
+      margin-bottom: 8px;
+    }
+
+    /* ── Code / tech terms ── */
+    code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.88em;
+      background: #eee;
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: #c0392b;
+    }
+    pre {
+      background: #f4f4f0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 18px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 0.93em;
+    }
+    th {
+      background: #2c3e50;
+      color: #fff;
+      text-align: left;
+      padding: 9px 12px;
+      font-weight: bold;
+    }
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #ddd;
+    }
+    tr:nth-child(even) td {
+      background: #f7f7f2;
+    }
+
+    /* ── Callout box ── */
+    .callout {
+      background: #eaf4ff;
+      border-left: 4px solid #3498db;
+      padding: 14px 18px;
+      margin: 20px 0;
+      border-radius: 0 4px 4px 0;
+      font-size: 0.95em;
+    }
+
+    /* ── Prompt block ── */
+    .prompt-block {
+      background: #f4f4f0;
+      border-left: 4px solid #888;
+      border-radius: 0 4px 4px 0;
+      padding: 14px 18px;
+      margin: 12px 0 20px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.93em;
+      line-height: 1.7;
+      color: #333;
+      white-space: pre-wrap;
+    }
+    .prompt-label {
+      font-size: 0.78em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    /* ── Back to TOC link ── */
+    .toc-back {
+      display: block;
+      text-align: right;
+      margin-top: 28px;
+      font-size: 0.82em;
+      font-weight: 500;
+      color: #888;
+      text-decoration: none;
+      letter-spacing: 0.3px;
+    }
+    .toc-back:hover { color: #2c3e50; }
+    .toc-back i { margin-right: 5px; }
+    @media print { .toc-back { display: none; } }
+
+    /* ── Up arrow (back to top) on section & subsection headings ── */
+    .uptop {
+      float: right;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #b0b0b0;
+      text-decoration: none;
+      margin-top: 0.2em;
+    }
+    .uptop:hover { color: #2c3e50; }
+    @media print { .uptop { display: none; } }
+
+    /* ── Lightbox ── */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 1000;
+      cursor: zoom-out;
+      align-items: center;
+      justify-content: center;
+    }
+    #lightbox.open { display: flex; }
+    #lightbox img {
+      max-width: 92vw;
+      max-height: 92vh;
+      object-fit: contain;
+      border-radius: 6px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      cursor: default;
+    }
+    .screenshot img { cursor: zoom-in; }
+
+
+    /* ── Print ── */
+    @media print {
+      body { background: #fff; }
+      .toc a { color: #000; }
+      .screenshot { background: #f0f0f0; border: 1px solid #ccc; }
+      #lightbox { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+<div id="report-header"></div>
+<div class="page" id="top">
+
+  <p class="toplink"><a href="../index.html">&larr; Report Index</a></p>
+  <h1 class="page-title">Project Overview</h1>
+
+  <!-- ══════════════════════════════════════════
+       TABLE OF CONTENTS
+  ══════════════════════════════════════════ -->
+  <nav class="toc" id="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#s1">Introduction</a>
+        <ol>
+          <li><a href="#s1-1">What is CYOA Maker?</a></li>
+          <li><a href="#s1-2">The Upgrade: Purpose and Goals</a></li>
+        </ol>
+      </li>
+      <li><a href="#s2">Features &amp; How It Works</a>
+        <ol>
+          <li><a href="#s2-1">Browsing and Playing Stories</a></li>
+          <li><a href="#s2-2">The Story Summary Page &amp; Social Features</a> <span class="badge badge-new">New</span></li>
+          <li><a href="#s2-3">Creating and Editing Stories</a></li>
+          <li><a href="#s2-4">AI Story Generation</a> <span class="badge badge-new">New</span></li>
+          <li><a href="#s2-5">The AI Job Queue</a> <span class="badge badge-new">New</span></li>
+          <li><a href="#s2-6">Prompt Assembly</a> <span class="badge badge-new">New</span></li>
+          <li><a href="#s2-7">Themes and Fonts</a></li>
+          <li><a href="#s2-8">User Accounts and API Keys</a></li>
+          <li><a href="#s2-9">Admin Panel</a></li>
+          <li><a href="#s2-10">Email Notifications</a></li>
+        </ol>
+      </li>
+      <li><a href="#s3">Technical Breakdown</a>
+        <ol>
+          <li><a href="#s3-1">Tech Stack Overview</a></li>
+          <li><a href="#s3-2">Directory Structure</a></li>
+          <li><a href="#s3-3">Database Design</a></li>
+          <li><a href="#s3-4">Key PHP Patterns</a></li>
+          <li><a href="#s3-5">Security Practices</a></li>
+        </ol>
+      </li>
+      <li><a href="#s4">Deployment Guide</a>
+        <ol>
+          <li><a href="#s4-1">Prerequisites</a></li>
+          <li><a href="#s4-2">Setting Up from GitHub</a></li>
+          <li><a href="#s4-3">Important Configuration</a></li>
+          <li><a href="#s4-4">Scheduling the AI Worker (Cron)</a> <span class="badge badge-new">New</span></li>
+        </ol>
+      </li>
+      <li><a href="#s5">Development Reflections</a>
+        <ol>
+          <li><a href="#s5-1">AI-Assisted Development</a></li>
+          <li><a href="#s5-2">Vibe Coding vs Implementation Plans</a> <span class="badge badge-new">New</span></li>
+          <li><a href="#s5-3">Take-Aways and Lessons Learned</a></li>
+        </ol>
+      </li>
+      <li><a href="#s6">Future Enhancements</a></li>
+      <li><a href="#s7">Acknowledgements</a></li>
+    </ol>
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 1 - INTRODUCTION
+  ══════════════════════════════════════════ -->
+  <section class="section" id="s1">
+    <h2 class="section-title">1. Introduction</h2>
+
+    <h3 id="s1-1">1.1 What is CYOA Maker?</h3>
+    <p>
+      CYOA Maker is a web application that lets users create and play <em>Choose Your Own Adventure</em>
+      stories - interactive, branching narratives where the reader makes choices that determine how
+      the story unfolds. Think of it as a lightweight, browser-based tool for writing the kind of
+      adventure books that were popular in the 1980s and 1990s, but published on the web and playable
+      by anyone with a browser.
+    </p>
+    <p>
+      A story is made up of <strong>scenes</strong> - individual moments in the narrative. Each scene
+      can have one or more <strong>choices</strong> that link to other scenes, creating a web of
+      possible paths through the story. Authors control the flow, and players experience a different
+      adventure depending on the decisions they make.
+    </p>
+    <p>
+      This report covers the <strong>upgraded version</strong> of the app. The original CYOA Maker
+      was a build-and-play tool; this version adds a full <strong>social layer</strong> (ratings,
+      comments, favourites, and view counts) and, most importantly, <strong>AI assistance</strong> -
+      authors can have the AI generate images, write individual scenes, or produce an entire branching
+      story from a single idea.
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/story gallery 0o5.png" alt="Homepage story gallery showing story cards with stats"></div>
+
+    <h3 id="s1-2">1.2 The Upgrade: Purpose and Goals</h3>
+    <p>
+      The first version of CYOA Maker delivered the core experience - a place to build branching
+      stories and play them in the browser. This upgrade builds on that foundation, extending the app
+      in two directions: a social layer that connects readers and authors, and AI assistance woven
+      into the authoring process.
+    </p>
+    <p>The upgrade had two main goals:</p>
+    <ul>
+      <li>Make the app feel like a real <strong>community platform</strong> - add ratings, favourites,
+          comments, and view tracking, plus a story summary page that sits between the gallery and
+          the player.</li>
+      <li>Put <strong>AI tools directly in the author's hands</strong> at three levels: generating a
+          single image, writing a single scene, or producing a whole branching story from a premise.</li>
+    </ul>
+    <p>Supporting goals carried over from the original project:</p>
+    <ul>
+      <li>Anyone can <strong>play</strong> stories without an account.</li>
+      <li>Registered users can <strong>create, edit, and publish</strong> their own stories.</li>
+      <li>A <strong>visual theme system</strong> gives each story its own look and feel.</li>
+      <li><strong>Account management</strong> with email-based password reset.</li>
+      <li>An <strong>admin panel</strong> for managing users, stories, and site settings.</li>
+      <li>The app stays easy to <strong>deploy</strong> on standard shared hosting.</li>
+    </ul>
+    <a class="toc-back" href="#toc"><i class="fa-solid fa-list"></i> Table of Contents</a>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 2 - FEATURES
+  ══════════════════════════════════════════ -->
+  <section class="section" id="s2">
+    <h2 class="section-title">2. Features &amp; How It Works</h2>
+
+    <h3 id="s2-1">2.1 Browsing and Playing Stories</h3>
+    <p>
+      The homepage (<code>index.php</code>) displays a gallery of all published stories as cards.
+      Each card shows the story's cover image, title, author, genre, and three interactive stats:
+      <strong>views</strong>, <strong>likes</strong>, and <strong>average star rating</strong>.
+      No login is required to browse or play - the app is open to anyone. Logged-in users also get
+      filters for <strong>My Stories</strong> and <strong>Favourites</strong>, plus a search box.
+    </p>
+    <p>
+      Clicking a story opens its summary page first (see 2.2), and from there the player
+      (<code>play.php</code>) renders one scene at a time - its title, narrative text, and optional
+      image - along with clickable choice buttons that advance the story. Players follow the branching
+      path until they reach an ending (a scene with no choices).
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/story - play screen.png" alt="The story player showing a scene with its image and choice buttons"></div>
+
+    <h3 id="s2-2">2.2 The Story Summary Page &amp; Social Features</h3>
+    <p>
+      A new <strong>summary page</strong> (<code>summary.php</code>) now sits between the gallery and
+      the player. It shows the cover, description, stats, and comments, so a reader can preview a story
+      before committing to it. Play and (for the author) Edit buttons sit at the top.
+    </p>
+    <p>On top of the summary page, the upgrade adds a full social layer:</p>
+    <ul>
+      <li><strong>Ratings</strong> - each logged-in user can give a story one to five stars (once per
+          story); the average shows on the gallery card.</li>
+      <li><strong>Favourites</strong> - bookmark a story and find it again from your profile.</li>
+      <li><strong>Comments</strong> - leave a comment, and reply to other comments (one level of
+          nesting). Admins and story owners can moderate.</li>
+      <li><strong>View tracking</strong> - every visit to a published story's summary page counts a
+          view.</li>
+    </ul>
+    <p>
+      All of this runs through a dedicated AJAX endpoint (<code>api_social.php</code>) so likes,
+      ratings, and comments update without a full page reload.
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/story - summary screen.png" alt="The story summary page showing stats, description, and comments"></div>
+
+    <h3 id="s2-3">2.3 Creating and Editing Stories</h3>
+    <p>
+      Registered users build stories in the editor (<code>editor.php</code>). Each scene has a title,
+      narrative text, an image, a hint, and a list of choices; every choice links to another scene.
+    </p>
+    <p>
+      Stories also have a <strong>draft / published</strong> status. Only published stories appear in
+      the public gallery. To protect work in progress, editing a published story happens on a hidden
+      "shadow draft" - the live version stays online until the author re-publishes. Deleting a story
+      moves it to a <strong>trash bin</strong> (soft delete) rather than erasing it immediately.
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/story - scene editor.png" alt="The scene editor showing fields for text, image, and choices"></div>
+
+    <p>Two extra views make a branching story easier to manage:</p>
+    <ul>
+      <li><strong>Tree View</strong> - an SVG map of every scene and the choices that connect them, so
+          the author can spot dead ends and missing links at a glance.
+        <div class="screenshot"><img src="../screenshots/story - tree view.png" alt="Tree View: the branching map of scenes"></div>
+      </li>
+      <li><strong>Gallery View</strong> - all of a story's images in one place (the cover first, then
+          every scene that has artwork).
+        <div class="screenshot"><img src="../screenshots/story - image gallery.png" alt="Gallery View: all of a story's images"></div>
+      </li>
+    </ul>
+
+    <h3 id="s2-4">2.4 AI Story Generation</h3>
+    <p>
+      The main feature of this project is AI assistance, offered at three levels so authors can get
+      as much or as little help as they want:
+    </p>
+    <ul>
+      <li><strong>Level 1 - Images.</strong> Describe a scene and the AI draws an illustration that
+          matches it, replacing the manual file upload.</li>
+      <li><strong>Level 2 - Single scenes.</strong> Give a direction and the AI writes one scene -
+          title, text, hint, and choices - to slot into the story.</li>
+      <li><strong>Level 3 - Full stories.</strong> Give a single idea, like "a mystery set in medieval
+          Japan", and the AI plans and writes an entire branching story, artwork included.</li>
+    </ul>
+    <p>
+      Because the AI services can take a while, none of this blocks the page. Every request becomes a
+      background <strong>job</strong> that is processed out of sight and applied to the story when it
+      finishes; the header shows a badge when a job is done.
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/create new story - with ai.png" alt="The 'create with AI' form with options for genre, tone, and length"></div>
+
+    <h3 id="s2-5">2.5 The AI Job Queue</h3>
+    <p>
+      AI calls are slow - a few seconds for story text to over a minute for an image - and shared hosting cannot keep a web request
+      open that long. So AI work runs through an <strong>asynchronous job queue</strong> instead of
+      blocking the page.
+    </p>
+
+    <p style="margin-top: 22px;">
+      This <a href="../../visualizations/ai_job_queue" target="_blank">interactive job queue visualizer</a>
+      shows how job requests are passed from the UI to the database, picked up by a backend process that sends the job to the AI, and then stores the returning content back in the database.
+    </p>
+    <div class="screenshot"><img src="../screenshots/job queue - visualizer.png" alt="The job queue visualizer"></div>
+
+
+    <ol>
+      <li>The user clicks "Generate". PHP writes a new row to the <code>cyoa_ai_jobs</code> table
+          (status <code>pending</code>) and returns immediately.</li>
+      <li>A <strong>dispatcher</strong> (<code>cron/ai_dispatcher.php</code>), run by cron, claims
+          pending jobs and spawns a <strong>worker</strong> for each.</li>
+      <li>The worker (<code>cron/ai_worker.php</code>) routes the job to the right handler
+          (image, scene, or story), calls the AI, saves the result, and marks the job
+          <code>completed</code>.</li>
+      <li>The browser polls <code>api_jobs.php</code> every few seconds and updates the header badge
+          when a job finishes.</li>
+    </ol>
+    <p>
+      The <code>cyoa_ai_jobs</code> table tracks every AI request with its input, output, status, and
+      cost. The job queue page (<code>job_queue.php</code>) lists all active jobs with options to
+      retry or cancel, while the job history page (<code>job_history.php</code>) shows a paginated
+      list of past jobs and their details.
+    </p>
+    <div class="screenshot"><img src="../screenshots/job queue - job summary.png" alt="The job queue listing AI jobs and their statuses"></div>
+
+
+    <h3 id="s2-6">2.6 Prompt Assembly</h3>
+    <p>
+       Prompts are built by merging multiple data sources together into a master prompt.
+       It mixes values from the web UI like genre, audience, and image style, adds in safety
+       constraints and other guidance data, and then merges everything into a pre-written prompt
+       template.
+       The prompt is processed by the AI which returns a structured JSON response that is parsed
+       and applied to the story. For full-story generation, the prompt includes instructions to
+       create a high-level narrative plan. From there the process develops individual scenes and
+       images to ensure a cohesive experience.
+    </p>
+    <h4 style="margin-bottom:0px;"><center>Anatomy of the AI Prompt Assembly Line</center></h4>
+    <center>(Created with <a href="https://notebooklm.google.com/" target="_blank">NotebookLM</a>)</center>
+    <div class="screenshot" style="margin-top: 10px; padding-top: 0px"><img src="../screenshots/AI_Prompt_Assembly_Line_Anatomy2.png" style="width:100%;" alt="Anatomy of the AI Prompt Assembly Line"></div>
+
+    <h4 id="explainer-video" style="margin-bottom:0px; scroll-margin-top: 120px;"><center>Prompt Assembly Explainer Video</center></h4>
+    <p style="text-align:center;">
+      This AI-generated video by <a href="https://notebooklm.google.com/" target="_blank">NotebookLM</a> does a great job breaking down how a full story is made.
+    </p>
+    <div class="video-embed">
+      <iframe src="https://www.youtube.com/embed/77UFJk3lP8g"
+              title="Prompt Assembly Explainer Video"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen></iframe>
+    </div>
+    <p>
+      For a detailed flowchart of how the prompt assembly process works, see <a href="../appendix/architecture.html#prompt-assembly" >Appendix B - Architecture</a>.
+    </p>
+
+
+    <h3 id="s2-7">2.7 Themes and Fonts</h3>
+    <p>
+      Each story has a <strong>visual theme</strong> that controls the look of its play page - the
+      background, text, and accent colours plus a pair of fonts. Unlike the original five fixed CSS
+      themes, the upgrade uses a <strong>data-driven theme engine</strong>: a single CSS-variable
+      template is filled in from values stored on the story, so there is no limit on the number of
+      looks, and the AI can generate a matching colour palette per story.
+    </p>
+    <p>
+      Fonts are chosen from a <strong>curated, mood-tagged allow-list</strong> of Google Fonts that are
+      guaranteed to load, and the three image layouts (<code>image_left</code>, <code>image_right</code>,
+      <code>image_top</code>) from the original version are still supported. A story's theme is purely
+      visual - it is never sent to the AI; the semantic hint the AI receives is the story's
+      <strong>genre</strong>.
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/theme - image left.png" alt="Play page with an image-left layout theme"></div>
+    <div class="screenshot"><img src="../screenshots/theme - image top.png" alt="Play page with an image-top layout theme"></div>
+
+    <h3 id="s2-8">2.8 User Accounts and API Keys</h3>
+    <p>
+      Users register with their name, email, and a password, then manage their profile from the
+      account page (<code>account.php</code>). Passwords are never stored in plain text - they are
+      hashed with bcrypt before being saved.
+    </p>
+    <p>
+      Because AI generation costs money, the account page also offers <strong>"bring your own key"
+      (BYOK)</strong>: a user can paste in their own Claude or OpenAI API key so their AI usage is
+      billed to them instead of the site. Heavy users can keep creating without using up the site's
+      shared limits.
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/admin - users - byok.png" alt="The bring-your-own-key settings on a user's profile"></div>
+
+    <h3 id="s2-9">2.9 Admin Panel</h3>
+    <p>
+      Administrators get extra screens for running the site, split into three areas:
+    </p>
+    <ul>
+      <li><strong>Site settings</strong> (<code>settings_site.php</code>) - AI models, quality, job
+          limits and timeouts, gallery sizes, and the site title.</li>
+      <li><strong>Content settings</strong> (<code>settings_content.php</code>) - the editable lists of
+          genres, image styles, moods, and the content <strong>guardrails</strong> that keep AI output
+          appropriate.</li>
+      <li><strong>User management</strong> (<code>settings_users.php</code>) - view, edit, and delete
+          accounts, and see which users have their own API keys.</li>
+    </ul>
+    <p>
+      A <strong>maintenance</strong> section handles automatic cleanup of trashed stories and old log
+      files. The protected super-admin account is defined in <code>config.php</code> via the
+      <code>MAIN_ADMIN</code> constant so it can never be demoted or deleted.
+    </p>
+
+    <div class="screenshot"><img src="../screenshots/admin - ai settings 1o2.png" alt="Admin AI settings page"></div>
+    <div class="screenshot"><img src="../screenshots/admin - users.png" alt="Admin user management table"></div>
+
+    <h3 id="s2-10">2.10 Email Notifications</h3>
+    <p>
+      The app uses <strong><a href="https://github.com/PHPMailer/PHPMailer" target="_blank">PHPMailer</a></strong> with Gmail SMTP to send two types of emails:
+    </p>
+    <ul>
+      <li><strong>Welcome email</strong> - sent automatically when a new user registers, using an HTML
+          template.</li>
+      <li><strong>Password reset email</strong> - when a user requests a reset, a unique time-limited
+          token is generated and emailed as a link. The token expires after one hour for security.</li>
+    </ul>
+
+    <div class="screenshot"><img src="../screenshots/welcome-email.png" alt="The HTML welcome email sent to new users"></div>
+
+    <a class="toc-back" href="#toc"><i class="fa-solid fa-list"></i> Table of Contents</a>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 3 - TECHNICAL BREAKDOWN
+  ══════════════════════════════════════════ -->
+  <section class="section" id="s3">
+    <h2 class="section-title">3. Technical Breakdown</h2>
+
+    <h3 id="s3-1">3.1 Tech Stack Overview</h3>
+    <table>
+      <tr><th>Layer</th><th>Technology</th><th>Notes</th></tr>
+      <tr><td>Backend language</td><td>PHP 8.3 (procedural)</td><td>No framework - plain PHP files</td></tr>
+      <tr><td>Database</td><td>MySQL / MariaDB (mysqli)</td><td>Prepared statements throughout</td></tr>
+      <tr><td>Text AI</td><td>Claude API (Anthropic)</td><td>Scene and full-story generation</td></tr>
+      <tr><td>Image AI</td><td>OpenAI Images (<code>gpt-image-2</code>)</td><td>Model configurable in settings</td></tr>
+      <tr><td>Background jobs</td><td>PHP CLI + cron</td><td>Dispatcher / worker scripts</td></tr>
+      <tr><td>Email</td><td>PHPMailer + Gmail SMTP</td><td>Welcome emails and password resets</td></tr>
+      <tr><td>Front-end</td><td>Vanilla JavaScript</td><td>No frameworks (no React, jQuery, etc.)</td></tr>
+      <tr><td>Fonts</td><td>Inter + a curated Google Fonts allow-list</td><td>Per-story play fonts</td></tr>
+    </table>
+
+    <h3 id="s3-2">3.2 Directory Structure</h3>
+    <p>The project is organized as a single web root folder. Here are the key files and folders:</p>
+    <pre>cyoa_ai/
+├── config.php            # DB, SMTP, MAIN_ADMIN, AI pricing reference data
+├── settings.php          # Loads runtime AI settings; app_setting() helper
+├── db_functions.php      # All database CRUD (users, stories, scenes, jobs, social…)
+├── index.php             # Homepage - story gallery
+├── summary.php           # Story landing page - stats, comments, play/edit
+├── editor.php            # Story &amp; scene editor (+ Tree View, Gallery View)
+├── play.php              # Story player (themed)
+├── gallery.php           # Per-story image gallery
+├── account.php           # Profile + BYOK API keys
+├── job_queue.php         # AI job list (retry / cancel / detail)
+├── job_history.php       # Paginated job history
+├── trash.php             # Soft-deleted stories
+├── settings_site.php     # Admin - site settings
+├── settings_content.php  # Admin - genres, styles, moods, guardrails
+├── settings_users.php    # Admin - user management
+├── header.php            # Shared nav bar + job-badge polling
+│
+├── api_jobs.php          # AJAX - job queue (status, create, retry, apply…)
+├── api_social.php        # AJAX - ratings, favourites, comments
+├── api_create_story_ai.php  # Full-story AI creation endpoint
+├── api_tree.php          # Scene-graph data for Tree View
+│
+├── cron/                 # Background AI processing (PHP CLI)
+│   ├── ai_dispatcher.php # Claims pending jobs, spawns workers
+│   ├── ai_worker.php     # Processes one job, routes to a handler
+│   ├── ai_story_handler.php / ai_scene_handler.php / ai_image_handler.php
+│   ├── ai_apply.php      # Applies AI results to the database
+│   └── maintenance.php   # Daily cleanup (trash + logs)
+│
+├── prompts/              # AI prompt templates (.txt with {PLACEHOLDER} tokens)
+├── data/                 # Data-driven content (premises, audiences, fonts…) as JSON
+├── styles/               # CSS files (split by page/component)
+├── themes/               # Theme engine assets
+├── images/
+│   ├── stories/{storyID}/  # Cover + scene images
+│   └── profiles/           # User profile images
+└── phpmailer/            # PHPMailer library</pre>
+
+    <h3 id="s3-3">3.3 Database Design</h3>
+    <p>
+      The app uses <strong>MySQL / MariaDB</strong> via PHP's <code>mysqli</code> extension, with
+      prepared statements throughout. All tables use the prefix <code>cyoa_ai_</code>. The original
+      four tables remain (with <code>storypoints</code> renamed to <code>scenes</code>), joined by new
+      tables for the social and AI features:
+    </p>
+    <table>
+      <tr><th>Group</th><th>Tables</th></tr>
+      <tr><td>Core</td><td><code>users</code>, <code>stories</code>, <code>scenes</code>, <code>choices</code>, <code>password_resets</code></td></tr>
+      <tr><td>Social</td><td><code>ratings</code>, <code>views</code>, <code>comments</code>, <code>favorites</code></td></tr>
+      <tr><td>AI / System</td><td><code>jobs</code>, <code>settings</code></td></tr>
+    </table>
+    <p>The core data still follows a clear hierarchy:</p>
+    <pre>Users (1) ──── (N) Stories (1) ──── (N) Scenes (1) ──── (N) Choices
+                                                              │
+                                           destination ──────┘
+                                           (links to another Scene)</pre>
+    <p>
+      New columns on <code>stories</code> support the upgrade: <code>status</code>
+      (<code>published</code> / <code>draft</code> / <code>deleted</code>), <code>published_story_id</code>
+      (shadow drafts), <code>genre</code> (a JSON array), <code>theme_json</code> (the visual theme),
+      and <code>date_deleted</code> (for the trash). The <code>jobs</code> table records each AI job's
+      input, result, status, and cost.
+    </p>
+
+    <h3 id="s3-4">3.4 Key PHP Patterns</h3>
+
+    <h4>Single-File Page Routing</h4>
+    <p>
+      Each page is a self-contained PHP file. Pages that handle form submissions do so at the very top
+      of the file and then immediately redirect with <code>header('Location: ...')</code> - the
+      <strong>Post/Redirect/Get</strong> pattern, which prevents duplicate submissions on refresh.
+      Live actions (likes, comments, job status) instead go through small AJAX endpoints
+      (<code>api_*.php</code>).
+    </p>
+
+    <h4>Centralised Settings</h4>
+    <p>
+      Fixed configuration (database, SMTP, the protected admin) lives in <code>config.php</code>, but
+      everything an admin can tune at runtime - AI models, quality, limits, genres, guardrails - lives
+      in the <code>cyoa_ai_settings</code> table and is read through a single
+      <code>app_setting('key')</code> helper. This keeps the code free of hard-coded magic values.
+    </p>
+
+    <h4>Flash Messages &amp; a Connection Singleton</h4>
+    <p>
+      After a redirect, a success or error message is passed to the next page through
+      <code>$_SESSION['flash_message']</code> and shown once. All database access goes through a single
+      <code>db_connect()</code> function so only one <code>mysqli</code> connection is created per
+      request, and every query lives in <code>db_functions.php</code> rather than being scattered across
+      pages.
+    </p>
+
+    <h3 id="s3-5">3.5 Security Practices</h3>
+    <p>Security was considered throughout the project. Key measures include:</p>
+    <ul>
+      <li><strong>Password hashing:</strong> all passwords are stored using PHP's
+          <code>password_hash()</code> with bcrypt. Plain-text passwords are never written to the
+          database.</li>
+      <li><strong>Prepared statements:</strong> all database queries use <code>mysqli</code> prepared
+          statements with bound parameters, preventing SQL injection.</li>
+      <li><strong>Output escaping:</strong> user-supplied data shown in the admin UI and editor is
+          passed through <code>htmlspecialchars()</code> to prevent cross-site scripting (XSS).</li>
+      <li><strong>Ownership checks:</strong> before allowing edits or deletes, the app verifies the
+          logged-in user owns the story or scene. Administrators bypass this check.</li>
+      <li><strong>File upload validation:</strong> uploaded images are checked against an extension
+          whitelist (<code>jpg, jpeg, png, gif, webp</code>) and saved with safe filenames.</li>
+      <li><strong>AI guardrails &amp; key handling:</strong> generation requests carry admin-configured
+          content guardrails, and per-user BYOK API keys are stored server-side and never exposed to
+          the browser.</li>
+    </ul>
+    <a class="toc-back" href="#toc"><i class="fa-solid fa-list"></i> Table of Contents</a>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 4 - DEPLOYMENT
+  ══════════════════════════════════════════ -->
+  <section class="section" id="s4">
+    <h2 class="section-title">4. Deployment Guide</h2>
+
+    <h3 id="s4-1">4.1 Prerequisites</h3>
+    <p>CYOA Maker requires a standard PHP web server environment, plus a couple of extras for the AI:</p>
+    <ul>
+      <li><strong>PHP 8.x</strong> with the <strong>mysqli</strong> extension.</li>
+      <li><strong>MySQL or MariaDB</strong> - any standard shared hosting or local XAMPP stack.</li>
+      <li><strong>The ability to run cron jobs</strong> (or a scheduled task) for the AI worker.</li>
+      <li><strong>AI API keys</strong> - a Claude (Anthropic) key for text and an OpenAI key for images.</li>
+      <li><strong>File write permissions</strong> on the <code>images/</code> and <code>logs/</code>
+          directories.</li>
+    </ul>
+    <div class="callout">
+      <strong>Note:</strong> For local development, <strong>XAMPP</strong> or <strong>Laragon</strong>
+      work well out of the box - both include MySQL and phpMyAdmin pre-installed. The AI worker can be
+      triggered with Windows Task Scheduler instead of cron.
+    </div>
+
+    <h3 id="s4-2">4.2 Setting Up from GitHub</h3>
+    <p>
+      The project is hosted on GitHub at
+      <a href="https://github.com/eprael/cyoa_ai" target="_blank">github.com/eprael/cyoa_ai</a>.
+      Cloning is the easiest way to install and to pull future updates.
+    </p>
+    <ol>
+      <li>From your web server's document root (e.g. <code>htdocs/</code> for XAMPP), clone the
+          repository:
+          <br><code>git clone https://github.com/eprael/cyoa_ai.git</code>
+          <br>(or use the green <strong>Code &rarr; Download ZIP</strong> button on GitHub and extract it
+          there if you'd rather not use git).</li>
+      <li>Create a MySQL database and import the schema
+          (<code>docs/architecture/db/cyoa_ai_db_schema.sql</code>) to create all the tables.</li>
+      <li>Copy <code>config.sample.php</code> to <code>config.php</code> and fill in your settings
+          (see 4.3 below). <code>config.php</code> is intentionally kept out of the repository, so your
+          credentials are never committed and a later <code>git pull</code> won't overwrite them.</li>
+      <li>Make sure <code>images/</code> and <code>cron/logs/</code> are writable by the web server.</li>
+      <li>Open the app in your browser and register the first account; set it as admin (via
+          <code>MAIN_ADMIN</code> in <code>config.php</code>, or by flagging the row in the database).</li>
+      <li>In the admin Site Settings, enter the AI API keys and pick the models.</li>
+      <li>Schedule the AI worker (see 4.4) so background jobs are processed.</li>
+    </ol>
+    <p>
+      To update an existing install later, run <code>git pull</code> in the project folder - your
+      <code>config.php</code> and generated images stay untouched.
+    </p>
+
+    <h3 id="s4-3">4.3 Important Configuration</h3>
+    <p>Fixed settings live in <code>config.php</code>; runtime AI settings live in the admin panel:</p>
+    <table>
+      <tr><th>Setting</th><th>What It Does</th></tr>
+      <tr><td><code>DB_HOST</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_NAME</code></td><td>MySQL connection credentials</td></tr>
+      <tr><td><code>MAIN_ADMIN</code></td><td>Email of the protected super-admin (cannot be demoted or deleted)</td></tr>
+      <tr><td>SMTP settings</td><td>Gmail address and app password for sending email via PHPMailer</td></tr>
+      <tr><td><code>AI_IMAGE_PRICING</code>, Claude rate constants</td><td>Cost reference data used to calculate per-job AI cost</td></tr>
+      <tr><td>Admin → Site Settings</td><td>AI models, quality, job limits, API keys, gallery sizes</td></tr>
+    </table>
+
+    <h3 id="s4-4">4.4 Scheduling the AI Worker (Cron)</h3>
+    <p>
+      The AI features depend on the background dispatcher being run regularly. On a Linux host, a cron
+      entry runs <code>cron/ai_dispatcher.php</code> on the PHP CLI (typically once a minute); on a
+      local Windows machine, the same script is scheduled with Task Scheduler. Each run claims any
+      pending jobs, processes them, and exits - so nothing is left running between invocations.
+    </p>
+    <a class="toc-back" href="#toc"><i class="fa-solid fa-list"></i> Table of Contents</a>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 5 - DEVELOPMENT REFLECTIONS
+  ══════════════════════════════════════════ -->
+  <section class="section" id="s5">
+    <h2 class="section-title">5. Development Reflections</h2>
+
+    <h3 id="s5-1">5.1 AI-Assisted Development</h3>
+    <p>
+      Like the original project, this upgrade was built almost entirely with the help of an AI coding
+      assistant - <strong>Claude Code</strong> - from planning through implementation and on to writing
+      this report. The workflow was less about typing every line and more about describing what was
+      needed, reviewing the generated code, testing it, and adjusting.
+    </p>
+    <p>
+      Getting good results took some research and trial and error. Three pieces of setup made the biggest
+      difference:
+    </p>
+    <ul>
+      <li><strong>A project rule book.</strong> A file called <code>CLAUDE.md</code> at the top of the
+          project tells the assistant the tech stack, where things live, and the coding conventions
+          (for example, "keep the PHP procedural" and "always use prepared statements"). It reads this
+          at the start of every session, so the AI's code matches the rest of the codebase.</li>
+      <li><strong>Permissions.</strong> Giving the assistant the freedom to do what it needs within your project folder
+        as well as giving it access to various commandline tools for mySql, bash, curl, and others
+        allows the assistant to move around, check things, test things, cross-reference things
+        all without my constant need for confirmation.
+          </li>
+      <li><strong>Extra Tools</strong> This is probably the most important lesson I learned of all.  The biggest time saver ever, and the best quality work you can get from an assistant,
+          is when you give it the ability to test and check its own work.
+          When the assitant writes code, can run it, can see it in the browser, can see the source and console logs, and can run queries against the database,
+          it's much better at catching its own mistakes and fixing them on the spot.  It doesn't even consider the task completed until it's satisfied that the code is working as intended.
+          Two kinds of tools have to be enabled for this:
+        <ul>
+          <li><strong>Chrome-DevTools</strong> This is a browser control the assistant can use to
+              <strong>navigate</strong> to any page in the app, take a <strong>screenshot</strong> to
+              see exactly how it rendered, and read the browser <strong>console logs</strong> to catch
+              JavaScript errors - the same things a person would do manually.</li>
+          <li><strong>MySQL CLI</strong> This command line tool gives the assistant full access to, and control
+            of the database. It can run queries to <strong>read</strong> the database and confirm a change
+            had actually landed, and <strong>update</strong> records and tables directly when new features
+            require a schema change or data setup.</li>
+        </ul>
+        Together these let it verify its own work end to end - make a change, load the page, check the
+        result, inspect the data - and correct mistakes immediately rather than leaving them to surface
+        later.</li>
+    </ul>
+
+    <h3 id="s5-2">5.2 Vibe Coding vs Implementation Plans</h3>
+<p>
+      There are two ways to use coding assistants - one where an AI makes changes after each prompt
+      ('Vibe Coding') and one where the AI helps you create a detailed design document first,
+      before any code is written.
+</p>
+<p>
+
+      For this project I used both - planning documents for the big stuff and vibe coding for the little things.
+      When creating a planning document, the AI is like a real collaborator - communicating ideas back and forth,
+      helping you organize your ideas, asking you about things you might not have thought of yet.
+      When the AI can see the bigger picture it can make better decisions about the implementation.
+      It can catch problems before they happen and the code ends up being better organized.
+      Most of my time was spent reviewing and revising these plans. Once the plan was good,
+      the AI worked through each step without stopping.
+</p>
+  <p> For this project I went through <strong>seven implementation plans</strong> (see <a target="_blank" href="../appendix/implementation-plan.html">Appendix A</a>).
+      Each plan took the application to a new level.
+
+    </p>
+
+
+
+    <h3 id="s5-3">5.3 Take-Aways and Lessons Learned</h3>
+    <ul>
+      <li><strong>Vibe-Code the little things, Plan-Mode the big things, </strong> Writing a plan before a major
+          feature caught problems early and gave the AI something concrete to follow;
+          for small tweaks like css tuning, vibe-coding works great.
+          </li>
+      <li><strong>Bridge session context with progress logs</strong>
+
+      The project was built across many separate sessions, so the AI was instructed to maintain
+      a progress log.  With each new session the <code>CLAUDE.md</code> file would be consulted
+      and point to the progress log and the last completed task.
+
+        </li>
+      <li><strong>Give the AI the ability to check its own work.</strong> When opening up permissions, creating a rule file,
+        and giving the AI the ability to access the browser and database, there are WAY LESS interactions required on my part.
+        I didn't have to approve each bash command. The AI could verify its changes, see the results,
+        run its own sql scripts, and fix any issues immediately.  This was huge.</li>
+
+        <li><strong>If you can imagine it, you can build it.</strong>
+          Anything we can imagine is literally just a prompt away (or set of prompts).
+          The real skill isn't in coding anymore, but in how well you can break down your ideas to the AI.</li>
+
+        <li><strong>Knowing the fundamentals still helps</strong>
+          Even though a non-technical person could get most wishlist items implemented, knowing how databases,
+          web pages, and files interact can shape how design documents are created and the AI's work is reviewed.
+        </li>
+
+        <li><strong>Treat the AI like a collaborator.</strong>
+          The best results came from a back-and-forth - asking the AI to explain its thinking,
+          pushing back if your ideas differ, and iterating on an idea.
+          </li>
+    </ul>
+    <a class="toc-back" href="#toc"><i class="fa-solid fa-list"></i> Table of Contents</a>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 6 - FUTURE ENHANCEMENTS
+  ══════════════════════════════════════════ -->
+  <section class="section" id="s6">
+    <h2 class="section-title">6. Future Enhancements</h2>
+    <p>
+      The comments, ratings, and AI features that were listed as "future ideas" in the original report
+      are now built. Looking ahead from here, the next round of improvements could include:
+    </p>
+
+    <h3>A Site-Wide Image Gallery</h3>
+    <p>
+      The per-story Gallery View could grow into a global gallery that shows the best AI-generated
+      artwork across every story.  The open questions are navigation and the sheer volume of images.
+      One could add likes to individual images and create a feed that displays images by most popular.
+    </p>
+
+    <h3>Reader Accounts &amp; Recommendations</h3>
+    <p>
+      With ratings, favourites, and view history already tracked, the app could recommend stories a
+      reader is likely to enjoy, and give authors simple analytics on how their stories are being
+      played.
+    </p>
+
+    <h3>Collaborative Authoring</h3>
+    <p>
+      Allowing more than one author to work on the same story - with the existing draft/publish system
+      extended to handle shared editing - would turn CYOA Maker into a tool for group projects.
+    </p>
+
+    <h3>Create a Story From a Movie</h3>
+    <p>
+      Instead of typing a premise by hand, a user could pick a movie from a film database (such as
+      IMDb) and let the AI build a story from its metadata. The title, plot summary (used as the
+      premise), target audience, and genre would all be pulled from the movie's record, giving the AI a
+      rich, ready-made starting point for a branching adventure.
+    </p>
+
+    <h3>Friends Lists &amp; Private Sharing</h3>
+    <p>
+      Sharing is currently all-or-nothing - a story is either public or a private draft. Adding friends
+      lists and groups would let an author publish a story so that it is visible only within a chosen
+      circle, supporting private sharing alongside the existing public gallery.
+    </p>
+
+    <h3>Deeper AI Editing</h3>
+    <p>
+      Beyond generating new content, the AI could help <em>revise</em> existing stories - rewriting a
+      scene in a different tone, suggesting a missing branch to fix a dead end, or proposing alternate
+      endings.
+    </p>
+
+    <h3>Single-Provider AI (OpenAI for Stories Too)</h3>
+    <p>
+      Stories and scenes are currently written by Claude while images come from OpenAI, so a user
+      bringing their own keys needs two of them. Because OpenAI can generate <em>both</em> text and
+      images, switching story generation to OpenAI would let a single API key cover everything - a big
+      convenience for end-users and a simpler cost calculation, with less provider-specific code to
+      maintain. The trade-off worth testing first is narrative quality: it would be worth comparing the
+      stories each provider produces before deciding whether keeping multiple-provider support is
+      worthwhile.
+    </p>
+
+    <a class="toc-back" href="#toc"><i class="fa-solid fa-list"></i> Table of Contents</a>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       SECTION 7 - ACKNOWLEDGEMENTS
+  ══════════════════════════════════════════ -->
+  <section class="section" id="s7">
+    <h2 class="section-title">7. Acknowledgements</h2>
+    <p>
+      This project was completed as part of the Grade 12A Web Technologies course, 2025–2026.
+    </p>
+    <ul>
+      <li><strong>Claude Code (Anthropic)</strong> - used as an AI coding assistant for the majority of
+          development and for producing this report.</li>
+      <li><strong>Claude API (Anthropic)</strong> - powers in-app scene and full-story generation.</li>
+      <li><strong>OpenAI Images</strong> - powers in-app image generation.</li>
+      <li><strong><a href="https://notebooklm.google.com/" target="_blank">NotebookLM (Google)</a></strong> - used to create the explainer video and the prompt-assembly infographic in section 2.6.</li>
+      <li><strong><a href="https://github.com/PHPMailer/PHPMailer" target="_blank">PHPMailer</a></strong> - open-source library used for sending emails via Gmail SMTP.</li>
+      <li><strong><a href="https://www.phpmyadmin.net/" target="_blank">phpMyAdmin</a></strong> - browser-based MySQL admin tool used during development and deployment.</li>
+      <li><strong>Google Fonts</strong> - the Inter typeface used throughout this report, plus the
+          curated play-font allow-list in the app.</li>
+      <li><strong>Font Awesome</strong> - icon library used in this documentation.</li>
+      <li><strong>My Dad!</strong> - who helped me a lot with the prompts when the AI needed more info
+          or wasn't getting it.</li>
+    </ul>
+    <a class="toc-back" href="#toc"><i class="fa-solid fa-list"></i> Table of Contents</a>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer style="text-align:center; padding: 40px 0 20px; color:#888; font-size:0.85em; font-family: Arial, sans-serif;">
+    CYOA Maker With AI - Grade 12A Web Technologies &nbsp;|&nbsp; Term 3 Project · 2025–2026
+  </footer>
+
+</div>
+
+<div id="lightbox" onclick="this.classList.remove('open')">
+  <img id="lightbox-img" src="" alt="" onclick="event.stopPropagation()">
+</div>
+
+<script>
+  document.querySelectorAll('.screenshot img').forEach(function(img) {
+    img.addEventListener('click', function() {
+      document.getElementById('lightbox-img').src = this.src;
+      document.getElementById('lightbox-img').alt = this.alt;
+      document.getElementById('lightbox').classList.add('open');
+    });
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
+  });
+
+  /* Right-aligned "back to top" up-arrow on each section + subsection heading */
+  document.querySelectorAll('h2.section-title, .section h3').forEach(function (h) {
+    var a = document.createElement('a');
+    a.href = '#toc';
+    a.className = 'uptop';
+    a.title = 'Back to top';
+    a.setAttribute('aria-label', 'Back to top');
+    a.innerHTML = '&uarr;';
+    h.appendChild(a);
+  });
+</script>
+<script src="../header.js"></script>
+</body>
+</html>
