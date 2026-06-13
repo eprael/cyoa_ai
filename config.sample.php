@@ -41,6 +41,17 @@ define('MAIN_ADMIN', 'admin@example.com');
 // Full list: https://www.php.net/manual/en/timezones.php
 define('APP_TIMEZONE', 'America/Vancouver');
 
+// Set to false to disable all file logging (dispatcher, worker, retry, guardrails, maintenance).
+// Console/stdout output (echo) is unaffected — only file_put_contents writes are suppressed.
+define('LOG_FILE_ENABLED', false);
+
+// When LOG_FILE_ENABLED is false, the dispatcher has no log file to use as a
+// "maintenance already ran today" guard, so it falls back to this time window:
+// maintenance is only launched when the current time falls within the range.
+// Format: 'HH:MM - HH:MM' (24-hour clock). Cross-midnight windows are supported
+// (e.g. '23:30 - 00:30').
+define('MAINTENANCE_WINDOW', '02:00 - 02:05');
+
 // ── AI cost reference data (not secret; tune to current provider pricing) ─────
 // Per-image output cost at 1024×1024 (source: OpenAI pricing page).
 define('AI_IMAGE_PRICING', [

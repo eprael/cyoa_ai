@@ -45,7 +45,7 @@ date_default_timezone_set(APP_TIMEZONE);
 function maint_log(string $msg): void {
     global $logFile;
     $line = date('Y-m-d H:i:s') . '  ' . $msg . PHP_EOL;
-    file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+    if (LOG_FILE_ENABLED) file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
     echo $line;
 }
 

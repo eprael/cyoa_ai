@@ -19,7 +19,7 @@ function api_retry_log(string $msg): void {
     }
     $logFile = $logDir . '/api_retry_' . date('Ymd') . '.log';
     $line    = date('Y-m-d H:i:s') . ' ' . $msg . "\n";
-    file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+    if (LOG_FILE_ENABLED) file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
 
     if (function_exists('worker_log')) {
         worker_log('[api-retry] ' . $msg);
@@ -38,7 +38,7 @@ function log_guardrail_breach(int $jobId, string $topic): void {
     }
     $logFile = $logDir . '/guardrails_' . date('Ymd') . '.log';
     $line    = date('Y-m-d H:i:s') . " job_id={$jobId} breached=\"{$topic}\"\n";
-    file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
+    if (LOG_FILE_ENABLED) file_put_contents($logFile, $line, FILE_APPEND | LOCK_EX);
 
     if (function_exists('worker_log')) {
         worker_log("[guardrail] breach job_id={$jobId} topic=\"{$topic}\"");

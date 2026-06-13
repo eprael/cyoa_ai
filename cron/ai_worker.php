@@ -33,7 +33,7 @@ $logFile = $logDir . '/job_' . $jobID . '.log';
 function worker_log(string $msg): void {
     global $logFile;
     $line = date('Y-m-d H:i:s') . ' ' . $msg . PHP_EOL;
-    file_put_contents($logFile, $line, FILE_APPEND);
+    if (LOG_FILE_ENABLED) file_put_contents($logFile, $line, FILE_APPEND);
     echo $line;
 }
 

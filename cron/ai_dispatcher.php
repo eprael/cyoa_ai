@@ -35,8 +35,19 @@ if (!is_dir(__DIR__ . '/logs')) {
 function dlog(string $msg): void {
     global $dispatcherLog;
     $line = date('Y-m-d H:i:s') . '  ' . $msg . PHP_EOL;
-    file_put_contents($dispatcherLog, $line, FILE_APPEND);
+    if (LOG_FILE_ENABLED) file_put_contents($dispatcherLog, $line, FILE_APPEND);
     echo $line;
+}
+
+function in_maintenance_window(): bool {
+    if (!preg_match('/(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})/', MAINTENANCE_WINDOW, $m)) return false;
+    $now   = strtotime(date('H:i'));
+    $start = strtotime($m[1]);
+    $end   = strtotime($m[2]);
+    // Cross-midnight window (e.g. '23:30 - 00:30'): in range if now >= start OR now < end.
+    return $start > $end
+        ? ($now >= $start || $now < $end)
+        : ($now >= $start && $now < $end);
 }
 
 // Check if AI is enabled
@@ -63,24 +74,33 @@ $logDir       = __DIR__ . '/logs';
 
 // Run daily maintenance once per calendar day (Phase 30) — once per invocation,
 // before the dispatch passes so cleanup still runs on idle days. Launched
-// asynchronously so a long cleanup never blocks dispatch. The per-day guard is
-// the existence of today's maintenance log; maintenance.php has its own <1h age
-// guard to absorb the race if the dispatcher fires twice before that log is written.
-$maintenanceLog = __DIR__ . '/logs/maintenance_' . date('Ymd') . '.log';
-if (!file_exists($maintenanceLog)) {
-    $mcmd = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__DIR__ . '/maintenance.php');
+// asynchronously so a long cleanup never blocks dispatch.
+//
+// Guard mode depends on LOG_FILE_ENABLED:
+//   true  — the per-day guard is the existence of today's maintenance log;
+//           maintenance.php has its own <1h age guard to absorb the race if
+//           the dispatcher fires twice before that log is written.
+//   false — no log file is produced, so the guard falls back to the
+//           MAINTENANCE_WINDOW time range (config.php); maintenance runs on
+//           each dispatcher invocation that lands inside that window.
+$maintenanceLog      = __DIR__ . '/logs/maintenance_' . date('Ymd') . '.log';
+$shouldRunMaintenance = LOG_FILE_ENABLED ? !file_exists($maintenanceLog) : in_maintenance_window();
+
+if ($shouldRunMaintenance) {
+    $mcmd       = escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__DIR__ . '/maintenance.php');
+    $outputDest = LOG_FILE_ENABLED ? $maintenanceLog : (PHP_OS_FAMILY === 'Windows' ? 'NUL' : '/dev/null');
     dlog("Launching daily maintenance — cmd: $mcmd");
     if (PHP_OS_FAMILY === 'Windows') {
         $mproc = proc_open($mcmd, [
             0 => ['file', 'NUL', 'r'],
-            1 => ['file', $maintenanceLog, 'a'],
-            2 => ['file', $maintenanceLog, 'a'],
+            1 => ['file', $outputDest, 'a'],
+            2 => ['file', $outputDest, 'a'],
         ], $mpipes);
         dlog($mproc === false
             ? "  ERROR: proc_open returned false for maintenance"
             : "  maintenance proc_open OK — PID: " . (proc_get_status($mproc)['pid'] ?? 'unknown'));
     } else {
-        exec("$mcmd > " . escapeshellarg($maintenanceLog) . " 2>&1 &");
+        exec("$mcmd > " . escapeshellarg($outputDest) . " 2>&1 &");
         dlog("  maintenance exec launched");
     }
 }
